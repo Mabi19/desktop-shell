@@ -1,0 +1,50 @@
+@use "theme";
+
+@function gtk-alpha($color, $opacity) {
+    @return #{"alpha(#{$color}, #{$opacity})"}
+}
+
+.bar {
+    font-family: "IBM Plex Sans", "Font Awesome 6 Free Solid", sans-serif;
+
+    &>centerbox {
+        background-color: gtk-alpha(theme.$bg_color, 0.85);
+
+        border-radius: 2em;
+        margin: 10px 10px 0px 10px;
+        padding: 4px 6px;
+    }
+}
+
+@mixin badge {
+    padding: 0 0.5em;
+    border-radius: 1em;
+    font-weight: normal;
+}
+
+@mixin circular {
+    padding: 0px 4px;
+    border-radius: 50%;
+}
+
+.usage-badge {
+    @include badge;
+}
+
+#time-and-notifications {
+    @include badge;
+    background-color: white;
+    color: black;
+}
+
+#time-and-notifications:hover {
+    background-color: whitesmoke;
+}
+
+#time-and-notifications:active {
+    background-color: #cfcfcc;
+}
+
+#power-button {
+    @include circular;
+}

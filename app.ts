@@ -1,6 +1,6 @@
-import { App } from "astal"
+import { App } from "astal/gtk3"
+import { Bar } from "./bar/bar"
 import style from "./style.scss"
-import Bar from "./widget/Bar"
 
 App.start({
     css: style,
