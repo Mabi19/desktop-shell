@@ -1,5 +1,5 @@
 import { Variable } from "astal";
-import { App, Astal, Gtk } from "astal/gtk3";
+import { App, Astal } from "astal/gtk3";
 import { LeftSection } from "./left-section";
 import { RightSection } from "./right-section";
 

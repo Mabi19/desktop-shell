@@ -1,4 +1,4 @@
-import { ConstructProps, Gtk, Widget, astalify } from "astal/gtk3";
+import { ConstructProps, Gtk, astalify } from "astal/gtk3";
 import GObject from "gi://GObject";
 
 export class Separator extends astalify(Gtk.Separator) {
