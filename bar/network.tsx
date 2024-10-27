@@ -113,39 +113,43 @@ export const NetworkIndicator = () => {
     // although if there is only one type of network interface, stuff might break here
     // show usage only for primary network interface
 
-    return primary.as((type) => (
-        //! This is a hack to allow getting the stats reactively while also allowing
+    return (
+        //! This is a hack to allow getting the stats reactively
         <box>
-            {bind(network[type], "device").as((device) => (
+            {primary.as((type) => (
                 <box>
-                    {bind(device, "interface").as((iface) => (
-                        <button
-                            className="usage-badge"
-                            css={bind(networkStats).as(
-                                (stats) => `
+                    {bind(network[type], "device").as((device) => (
+                        <box>
+                            {bind(device, "interface").as((iface) => (
+                                <button
+                                    className="usage-badge"
+                                    css={bind(networkStats).as(
+                                        (stats) => `
                                 background-color: ${mixUsageBadgeColor(
                                     getTotalNetworkThroughput(stats[iface]) / MAX_NETWORK_USAGE
                                 )};
                             `
-                            )}
-                        >
-                            {type == "wired" ? (
-                                <box spacing={8}>
-                                    <NetworkIndicatorWired iface={iface} />
-                                    <Separator />
-                                    <NetworkIndicatorWifi />
-                                </box>
-                            ) : (
-                                <box spacing={8}>
-                                    <NetworkIndicatorWifi iface={iface} />
-                                    <Separator />
-                                    <NetworkIndicatorWired />
-                                </box>
-                            )}
-                        </button>
+                                    )}
+                                >
+                                    {type == "wired" ? (
+                                        <box spacing={8}>
+                                            <NetworkIndicatorWired iface={iface} />
+                                            <Separator />
+                                            <NetworkIndicatorWifi />
+                                        </box>
+                                    ) : (
+                                        <box spacing={8}>
+                                            <NetworkIndicatorWifi iface={iface} />
+                                            <Separator />
+                                            <NetworkIndicatorWired />
+                                        </box>
+                                    )}
+                                </button>
+                            ))}
+                        </box>
                     ))}
                 </box>
             ))}
         </box>
-    ));
+    );
 };
