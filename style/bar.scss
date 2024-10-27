@@ -31,6 +31,11 @@
     @include badge;
 }
 
+.tray-item {
+    background: transparent;
+    padding: 0;
+}
+
 #time-and-notifications {
     @include badge;
     background-color: white;
