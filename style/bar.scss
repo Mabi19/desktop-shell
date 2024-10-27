@@ -31,6 +31,30 @@
     @include badge;
 }
 
+#workspaces {
+    background-color: theme.$view-bg-color;
+    padding: 2px 12px;
+    border-radius: 1em;
+}
+
+.workspace {
+    border-radius: 1em;
+    padding: 0 2px;
+    min-height: 0;
+
+    background-color: theme.$inactive_color;
+    font-size: small;
+
+    &.active {
+        padding: 0 8px;
+        background-color: theme.$active_color;
+    }
+
+    &:hover {
+        background-color: theme.$active_color;
+    }
+}
+
 .tray-item {
     background: transparent;
     padding: 0;

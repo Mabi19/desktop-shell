@@ -2,6 +2,7 @@ import { Variable } from "astal";
 import { App, Astal } from "astal/gtk3";
 import { LeftSection } from "./left-section";
 import { RightSection } from "./right-section";
+import { Workspaces } from "./workspaces";
 
 const time = Variable<string>("").poll(1000, "date");
 
@@ -15,7 +16,7 @@ export const Bar = (monitor: number) => (
     >
         <centerbox>
             <LeftSection monitor={monitor} />
-            <box />
+            <Workspaces monitor={monitor} />
             <RightSection monitor={monitor} />
         </centerbox>
     </window>
