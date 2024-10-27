@@ -17,7 +17,7 @@ const powerMenu = createMenu([
     {
         label: "Shutdown",
         handler: () => {
-            exec("systemctl shutdown");
+            exec("systemctl poweroff");
         },
     },
     {
