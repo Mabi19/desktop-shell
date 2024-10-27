@@ -1,0 +1,10 @@
+@use "theme";
+
+.notification-center {
+    & > box {
+        background-color: theme.$bg_color;
+        border-radius: 10px;
+        margin: 10px;
+        padding: 8px;
+    }
+}
