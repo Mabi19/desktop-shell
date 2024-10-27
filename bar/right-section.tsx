@@ -3,6 +3,7 @@ import { App, Gdk, Gtk } from "astal/gtk3";
 import GLib from "gi://GLib?version=2.0";
 import { createMenu } from "../widgets/menu";
 import { Separator } from "../widgets/separator";
+import { AudioIndicator } from "./audio";
 import { SystemTray } from "./tray";
 
 const time = Variable(new GLib.DateTime()).poll(1000, () => new GLib.DateTime());
@@ -55,6 +56,7 @@ const TimeAndNotifications = ({ monitor }: { monitor: number }) => (
 export const RightSection = ({ monitor }: { monitor: number }) => (
     <box halign={Gtk.Align.END} spacing={8}>
         <SystemTray />
+        <AudioIndicator />
         <TimeAndNotifications monitor={monitor} />
         <PowerButton />
     </box>
