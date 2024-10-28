@@ -1,4 +1,4 @@
-import { bind, execAsync, Variable } from "astal";
+import { bind } from "astal";
 import AstalNetwork from "gi://AstalNetwork";
 import { networkStats } from "../utils/system-stats";
 import { mixUsageBadgeColor } from "../utils/usage-badge";
@@ -123,6 +123,7 @@ export const NetworkIndicator = () => {
                             {bind(device, "interface").as((iface) => (
                                 <button
                                     className="usage-badge"
+                                    name="network-badge"
                                     css={bind(networkStats).as(
                                         (stats) => `
                                 background-color: ${mixUsageBadgeColor(

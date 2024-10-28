@@ -1,4 +1,4 @@
-import { Variable, readFileAsync } from "astal";
+import { Variable } from "astal";
 import { Gdk, Gtk } from "astal/gtk3";
 import { cpuUsage, memoryAvailable, memoryTotal, memoryUsage } from "../utils/system-stats";
 import { mixUsageBadgeColor } from "../utils/usage-badge";
@@ -30,6 +30,7 @@ const MemoryIndicator = () => {
     );
 };
 
+// TODO: rework to use the Hyprland interface once 0.45 comes out
 const CapsIndicator = () => {
     const capsLockActive = Variable(true);
 
@@ -52,7 +53,7 @@ const CapsIndicator = () => {
     return label;
 };
 
-export const LeftSection = ({ monitor }: { monitor: number }) => (
+export const LeftSection = () => (
     <box halign={Gtk.Align.START} spacing={8}>
         <CpuIndicator />
         <MemoryIndicator />

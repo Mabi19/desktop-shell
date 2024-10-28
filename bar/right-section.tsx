@@ -40,9 +40,10 @@ const PowerButton = () => (
     </button>
 );
 
-const TimeAndNotifications = ({ monitor }: { monitor: number }) => (
+const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
     <button
         name="time-and-notifications"
+        // TODO: rework this to only use 1 notification center window
         onClick={() => App.toggle_window(`notification-center${monitor}`)}
     >
         <box spacing={6}>
@@ -53,7 +54,7 @@ const TimeAndNotifications = ({ monitor }: { monitor: number }) => (
     </button>
 );
 
-export const RightSection = ({ monitor }: { monitor: number }) => (
+export const RightSection = ({ monitor }: { monitor: Gdk.Monitor }) => (
     <box halign={Gtk.Align.END} spacing={8}>
         <SystemTray />
         <AudioIndicator />

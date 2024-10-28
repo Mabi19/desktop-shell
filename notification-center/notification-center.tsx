@@ -1,7 +1,7 @@
-import { App, Astal } from "astal/gtk3";
+import { App, Astal, Gdk } from "astal/gtk3";
 import { Calendar } from "../widgets/calendar";
 
-export const NotificationCenter = (monitor: number) => {
+export const NotificationCenter = (monitor: Gdk.Monitor) => {
     return (
         <window
             name={`notification-center${monitor}`}
@@ -9,7 +9,7 @@ export const NotificationCenter = (monitor: number) => {
             className="notification-center"
             anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.BOTTOM | Astal.WindowAnchor.RIGHT}
             layer={Astal.Layer.TOP}
-            monitor={monitor}
+            gdkmonitor={monitor}
             setup={(self) => App.add_window(self)}
             visible={false}
         >

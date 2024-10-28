@@ -34,8 +34,15 @@ export const WorkspaceButton = ({
     );
 };
 
-export const Workspaces = ({ monitor }: { monitor: number }) => {
-    const activeWorkspace = Variable(hyprland.get_monitor(monitor).active_workspace.id);
+export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
+    // TODO: check for reshuffling if it happens again
+    // TODO(gtk4): Use Gdk.Monitor.connector instead
+    const hyprlandMonitor = hyprland.get_monitors().find((mon) => mon.model == gdkmonitor.model);
+    if (!hyprlandMonitor) {
+        throw new Error("Couldn't find matching Hyprland monitor");
+    }
+
+    const activeWorkspace = Variable(hyprlandMonitor.active_workspace.id);
 
     // TODO: scroll on workspaces widget to switch, drag'n'drop between monitors (?)
 
@@ -68,13 +75,13 @@ export const Workspaces = ({ monitor }: { monitor: number }) => {
         if (event == "workspacev2") {
             const [idString, _name] = args.split(",");
             const workspace = hyprland.get_workspace(parseInt(idString));
-            if (workspace.monitor.id == monitor) {
+            if (workspace.monitor.id == hyprlandMonitor.id) {
                 activeWorkspace.set(workspace.id);
             }
         } else if (event == "createworkspacev2") {
             const [idString, _name] = args.split(",");
             const workspace = hyprland.get_workspace(parseInt(idString));
-            if (workspace.monitor.id == monitor) {
+            if (workspace.monitor.id == hyprlandMonitor.id) {
                 addWorkspaceButton(workspace);
             }
         } else if (event == "destroyworkspacev2") {
@@ -86,7 +93,7 @@ export const Workspaces = ({ monitor }: { monitor: number }) => {
             const [workspaceIdString, _workspaceName, monitorName] = args.split(",");
             const monitorId = hyprland.get_monitor_by_name(monitorName)?.id;
 
-            if (monitor == monitorId) {
+            if (hyprlandMonitor.id == monitorId) {
                 // moved to here, add
                 const ws = hyprland.get_workspace(parseInt(workspaceIdString));
                 addWorkspaceButton(ws);
