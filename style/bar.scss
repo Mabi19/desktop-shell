@@ -31,6 +31,12 @@
     @include badge;
 }
 
+#network-badge {
+    separator {
+        background-color: #ddd;
+    }
+}
+
 #workspaces {
     background-color: theme.$view-bg-color;
     padding: 2px 12px;
