@@ -1,5 +1,5 @@
 import { bind } from "astal";
-import { Gdk } from "astal/gtk3";
+import { Astal, Gdk } from "astal/gtk3";
 import AstalTray from "gi://AstalTray";
 
 const tray = AstalTray.get_default();
@@ -17,14 +17,20 @@ export const SystemTray = () => (
                             className="tray-item"
                             tooltipText={bind(item, "tooltip_markup")}
                             onDestroy={() => menu?.destroy()}
-                            onClick={(self) =>
-                                menu?.popup_at_widget(
-                                    self,
-                                    Gdk.Gravity.SOUTH,
-                                    Gdk.Gravity.NORTH,
-                                    null
-                                )
-                            }
+                            onClick={(self, event) => {
+                                if (event.button == Astal.MouseButton.PRIMARY) {
+                                    item.activate(event.x, event.y);
+                                } else if (event.button == Astal.MouseButton.MIDDLE) {
+                                    item.secondary_activate(event.x, event.y);
+                                } else if (event.button == Astal.MouseButton.SECONDARY) {
+                                    menu?.popup_at_widget(
+                                        self,
+                                        Gdk.Gravity.SOUTH,
+                                        Gdk.Gravity.NORTH,
+                                        null
+                                    );
+                                }
+                            }}
                         >
                             <icon gIcon={bind(item, "gicon")} />
                         </button>
