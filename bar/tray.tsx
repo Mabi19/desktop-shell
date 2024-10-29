@@ -26,7 +26,7 @@ export const SystemTray = () => (
                                 )
                             }
                         >
-                            <icon g_icon={item.gicon} />
+                            <icon gIcon={bind(item, "gicon")} />
                         </button>
                     );
                 })
