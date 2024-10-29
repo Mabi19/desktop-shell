@@ -1,5 +1,5 @@
 import { bind, Binding, Variable } from "astal";
-import { Astal, Gdk, Widget } from "astal/gtk3";
+import { Astal, Gdk, Gtk, Widget } from "astal/gtk3";
 import AstalHyprland from "gi://AstalHyprland";
 
 const hyprland = AstalHyprland.get_default();
@@ -7,6 +7,13 @@ hyprland.connect("urgent", (_h, client) => {
     // TODO
     console.log(`client ${client.title} became urgent!`);
 });
+
+const DRAG_DATA = {
+    modifier: Gdk.ModifierType.BUTTON1_MASK,
+    entries: [Gtk.TargetEntry.new("x-mabi-desktop-shell/workspace", 0, 0)],
+    action: Gdk.DragAction.COPY,
+    atom: Gdk.atom_intern("x-mabi-desktop-shell/workspace", false),
+};
 
 export const WorkspaceButton = ({
     active,
@@ -26,8 +33,14 @@ export const WorkspaceButton = ({
             className={active.as((activeId) =>
                 activeId == workspace.id ? "workspace active" : "workspace"
             )}
-            onClick={clickHandler}
+            onClickRelease={clickHandler}
             name={`workspace-${workspace.id}`}
+            setup={(self) => {
+                self.drag_source_set(DRAG_DATA.modifier, DRAG_DATA.entries, DRAG_DATA.action);
+            }}
+            onDragDataGet={(_self, _ctx: Gdk.DragContext, data: Gtk.SelectionData) => {
+                data.set(DRAG_DATA.atom, 8, new Uint8Array([workspace.id]));
+            }}
         >
             {workspace.id}
         </button>
@@ -44,10 +57,36 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
 
     const activeWorkspace = Variable(hyprlandMonitor.active_workspace.id);
 
-    // TODO: drag'n'drop between monitors (?)
-
     const buttons = (
-        <box name="workspaces" spacing={4} onDestroy={() => activeWorkspace.drop()}>
+        <box
+            name="workspaces"
+            spacing={4}
+            onDestroy={() => activeWorkspace.drop()}
+            setup={(self) => {
+                self.drag_dest_set(Gtk.DestDefaults.ALL, DRAG_DATA.entries, DRAG_DATA.action);
+            }}
+            onDragDataReceived={(
+                self,
+                _ctx: Gdk.DragContext,
+                _x: number,
+                _y: number,
+                data: Gtk.SelectionData
+            ) => {
+                if (data.get_data_type() == DRAG_DATA.atom) {
+                    const movedWorkspaceId = data.get_data()[0];
+                    // do not move if on the same monitor
+                    const isOnDifferentMonitor = !buttons
+                        .get_children()
+                        .find((btn) => btn.name == `workspace-${movedWorkspaceId}`);
+                    if (isOnDifferentMonitor) {
+                        hyprland.dispatch(
+                            "moveworkspacetomonitor",
+                            `${movedWorkspaceId} ${hyprlandMonitor.id}`
+                        );
+                    }
+                }
+            }}
+        >
             {createWorkspaceButtons()}
         </box>
     ) as Widget.Box;
@@ -142,7 +181,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
                 const ws = hyprland.get_workspace(parseInt(workspaceIdString));
                 addWorkspaceButton(ws);
                 // workspacev2 is emitted before this, so manually set the active workspace
-                activeWorkspace.set(ws.id);
+                activeWorkspace.set(hyprlandMonitor.active_workspace.id);
             } else {
                 // possibly moved away from here, remove if present
                 removeWorkspaceButton(workspaceIdString);

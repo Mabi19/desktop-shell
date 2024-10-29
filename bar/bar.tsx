@@ -7,12 +7,14 @@ import { Workspaces } from "./workspaces";
 const time = Variable<string>("").poll(1000, "date");
 
 export const Bar = (monitor: Gdk.Monitor) => (
+    // FIXME: Setting the keymode seems to break inputs sometimes.
     <window
         className="bar"
         gdkmonitor={monitor}
         exclusivity={Astal.Exclusivity.EXCLUSIVE}
         anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT | Astal.WindowAnchor.RIGHT}
         application={App}
+        keymode={Astal.Keymode.ON_DEMAND}
     >
         <centerbox>
             <LeftSection />
