@@ -1,4 +1,7 @@
 export function mixUsageBadgeColor(usagePercent: number) {
+    // clamp
+    usagePercent = Math.max(Math.min(usagePercent, 1), 0);
+    // change curve to emphasize changes at small amounts
     usagePercent = Math.pow(usagePercent, 0.75);
 
     const min = [192, 99, 201];
