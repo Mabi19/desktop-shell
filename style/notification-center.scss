@@ -1,10 +1,32 @@
 @use "theme";
 
-.notification-center {
-    & > box {
-        background-color: theme.$bg_color;
-        border-radius: 10px;
-        margin: 10px;
+
+#notification-popup-area {
+    background-color: transparent;
+    margin: 10px;
+}
+
+.notification {
+    background-color: theme.$bg_color;
+    border-radius: 10px;
+    
+    .content {
         padding: 8px;
     }
+
+    .title {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    .icon {
+        font-size: 2em;
+    }
+}
+
+#notification-center {
+    background-color: theme.$bg_color;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 8px;
 }

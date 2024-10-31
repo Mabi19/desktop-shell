@@ -1,6 +1,7 @@
 import { App } from "astal/gtk3";
 import AstalHyprland from "gi://AstalHyprland";
 import { Bar } from "./bar/bar";
+import { NotificationPopupWindow } from "./notification-center/notification";
 import { NotificationCenter } from "./notification-center/notification-center";
 import style from "./style.scss";
 
@@ -14,5 +15,7 @@ App.start({
             Bar(monitor);
             NotificationCenter(monitor);
         }
+        // this one reacts to the primary monitor
+        NotificationPopupWindow();
     },
 });
