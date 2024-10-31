@@ -14,7 +14,6 @@ export const Bar = (monitor: Gdk.Monitor) => (
         keymode={bind(isDraggingWorkspace).as((dragging) =>
             dragging ? Astal.Keymode.ON_DEMAND : Astal.Keymode.NONE
         )}
-        onKeyPressEvent={() => console.log("key pressed")}
     >
         <centerbox>
             <LeftSection />
