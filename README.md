@@ -1,7 +1,7 @@
 # My Desktop Shell
 
 This is my bar & other assorted widgets that I use on my Linux desktop.
-Not particularly customizable.
+Not particularly customizable; see config.json.example for the available options.
 
 It has some features I think are neat, notably dynamically colored system usage widgets,
 workspace widget scrolling, and workspace drag'n'drop (to move them between monitors).

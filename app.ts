@@ -11,7 +11,6 @@ App.start({
     main() {
         // TODO: react to monitor adds and removes
         for (const monitor of App.get_monitors()) {
-            console.log(monitor.get_display().get_name());
             Bar(monitor);
             NotificationCenter(monitor);
         }
