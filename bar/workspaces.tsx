@@ -5,7 +5,7 @@ import AstalHyprland from "gi://AstalHyprland";
 const hyprland = AstalHyprland.get_default();
 hyprland.connect("urgent", (_h, client) => {
     // TODO
-    console.log(`client ${client.title} became urgent!`);
+    console.log(`client ${client?.title} became urgent!`);
 });
 
 const DRAG_DATA = {
@@ -14,6 +14,8 @@ const DRAG_DATA = {
     action: Gdk.DragAction.COPY,
     atom: Gdk.atom_intern("x-mabi-desktop-shell/workspace", false),
 };
+/** This is used to enable input on the bar when dragging. */
+export const isDraggingWorkspace = Variable(false);
 
 export const WorkspaceButton = ({
     active,
@@ -28,6 +30,7 @@ export const WorkspaceButton = ({
         }
     }
 
+    // TODO: add dragging visuals (lower opacity when dragging, perhaps figure out how the dnd tooltip works)
     return (
         <button
             className={active.as((activeId) =>
@@ -41,14 +44,20 @@ export const WorkspaceButton = ({
             onDragDataGet={(_self, _ctx: Gdk.DragContext, data: Gtk.SelectionData) => {
                 data.set(DRAG_DATA.atom, 8, new Uint8Array([workspace.id]));
             }}
+            onDragBegin={() => {
+                isDraggingWorkspace.set(true);
+            }}
+            onDragEnd={() => {
+                isDraggingWorkspace.set(false);
+            }}
         >
-            {workspace.id}
+            <label label={workspace.id.toString()} valign={Gtk.Align.CENTER} />
         </button>
     );
 };
 
 export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
-    // TODO: check for reshuffling if it happens again
+    // TODO: check for the reshuffling bug if it happens again
     // TODO(gtk4): Use Gdk.Monitor.connector instead
     const hyprlandMonitor = hyprland.get_monitors().find((mon) => mon.model == gdkmonitor.model);
     if (!hyprlandMonitor) {
