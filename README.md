@@ -9,7 +9,6 @@ workspace widget scrolling, and workspace drag'n'drop (to move them between moni
 Required things:
 - AGS v2
 - Hyprland (0.44; see note below)
-- IBM Plex Sans & Font Awesome 6
 - GNOME System Monitor (soon)
 - pavucontrol
 

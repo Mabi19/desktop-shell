@@ -9,6 +9,7 @@ const hyprland = AstalHyprland.get_default();
 
 App.start({
     css: style,
+    icons: `${SRC}/icons`,
     main() {
         // TODO: react to monitor adds and removes
         for (const monitor of App.get_monitors()) {

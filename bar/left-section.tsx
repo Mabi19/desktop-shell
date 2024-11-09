@@ -11,22 +11,30 @@ const memoryTooltip = Variable.derive(
 
 const CpuIndicator = () => {
     return (
-        <label
-            label={cpuUsage((usage) => `\uf2db ${Math.floor(usage * 100)}%`)}
+        <box
+            name="cpu-badge"
             className="usage-badge"
             css={cpuUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
-        />
+            spacing={4}
+        >
+            <icon icon="fa-microchip-symbolic" />
+            <label label={cpuUsage((usage) => `${Math.floor(usage * 100)}%`)} />
+        </box>
     );
 };
 
 const MemoryIndicator = () => {
     return (
-        <label
-            label={memoryUsage((usage) => `\uf538 ${Math.floor(usage * 100)}%`)}
+        <box
+            name="cpu-badge"
             tooltipText={memoryTooltip()}
             className="usage-badge"
             css={memoryUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
-        />
+            spacing={4}
+        >
+            <icon icon="fa-memory-symbolic" />
+            <label label={memoryUsage((usage) => `${Math.floor(usage * 100)}%`)} />
+        </box>
     );
 };
 
@@ -36,7 +44,7 @@ const CapsIndicator = () => {
 
     const label = (
         <label
-            label={"\uf071 CAPS"}
+            label={"[!] CAPS"}
             visible={capsLockActive()}
             onDestroy={() => capsLockActive.drop()}
         />
