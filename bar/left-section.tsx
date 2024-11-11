@@ -1,4 +1,4 @@
-import { Variable } from "astal";
+import { Variable, execAsync } from "astal";
 import { Gdk, Gtk } from "astal/gtk3";
 import { cpuUsage, memoryAvailable, memoryTotal, memoryUsage } from "../utils/system-stats";
 import { mixUsageBadgeColor } from "../utils/usage-badge";
@@ -38,27 +38,29 @@ const MemoryIndicator = () => {
     );
 };
 
-// TODO: rework to use the Hyprland interface once 0.45 comes out
-const CapsIndicator = () => {
-    const capsLockActive = Variable(true);
-
-    const label = (
-        <label
-            label={"[!] CAPS"}
-            visible={capsLockActive()}
-            onDestroy={() => capsLockActive.drop()}
-        />
+const capsLockActive = Variable(false);
+export async function updateCapsLockStatus() {
+    const result = JSON.parse(await execAsync(["hyprctl", "devices", "-j"])).keyboards.filter(
+        (kb: any) => kb.main
     );
+    if (result.length > 0) {
+        capsLockActive.set(result[0].capsLock);
+    }
+}
+updateCapsLockStatus();
 
-    // This doesn't work :(
-    // The get_caps_lock_state function seems to always return false.
-    label.connect("realize", () => {
-        const keymap = Gdk.Keymap.get_for_display(label.get_display());
-        capsLockActive.set(keymap.get_caps_lock_state());
-        capsLockActive.observe(keymap, "state-changed", () => keymap.get_caps_lock_state());
-    });
-
-    return label;
+const CapsIndicator = () => {
+    return (
+        <revealer
+            revealChild={capsLockActive()}
+            transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
+        >
+            <box spacing={4}>
+                <icon icon="dialog-warning-symbolic" />
+                <label label="CAPS" />
+            </box>
+        </revealer>
+    );
 };
 
 export const LeftSection = () => (
