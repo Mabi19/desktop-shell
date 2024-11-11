@@ -8,12 +8,9 @@ workspace widget scrolling, and workspace drag'n'drop (to move them between moni
 
 Required things:
 - AGS v2
-- Hyprland (0.44; see note below)
+- Hyprland (0.45)
 - GNOME System Monitor (soon)
 - pavucontrol
-
-Currently Hyprland 0.44 works for everything, but 0.45 will add a way to query for Caps Lock status and fix bug #8293,
-which makes workspace drag'n'drop awkward.
 
 In the root of the repository is a `hyprland.conf` file that needs to be sourced from the main Hyprland configuration for everything to work properly.
 
