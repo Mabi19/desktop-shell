@@ -83,12 +83,12 @@ const NetworkIndicatorWifi = ({ iface }: { iface?: string }) => {
         if (state == AstalNetwork.Internet.CONNECTED) {
             return (
                 <>
-                    <label label={bind(network.wifi, "ssid")} />
+                    <label label={bind(network.wifi, "ssid").as((val) => val ?? "[null]")} />
                     {iface ? <NetworkUsage iface={iface} /> : null}
                 </>
             );
         } else if (state == AstalNetwork.Internet.CONNECTING) {
-            return <label label={bind(network.wifi, "ssid")} />;
+            return <label label={bind(network.wifi, "ssid").as((val) => val ?? "[null]")} />;
         } else {
             return <label label={INTERNET_STATE_NAMES[state]} />;
         }
