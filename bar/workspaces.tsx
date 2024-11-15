@@ -3,10 +3,6 @@ import { Astal, Gdk, Gtk, Widget } from "astal/gtk3";
 import AstalHyprland from "gi://AstalHyprland";
 
 const hyprland = AstalHyprland.get_default();
-hyprland.connect("urgent", (_h, client) => {
-    // TODO
-    console.log(`client ${client?.title} became urgent!`);
-});
 
 const DRAG_DATA = {
     modifier: Gdk.ModifierType.BUTTON1_MASK,

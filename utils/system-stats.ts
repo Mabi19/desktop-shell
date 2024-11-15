@@ -46,7 +46,7 @@ async function recalculateMemoryUsage() {
 
         let [label, rest] = line.split(":");
         rest = rest.trim();
-        console.assert(rest.endsWith("kB"), "memory stat has unexpected unit");
+        console.assert(rest.endsWith("kB"), "memory stat has unexpected unit " + rest);
         rest = rest.slice(0, -3);
         const amount = parseInt(rest);
 
