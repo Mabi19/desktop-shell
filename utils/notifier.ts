@@ -1,18 +1,29 @@
 import { type Subscribable } from "astal/binding";
 
-export class Notifier implements Subscribable<void> {
-    private subscriptions = new Set<() => void>();
+export class Notifier<T = void> implements Subscribable<T> {
+    protected subscriptions = new Set<(value: T) => void>();
+    protected lastValue: T;
 
-    notify() {
+    constructor(value: T) {
+        this.lastValue = value;
+    }
+
+    notify(value: T) {
         for (const sub of this.subscriptions) {
-            sub();
+            sub(value);
         }
     }
 
-    get() {}
+    get() {
+        return this.lastValue;
+    }
 
-    subscribe(callback: () => void) {
+    protected unsubscribe(callback: (value: T) => void) {
+        this.subscriptions.delete(callback);
+    }
+
+    subscribe(callback: (value: T) => void) {
         this.subscriptions.add(callback);
-        return () => this.subscriptions.delete(callback);
+        return () => this.unsubscribe(callback);
     }
 }
