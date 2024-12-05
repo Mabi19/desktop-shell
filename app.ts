@@ -1,4 +1,4 @@
-import { App } from "astal/gtk3";
+import { App, Gdk, Gtk } from "astal/gtk3";
 import AstalHyprland from "gi://AstalHyprland";
 import { Bar } from "./bar/bar";
 import { handleMessage } from "./message";
@@ -8,14 +8,18 @@ import style from "./style.scss";
 
 const hyprland = AstalHyprland.get_default();
 
+const windows = new Map<Gdk.Monitor, Gtk.Widget[]>();
+
+function makeWindowsForMonitor(monitor: Gdk.Monitor) {
+    return [Bar(monitor), NotificationCenter(monitor)];
+}
+
 App.start({
     css: style,
     icons: `${SRC}/icons`,
     main() {
-        // TODO: react to monitor adds and removes
         for (const monitor of App.get_monitors()) {
-            Bar(monitor);
-            NotificationCenter(monitor);
+            windows.set(monitor, makeWindowsForMonitor(monitor));
         }
         // this one reacts to the primary monitor
         NotificationPopupWindow();
@@ -23,4 +27,17 @@ App.start({
     requestHandler(request, res) {
         handleMessage(request, res);
     },
+});
+
+App.connect("monitor-removed", (_source, monitor) => {
+    console.log("monitor removed");
+    for (const win of windows.get(monitor) ?? []) {
+        win.destroy();
+    }
+    windows.delete(monitor);
+});
+
+App.connect("monitor-added", (_source, monitor) => {
+    console.log("monitor added");
+    windows.set(monitor, makeWindowsForMonitor(monitor));
 });
