@@ -1,7 +1,7 @@
 import { exec, Variable } from "astal";
 import { App, Gdk, Gtk } from "astal/gtk3";
 import GLib from "gi://GLib?version=2.0";
-import { notificationCenterVisible } from "../notification-center/notification-center";
+import { notificationCenterMonitor } from "../notification-center/notification-center";
 import { createMenu } from "../widgets/menu";
 import { Separator } from "../widgets/separator";
 import { AudioIndicator } from "./audio";
@@ -41,13 +41,16 @@ const PowerButton = () => (
     </button>
 );
 
+function toggleNotificationCenter(monitor: Gdk.Monitor) {
+    if (notificationCenterMonitor.get() == monitor) {
+        notificationCenterMonitor.set(null);
+    } else {
+        notificationCenterMonitor.set(monitor);
+    }
+}
+
 const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
-    <button
-        name="time-and-notifications"
-        // TODO: rework this to only use 1 notification center window
-        // onClick={() => App.toggle_window(`notification-center${monitor}`)}
-        onClick={() => notificationCenterVisible.set(!notificationCenterVisible.get())}
-    >
+    <button name="time-and-notifications" onClick={() => toggleNotificationCenter(monitor)}>
         <box spacing={6}>
             {time((timestamp) => timestamp.format("%H:%M"))}
             <Separator orientation={Gtk.Orientation.VERTICAL} />

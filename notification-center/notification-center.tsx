@@ -1,8 +1,8 @@
 import { Variable, bind } from "astal";
-import { App, Astal, Gdk, Gtk } from "astal/gtk3";
+import { App, Astal, Gdk } from "astal/gtk3";
 import { Calendar } from "../widgets/calendar";
 
-export const notificationCenterVisible = Variable(false);
+export const notificationCenterMonitor = Variable<Gdk.Monitor | null>(null);
 
 export const NotificationCenter = (monitor: Gdk.Monitor) => {
     return (
@@ -15,7 +15,7 @@ export const NotificationCenter = (monitor: Gdk.Monitor) => {
             exclusivity={Astal.Exclusivity.NORMAL}
             gdkmonitor={monitor}
             setup={(self) => App.add_window(self)}
-            visible={bind(notificationCenterVisible)}
+            visible={bind(notificationCenterMonitor).as((mon) => mon == monitor)}
         >
             <box vertical={true} name="notification-center">
                 <Calendar />
