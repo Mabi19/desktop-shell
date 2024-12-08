@@ -17,7 +17,7 @@ export const WorkspaceButton = ({
     active,
     workspace,
 }: {
-    active: Binding<number>;
+    active: Binding<number | null>;
     workspace: AstalHyprland.Workspace;
 }) => {
     function clickHandler() {
@@ -60,7 +60,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         throw new Error("Couldn't find matching Hyprland monitor");
     }
 
-    const activeWorkspace = Variable(hyprlandMonitor.active_workspace.id);
+    const activeWorkspace = Variable<number | null>(hyprlandMonitor.active_workspace?.id);
 
     const buttons = (
         <box
@@ -163,13 +163,13 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         if (event == "workspacev2") {
             const [idString, _name] = args.split(",");
             const workspace = hyprland.get_workspace(parseInt(idString));
-            if (workspace.monitor.id == hyprlandMonitor.id) {
+            if (workspace?.monitor?.id == hyprlandMonitor.id) {
                 activeWorkspace.set(workspace.id);
             }
         } else if (event == "createworkspacev2") {
             const [idString, _name] = args.split(",");
             const workspace = hyprland.get_workspace(parseInt(idString));
-            if (workspace.monitor.id == hyprlandMonitor.id) {
+            if (workspace?.monitor?.id == hyprlandMonitor.id) {
                 addWorkspaceButton(workspace);
             }
         } else if (event == "destroyworkspacev2") {

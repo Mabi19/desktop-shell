@@ -132,6 +132,7 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
     // Big image like in example would be cool to have, and it would prevent having to wrap the title
     // I still think that the progress bar is a cool idea (but maybe not as the notification's bottom edge)
     // that effect would be way easier to do in GTK 4
+    // Also, remember to wrap and justify all the labels!
     // TODO: revealer for animations
     // TODO: urgency (low: dimmed progress bar, normal: regular progress bar, critical: red border?)
     // TODO: move into notification center
