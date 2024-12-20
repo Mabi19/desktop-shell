@@ -62,7 +62,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
 
     const activeWorkspace = Variable<number | null>(hyprlandMonitor.active_workspace?.id);
 
-    const buttons = (
+    let buttons: Widget.Box | null = (
         <box
             name="workspaces"
             spacing={4}
@@ -81,8 +81,8 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
                     const movedWorkspaceId = data.get_data()[0];
                     // do not move if on the same monitor
                     const isOnDifferentMonitor = !buttons
-                        .get_children()
-                        .find((btn) => btn.name == `workspace-${movedWorkspaceId}`);
+                        ?.get_children()
+                        ?.find((btn) => btn.name == `workspace-${movedWorkspaceId}`);
                     if (isOnDifferentMonitor) {
                         hyprland.dispatch(
                             "moveworkspacetomonitor",
@@ -99,7 +99,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
     function createWorkspaceButtons() {
         return hyprland
             .get_workspaces()
-            .filter((ws) => ws.monitor.id == hyprlandMonitor!.id)
+            .filter((ws) => ws?.monitor.id == hyprlandMonitor!.id)
             .toSorted((a, b) => a.id - b.id)
             .map((ws) => <WorkspaceButton active={bind(activeWorkspace)} workspace={ws} />);
     }
@@ -115,7 +115,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         }
 
         if (direction != null) {
-            const buttonsChildren = buttons.get_children();
+            const buttonsChildren = buttons?.get_children() ?? [];
             const workspaceIndex = buttonsChildren.findIndex(
                 (btn) => btn.name == `workspace-${activeWorkspace.get()}`
             );
@@ -142,21 +142,28 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         // TODO(gtk4): Use `insert_child_after`
         // TODO: before gtk4, use a grid for its `attach` method
         const newButton = <WorkspaceButton active={bind(activeWorkspace)} workspace={workspace} />;
-        const lastId = buttons.get_children().at(-1)?.name?.slice("workspace-".length);
+        const lastId = buttons?.get_children()?.at(-1)?.name?.slice("workspace-".length);
         if (lastId && workspace.id > parseInt(lastId)) {
             // adding it at the end works
-            buttons.add(newButton);
+            buttons?.add(newButton);
         } else {
             // recreate list
-            buttons.children = createWorkspaceButtons();
+            if (buttons) {
+                buttons.children = createWorkspaceButtons();
+            }
         }
     }
 
     function removeWorkspaceButton(workspaceId: string) {
         buttons
-            .get_children()
-            .find((btn) => btn.name == `workspace-${workspaceId}`)
+            ?.get_children()
+            ?.find((btn) => btn.name == `workspace-${workspaceId}`)
             ?.destroy();
+    }
+
+    function cleanup() {
+        buttons = null;
+        // we don't need to destroy it, it will be cleaned up by the eventbox (I think)
     }
 
     buttons.hook(hyprland, "event", (_h, event: string, args: string) => {
@@ -195,6 +202,11 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
     });
 
     return (
-        <eventbox onScroll={(_eventBox, event) => handleWorkspaceScroll(event)}>{buttons}</eventbox>
+        <eventbox
+            onScroll={(_eventBox, event) => handleWorkspaceScroll(event)}
+            onDestroy={() => cleanup()}
+        >
+            {buttons}
+        </eventbox>
     );
 };

@@ -38,6 +38,6 @@ App.connect("monitor-removed", (_source, monitor) => {
 });
 
 App.connect("monitor-added", (_source, monitor) => {
-    console.log("monitor added", monitor.model);
+    console.log("monitor added", monitor.manufacturer, monitor.model, monitor.refreshRate);
     windows.set(monitor, makeWindowsForMonitor(monitor));
 });
