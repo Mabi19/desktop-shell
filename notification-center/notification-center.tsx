@@ -1,5 +1,5 @@
 import { Variable, bind } from "astal";
-import { App, Astal, Gdk } from "astal/gtk3";
+import { App, Astal, Gdk } from "astal/gtk4";
 import { Calendar } from "../widgets/calendar";
 
 export const notificationCenterMonitor = Variable<Gdk.Monitor | null>(null);

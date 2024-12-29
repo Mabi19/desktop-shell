@@ -1,4 +1,4 @@
-import { Gtk } from "astal/gtk3";
+import { Gtk } from "astal/gtk4";
 
 interface MenuDefinition {
     label: string;

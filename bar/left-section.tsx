@@ -1,5 +1,5 @@
 import { Variable, execAsync } from "astal";
-import { Gdk, Gtk } from "astal/gtk3";
+import { Gdk, Gtk } from "astal/gtk4";
 import { cpuUsage, memoryAvailable, memoryTotal, memoryUsage } from "../utils/system-stats";
 import { mixUsageBadgeColor } from "../utils/usage-badge";
 import { NetworkIndicator } from "./network";

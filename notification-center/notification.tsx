@@ -1,6 +1,6 @@
 import { bind, Variable } from "astal";
 import { type Subscribable } from "astal/binding";
-import { App, Astal, Gtk, Widget } from "astal/gtk3";
+import { App, Astal, Gtk, Widget } from "astal/gtk4";
 import AstalNotifd from "gi://AstalNotifd";
 import { primaryMonitor } from "../utils/config";
 import { Timer } from "../utils/timer";

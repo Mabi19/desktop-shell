@@ -1,5 +1,5 @@
 import { exec, Variable } from "astal";
-import { App, Gdk, Gtk } from "astal/gtk3";
+import { App, Gdk, Gtk } from "astal/gtk4";
 import GLib from "gi://GLib?version=2.0";
 import { notificationCenterMonitor } from "../notification-center/notification-center";
 import { createMenu } from "../widgets/menu";

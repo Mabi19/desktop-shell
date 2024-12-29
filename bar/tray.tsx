@@ -1,5 +1,5 @@
 import { bind } from "astal";
-import { Astal, Gdk, Gtk } from "astal/gtk3";
+import { Astal, Gdk, Gtk } from "astal/gtk4";
 import AstalTray from "gi://AstalTray";
 import type Gio from "gi://Gio";
 

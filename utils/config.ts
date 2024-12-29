@@ -1,6 +1,6 @@
 import { bind } from "astal";
 import { readFile } from "astal/file";
-import { App } from "astal/gtk3";
+import { App } from "astal/gtk4";
 import AstalHyprland from "gi://AstalHyprland";
 
 const hyprland = AstalHyprland.get_default();

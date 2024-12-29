@@ -1,4 +1,4 @@
-import { App, Gdk, Gtk } from "astal/gtk3";
+import { App, Gdk, Gtk } from "astal/gtk4";
 import { Bar } from "./bar/bar";
 import { handleMessage } from "./message";
 import { NotificationPopupWindow } from "./notification-center/notification";
