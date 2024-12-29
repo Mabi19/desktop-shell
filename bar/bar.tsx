@@ -6,7 +6,7 @@ import { isDraggingWorkspace, Workspaces } from "./workspaces";
 
 export const Bar = (monitor: Gdk.Monitor) => (
     <window
-        className="bar"
+        cssClasses={["bar"]}
         gdkmonitor={monitor}
         exclusivity={Astal.Exclusivity.EXCLUSIVE}
         anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT | Astal.WindowAnchor.RIGHT}

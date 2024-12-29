@@ -22,7 +22,7 @@ export const SystemTray = () => {
 
                         return (
                             <button
-                                className="tray-item"
+                                cssClasses={["tray-item"]}
                                 tooltipText={bind(item, "tooltip_markup")}
                                 onDestroy={() => menu.destroy()}
                                 onClick={(self, event) => {
@@ -40,7 +40,7 @@ export const SystemTray = () => {
                                     }
                                 }}
                             >
-                                <icon gicon={bind(item, "gicon")} />
+                                <image gicon={bind(item, "gicon")} />
                             </button>
                         );
                     });

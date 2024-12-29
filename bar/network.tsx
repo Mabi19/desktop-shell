@@ -122,7 +122,7 @@ export const NetworkIndicator = () => {
                         <box>
                             {bind(device, "interface").as((iface) => (
                                 <button
-                                    className="usage-badge"
+                                    cssClasses={["usage-badge"]}
                                     name="network-badge"
                                     css={bind(networkStats).as(
                                         (stats) => `

@@ -13,7 +13,7 @@ const CpuIndicator = () => {
     return (
         <box
             name="cpu-badge"
-            className="usage-badge"
+            cssClasses={["usage-badge"]}
             css={cpuUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
             spacing={4}
         >
@@ -28,7 +28,7 @@ const MemoryIndicator = () => {
         <box
             name="cpu-badge"
             tooltipText={memoryTooltip()}
-            className="usage-badge"
+            cssClasses={["usage-badge"]}
             css={memoryUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
             spacing={4}
         >

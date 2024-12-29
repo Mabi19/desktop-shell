@@ -97,14 +97,14 @@ export const NotificationPopupWindow = () => {
 
 const NotificationIcon = ({ notification }: { notification: AstalNotifd.Notification }) => {
     if (notification.image) {
-        return <image iconName={bind(notification, "image")} className="icon" />;
+        return <image iconName={bind(notification, "image")} cssClasses={["icon"]} />;
     }
     if (notification.appIcon) {
-        return <image iconName={bind(notification, "appIcon")} className="icon" />;
+        return <image iconName={bind(notification, "appIcon")} cssClasses={["icon"]} />;
     } else if (notification.desktopEntry) {
-        return <image iconName={bind(notification, "desktopEntry")} className="icon" />;
+        return <image iconName={bind(notification, "desktopEntry")} cssClasses={["icon"]} />;
     } else {
-        return <image iconName="dialog-information-symbolic" className="icon" />;
+        return <image iconName="dialog-information-symbolic" cssClasses={["icon"]} />;
     }
 };
 
@@ -138,7 +138,7 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
     // TODO: move into notification center
     return (
         // put the progress bar outside of the padding box so that it can hug the edge
-        <eventbox
+        <box
             onHover={() => timer.pauseCount++}
             onHoverLost={() => timer.pauseCount--}
             onClick={(_eventBox, event) => handleDefaultClick(event)}
@@ -153,24 +153,28 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
                 })
             }
         >
-            <box vertical={true} vexpand={false} widthRequest={400} className="notification">
-                <box vertical={true} className="content" spacing={8}>
+            <box vertical={true} vexpand={false} widthRequest={400} cssClasses={["notification"]}>
+                <box vertical={true} cssClasses={["content"]} spacing={8}>
                     <box spacing={8}>
                         <NotificationIcon notification={notification} />
-                        <label label={bind(notification, "summary")} className="title" xalign={0} />
+                        <label
+                            label={bind(notification, "summary")}
+                            cssClasses={["title"]}
+                            xalign={0}
+                        />
                         <button onClick={() => notification.dismiss()}>
                             <image iconName="window-close-symbolic" />
                         </button>
                     </box>
                     <label
                         label={bind(notification, "body")}
-                        className="description"
+                        cssClasses={["description"]}
                         useMarkup={true}
                         wrap={true}
                         xalign={0}
                     />
 
-                    {notification.get_actions().length > 0 && (
+                    {notification.get_actions().length > 0 ? (
                         <box spacing={8}>
                             {notification.get_actions().map((action) => (
                                 <button
@@ -181,6 +185,8 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
                                 </button>
                             ))}
                         </box>
+                    ) : (
+                        false
                     )}
                 </box>
 
@@ -190,6 +196,6 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
                     })}
                 />
             </box>
-        </eventbox>
+        </box>
     );
 };

@@ -8,7 +8,7 @@ export const NotificationCenter = (monitor: Gdk.Monitor) => {
     return (
         <window
             name={`notification-center${monitor}`}
-            className="notification-center-window"
+            cssClasses={["notification-center-window"]}
             namespace="notification-center"
             anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.BOTTOM | Astal.WindowAnchor.RIGHT}
             layer={Astal.Layer.OVERLAY}
