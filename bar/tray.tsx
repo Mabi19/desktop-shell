@@ -40,7 +40,7 @@ export const SystemTray = () => {
                                     }
                                 }}
                             >
-                                <icon gIcon={bind(item, "gicon")} />
+                                <icon gicon={bind(item, "gicon")} />
                             </button>
                         );
                     });
