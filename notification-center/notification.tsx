@@ -1,6 +1,6 @@
 import { bind, Variable } from "astal";
 import { type Subscribable } from "astal/binding";
-import { App, Astal, Gtk, Widget } from "astal/gtk4";
+import { App, Astal, Gdk, Gtk, hook } from "astal/gtk4";
 import AstalNotifd from "gi://AstalNotifd";
 import { primaryMonitor } from "../utils/config";
 import { Timer } from "../utils/timer";
@@ -115,13 +115,14 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
     );
 
     /** Invoke an action by its ID, checking if it exists */
-    function handleDefaultClick(event: Astal.ClickEvent) {
-        if (event.button == Astal.MouseButton.PRIMARY) {
+    function handleDefaultClick(event: Gdk.ButtonEvent) {
+        const button = event.get_button();
+        if (button == Gdk.BUTTON_PRIMARY) {
             const action = notification.get_actions().find((action) => action.id == "default");
             if (action) {
                 notification.invoke("default");
             }
-        } else if (event.button == Astal.MouseButton.SECONDARY) {
+        } else if (button == Gdk.BUTTON_SECONDARY) {
             notification.dismiss();
         }
     }
@@ -141,11 +142,11 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
         <box
             onHover={() => timer.pauseCount++}
             onHoverLost={() => timer.pauseCount--}
-            onClick={(_eventBox, event) => handleDefaultClick(event)}
+            onButtonPressed={(_eventBox, event) => handleDefaultClick(event)}
             // make sure the timer doesn't try do anything weird later
             onDestroy={() => timer.cancel()}
             setup={(self) =>
-                self.hook(timer, () => {
+                hook(self, timer, () => {
                     if (timer.timeLeft == 0) {
                         // TODO: move into notif center
                         notification.dismiss();
@@ -162,7 +163,7 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
                             cssClasses={["title"]}
                             xalign={0}
                         />
-                        <button onClick={() => notification.dismiss()}>
+                        <button onButtonPressed={() => notification.dismiss()}>
                             <image iconName="window-close-symbolic" />
                         </button>
                     </box>
@@ -178,7 +179,7 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
                         <box spacing={8}>
                             {notification.get_actions().map((action) => (
                                 <button
-                                    onClick={() => notification.invoke(action.id)}
+                                    onButtonPressed={() => notification.invoke(action.id)}
                                     hexpand={true}
                                 >
                                     {action.label}

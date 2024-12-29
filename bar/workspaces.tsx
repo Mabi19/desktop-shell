@@ -32,7 +32,7 @@ export const WorkspaceButton = ({
             cssClasses={active.as((activeId) =>
                 activeId == workspace.id ? ["workspace", "active"] : ["workspace"]
             )}
-            onClickRelease={clickHandler}
+            onButtonReleased={clickHandler}
             name={`workspace-${workspace.id}`}
             // setup={(self) => {
             //     self.drag_source_set(DRAG_DATA.modifier, DRAG_DATA.entries, DRAG_DATA.action);

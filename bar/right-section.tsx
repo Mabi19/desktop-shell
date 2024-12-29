@@ -32,10 +32,9 @@ const time = Variable(new GLib.DateTime()).poll(1000, () => new GLib.DateTime())
 const PowerButton = () => (
     <button
         name="power-button"
-        onClick={
-            (button) => void 0
-            // powerMenu.popup_at_widget(button, Gdk.Gravity.SOUTH, Gdk.Gravity.NORTH_EAST, null)
-        }
+        // onButtonPressed={
+        //     powerMenu.popup_at_widget(button, Gdk.Gravity.SOUTH, Gdk.Gravity.NORTH_EAST, null)
+        // }
     >
         <image iconName="system-shutdown-symbolic" />
     </button>
@@ -50,7 +49,7 @@ function toggleNotificationCenter(monitor: Gdk.Monitor) {
 }
 
 const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
-    <button name="time-and-notifications" onClick={() => toggleNotificationCenter(monitor)}>
+    <button name="time-and-notifications" onButtonPressed={() => toggleNotificationCenter(monitor)}>
         <box spacing={6}>
             {time((timestamp) => timestamp.format("%H:%M"))}
             <Separator />

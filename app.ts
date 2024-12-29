@@ -8,7 +8,7 @@ import style from "./style.scss";
 const windows = new Map<Gdk.Monitor, Gtk.Widget[]>();
 
 function makeWindowsForMonitor(monitor: Gdk.Monitor) {
-    return [Bar(monitor), NotificationCenter(monitor)];
+    return [Bar(monitor) /* NotificationCenter(monitor) */];
 }
 
 App.start({
@@ -19,7 +19,7 @@ App.start({
             windows.set(monitor, makeWindowsForMonitor(monitor));
         }
         // this one reacts to the primary monitor
-        NotificationPopupWindow();
+        // NotificationPopupWindow();
     },
     requestHandler(request, res) {
         handleMessage(request, res);

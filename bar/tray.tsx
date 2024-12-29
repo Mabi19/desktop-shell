@@ -6,7 +6,7 @@ import type Gio from "gi://Gio";
 const tray = AstalTray.get_default();
 
 function createMenu(menuModel: Gio.MenuModel, actionGroup: Gio.ActionGroup): Gtk.Menu {
-    const menu = Gtk.Menu.new_from_model(menuModel);
+    const menu = Gtk.PopoverMenu.new_from_model(menuModel);
     menu.insert_action_group("dbusmenu", actionGroup);
     return menu;
 }
@@ -25,18 +25,23 @@ export const SystemTray = () => {
                                 cssClasses={["tray-item"]}
                                 tooltipText={bind(item, "tooltip_markup")}
                                 onDestroy={() => menu.destroy()}
-                                onClick={(self, event) => {
-                                    if (event.button == Astal.MouseButton.PRIMARY) {
-                                        item.activate(event.x, event.y);
-                                    } else if (event.button == Astal.MouseButton.MIDDLE) {
-                                        item.secondary_activate(event.x, event.y);
-                                    } else if (event.button == Astal.MouseButton.SECONDARY) {
-                                        menu.popup_at_widget(
-                                            self,
-                                            Gdk.Gravity.SOUTH,
-                                            Gdk.Gravity.NORTH,
-                                            null
-                                        );
+                                onButtonPressed={(self, event) => {
+                                    const button = event.get_button();
+
+                                    if (button == Gdk.BUTTON_PRIMARY) {
+                                        console.log("primary activate");
+                                        // item.activate(event.x, event.y);
+                                    } else if (button == Gdk.BUTTON_MIDDLE) {
+                                        console.log("secondary activate");
+                                        // item.secondary_activate(event.x, event.y);
+                                    } else if (button == Gdk.BUTTON_SECONDARY) {
+                                        console.log("menu activate");
+                                        // menu.popup_at_widget(
+                                        //     self,
+                                        //     Gdk.Gravity.SOUTH,
+                                        //     Gdk.Gravity.NORTH,
+                                        //     null
+                                        // );
                                     }
                                 }}
                             >
