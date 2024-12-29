@@ -1,15 +1,15 @@
 import { bind, Binding, Variable } from "astal";
-import { Astal, Gdk, Gtk, Widget } from "astal/gtk4";
+import { Astal, Gdk, Gtk, hook, Widget } from "astal/gtk4";
 import AstalHyprland from "gi://AstalHyprland";
 
 const hyprland = AstalHyprland.get_default();
 
-const DRAG_DATA = {
-    modifier: Gdk.ModifierType.BUTTON1_MASK,
-    entries: [Gtk.TargetEntry.new("x-mabi-desktop-shell/workspace", 0, 0)],
-    action: Gdk.DragAction.COPY,
-    atom: Gdk.atom_intern("x-mabi-desktop-shell/workspace", false),
-};
+// const DRAG_DATA = {
+//     modifier: Gdk.ModifierType.BUTTON1_MASK,
+//     entries: [Gtk.TargetEntry.new("x-mabi-desktop-shell/workspace", 0, 0)],
+//     action: Gdk.DragAction.COPY,
+//     atom: Gdk.atom_intern("x-mabi-desktop-shell/workspace", false),
+// };
 /** This is used to enable input on the bar when dragging. */
 export const isDraggingWorkspace = Variable(false);
 
@@ -29,23 +29,23 @@ export const WorkspaceButton = ({
     // TODO: add dragging visuals (lower opacity when dragging, perhaps figure out how the dnd tooltip works)
     return (
         <button
-            className={active.as((activeId) =>
-                activeId == workspace.id ? "workspace active" : "workspace"
+            cssClasses={active.as((activeId) =>
+                activeId == workspace.id ? ["workspace", "active"] : ["workspace"]
             )}
             onClickRelease={clickHandler}
             name={`workspace-${workspace.id}`}
-            setup={(self) => {
-                self.drag_source_set(DRAG_DATA.modifier, DRAG_DATA.entries, DRAG_DATA.action);
-            }}
-            onDragDataGet={(_self, _ctx: Gdk.DragContext, data: Gtk.SelectionData) => {
-                data.set(DRAG_DATA.atom, 8, new Uint8Array([workspace.id]));
-            }}
-            onDragBegin={() => {
-                isDraggingWorkspace.set(true);
-            }}
-            onDragEnd={() => {
-                isDraggingWorkspace.set(false);
-            }}
+            // setup={(self) => {
+            //     self.drag_source_set(DRAG_DATA.modifier, DRAG_DATA.entries, DRAG_DATA.action);
+            // }}
+            // onDragDataGet={(_self, _ctx: Gdk.DragContext, data: Gtk.SelectionData) => {
+            //     data.set(DRAG_DATA.atom, 8, new Uint8Array([workspace.id]));
+            // }}
+            // onDragBegin={() => {
+            //     isDraggingWorkspace.set(true);
+            // }}
+            // onDragEnd={() => {
+            //     isDraggingWorkspace.set(false);
+            // }}
         >
             <label label={workspace.id.toString()} valign={Gtk.Align.CENTER} />
         </button>
@@ -62,39 +62,39 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
 
     const activeWorkspace = Variable<number | null>(hyprlandMonitor.active_workspace?.id);
 
-    let buttons: Widget.Box | null = (
+    let buttons: ReturnType<typeof Widget.Box> | null = (
         <box
             name="workspaces"
             spacing={4}
             onDestroy={() => activeWorkspace.drop()}
-            setup={(self) => {
-                self.drag_dest_set(Gtk.DestDefaults.ALL, DRAG_DATA.entries, DRAG_DATA.action);
-            }}
-            onDragDataReceived={(
-                self,
-                _ctx: Gdk.DragContext,
-                _x: number,
-                _y: number,
-                data: Gtk.SelectionData
-            ) => {
-                if (data.get_data_type() == DRAG_DATA.atom) {
-                    const movedWorkspaceId = data.get_data()[0];
-                    // do not move if on the same monitor
-                    const isOnDifferentMonitor = !buttons
-                        ?.get_children()
-                        ?.find((btn) => btn.name == `workspace-${movedWorkspaceId}`);
-                    if (isOnDifferentMonitor) {
-                        hyprland.dispatch(
-                            "moveworkspacetomonitor",
-                            `${movedWorkspaceId} ${hyprlandMonitor.id}`
-                        );
-                    }
-                }
-            }}
+            // setup={(self) => {
+            //     self.drag_dest_set(Gtk.DestDefaults.ALL, DRAG_DATA.entries, DRAG_DATA.action);
+            // }}
+            // onDragDataReceived={(
+            //     self,
+            //     _ctx: Gdk.DragContext,
+            //     _x: number,
+            //     _y: number,
+            //     data: Gtk.SelectionData
+            // ) => {
+            //     if (data.get_data_type() == DRAG_DATA.atom) {
+            //         const movedWorkspaceId = data.get_data()[0];
+            //         // do not move if on the same monitor
+            //         const isOnDifferentMonitor = !buttons
+            //             ?.get_children()
+            //             ?.find((btn) => btn.name == `workspace-${movedWorkspaceId}`);
+            //         if (isOnDifferentMonitor) {
+            //             hyprland.dispatch(
+            //                 "moveworkspacetomonitor",
+            //                 `${movedWorkspaceId} ${hyprlandMonitor.id}`
+            //             );
+            //         }
+            //     }
+            // }}
         >
             {createWorkspaceButtons()}
         </box>
-    ) as Widget.Box;
+    ) as ReturnType<typeof Widget.Box>;
 
     function createWorkspaceButtons() {
         return hyprland
@@ -104,38 +104,40 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
             .map((ws) => <WorkspaceButton active={bind(activeWorkspace)} workspace={ws} />);
     }
 
-    function handleWorkspaceScroll(event: Astal.ScrollEvent) {
-        let direction: -1 | 1 | null = null;
-        if (event.direction == Gdk.ScrollDirection.SMOOTH) {
-            direction = Math.sign(event.delta_y) as -1 | 1;
-        } else if (event.direction == Gdk.ScrollDirection.UP) {
-            direction = -1;
-        } else if (event.direction == Gdk.ScrollDirection.DOWN) {
-            direction = 1;
-        }
+    function handleWorkspaceScroll(dx: number, dy: number) {
+        console.log("scroll event!", dx, dy);
 
-        if (direction != null) {
-            const buttonsChildren = buttons?.get_children() ?? [];
-            const workspaceIndex = buttonsChildren.findIndex(
-                (btn) => btn.name == `workspace-${activeWorkspace.get()}`
-            );
-            if (workspaceIndex == -1) {
-                console.warn("Couldn't find current workspace");
-                console.log(activeWorkspace.get());
-                for (const btn of buttonsChildren) {
-                    console.log(btn.name);
-                }
-                return;
-            }
-            let newIndex = workspaceIndex + direction;
-            // do not scroll outside
-            if (newIndex < 0 || newIndex >= buttonsChildren.length) {
-                return;
-            }
+        // let direction: -1 | 1 | null = null;
+        // if (event.direction == Gdk.ScrollDirection.SMOOTH) {
+        //     direction = Math.sign(event.delta_y) as -1 | 1;
+        // } else if (event.direction == Gdk.ScrollDirection.UP) {
+        //     direction = -1;
+        // } else if (event.direction == Gdk.ScrollDirection.DOWN) {
+        //     direction = 1;
+        // }
 
-            const targetWorkspaceId = buttonsChildren[newIndex].name.slice("workspace-".length);
-            hyprland.dispatch("workspace", targetWorkspaceId);
-        }
+        // if (direction != null) {
+        //     const buttonsChildren = buttons?.get_children() ?? [];
+        //     const workspaceIndex = buttonsChildren.findIndex(
+        //         (btn) => btn.name == `workspace-${activeWorkspace.get()}`
+        //     );
+        //     if (workspaceIndex == -1) {
+        //         console.warn("Couldn't find current workspace");
+        //         console.log(activeWorkspace.get());
+        //         for (const btn of buttonsChildren) {
+        //             console.log(btn.name);
+        //         }
+        //         return;
+        //     }
+        //     let newIndex = workspaceIndex + direction;
+        //     // do not scroll outside
+        //     if (newIndex < 0 || newIndex >= buttonsChildren.length) {
+        //         return;
+        //     }
+
+        //     const targetWorkspaceId = buttonsChildren[newIndex].name.slice("workspace-".length);
+        //     hyprland.dispatch("workspace", targetWorkspaceId);
+        // }
     }
 
     function addWorkspaceButton(workspace: AstalHyprland.Workspace) {
@@ -145,7 +147,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         const lastId = buttons?.get_children()?.at(-1)?.name?.slice("workspace-".length);
         if (lastId && workspace.id > parseInt(lastId)) {
             // adding it at the end works
-            buttons?.add(newButton);
+            buttons?.append(newButton);
         } else {
             // recreate list
             if (buttons) {
@@ -166,7 +168,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         // we don't need to destroy it, it will be cleaned up by the eventbox (I think)
     }
 
-    buttons.hook(hyprland, "event", (_h, event: string, args: string) => {
+    hook(buttons, hyprland, "event", (_h, event: string, args: string) => {
         if (event == "workspacev2") {
             const [idString, _name] = args.split(",");
             const workspace = hyprland.get_workspace(parseInt(idString));
@@ -202,11 +204,11 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
     });
 
     return (
-        <eventbox
-            onScroll={(_eventBox, event) => handleWorkspaceScroll(event)}
+        <box
+            onScroll={(_eventBox, dx, dy) => handleWorkspaceScroll(dx, dy)}
             onDestroy={() => cleanup()}
         >
             {buttons}
-        </eventbox>
+        </box>
     );
 };

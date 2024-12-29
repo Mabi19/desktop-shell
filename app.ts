@@ -26,15 +26,15 @@ App.start({
     },
 });
 
-App.connect("monitor-removed", (_source, monitor) => {
-    console.log("monitor removed", monitor.model);
-    for (const win of windows.get(monitor) ?? []) {
-        win.destroy();
-    }
-    windows.delete(monitor);
-});
+// App.connect("monitor-removed", (_source, monitor) => {
+//     console.log("monitor removed", monitor.model);
+//     for (const win of windows.get(monitor) ?? []) {
+//         // win.destroy();
+//     }
+//     windows.delete(monitor);
+// });
 
-App.connect("monitor-added", (_source, monitor) => {
-    console.log("monitor added", monitor.manufacturer, monitor.model, monitor.refreshRate);
-    windows.set(monitor, makeWindowsForMonitor(monitor));
-});
+// App.connect("monitor-added", (_source, monitor) => {
+//     console.log("monitor added", monitor.manufacturer, monitor.model, monitor.refreshRate);
+//     windows.set(monitor, makeWindowsForMonitor(monitor));
+// });

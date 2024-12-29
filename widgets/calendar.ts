@@ -1,12 +1,3 @@
-import { ConstructProps, Gtk, astalify } from "astal/gtk4";
-import GObject from "gi://GObject";
+import { Gtk, astalify } from "astal/gtk4";
 
-export class Calendar extends astalify(Gtk.Calendar) {
-    static {
-        GObject.registerClass(this);
-    }
-
-    constructor(props: ConstructProps<Calendar, Gtk.Calendar.ConstructorProps, {}>) {
-        super(props as any);
-    }
-}
+export const Calendar = astalify(Gtk.Calendar);

@@ -1,12 +1,3 @@
-import { ConstructProps, Gtk, astalify } from "astal/gtk4";
-import GObject from "gi://GObject";
+import { Gtk, astalify } from "astal/gtk4";
 
-export class Separator extends astalify(Gtk.Separator) {
-    static {
-        GObject.registerClass(this);
-    }
-
-    constructor(props: ConstructProps<Separator, Gtk.Separator.ConstructorProps, {}>) {
-        super(props as any);
-    }
-}
+export const Separator = astalify(Gtk.Separator);
