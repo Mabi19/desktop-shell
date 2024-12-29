@@ -1,12 +1,9 @@
 import { App, Gdk, Gtk } from "astal/gtk3";
-import AstalHyprland from "gi://AstalHyprland";
 import { Bar } from "./bar/bar";
 import { handleMessage } from "./message";
 import { NotificationPopupWindow } from "./notification-center/notification";
 import { NotificationCenter } from "./notification-center/notification-center";
 import style from "./style.scss";
-
-const hyprland = AstalHyprland.get_default();
 
 const windows = new Map<Gdk.Monitor, Gtk.Widget[]>();
 
