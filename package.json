@@ -1,0 +1,6 @@
+{
+    "name": "mabi-shell",
+    "dependencies": {
+        "astal": "/usr/share/astal/gjs"
+    }
+}
