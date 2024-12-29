@@ -97,14 +97,14 @@ export const NotificationPopupWindow = () => {
 
 const NotificationIcon = ({ notification }: { notification: AstalNotifd.Notification }) => {
     if (notification.image) {
-        return <icon icon={bind(notification, "image")} className="icon" />;
+        return <image iconName={bind(notification, "image")} className="icon" />;
     }
     if (notification.appIcon) {
-        return <icon icon={bind(notification, "appIcon")} className="icon" />;
+        return <image iconName={bind(notification, "appIcon")} className="icon" />;
     } else if (notification.desktopEntry) {
-        return <icon icon={bind(notification, "desktopEntry")} className="icon" />;
+        return <image iconName={bind(notification, "desktopEntry")} className="icon" />;
     } else {
-        return <icon icon="dialog-information-symbolic" className="icon" />;
+        return <image iconName="dialog-information-symbolic" className="icon" />;
     }
 };
 
@@ -159,7 +159,7 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
                         <NotificationIcon notification={notification} />
                         <label label={bind(notification, "summary")} className="title" xalign={0} />
                         <button onClick={() => notification.dismiss()}>
-                            <icon icon="window-close-symbolic" />
+                            <image iconName="window-close-symbolic" />
                         </button>
                     </box>
                     <label

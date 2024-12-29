@@ -6,7 +6,7 @@ const audio = AstalWp.get_default()!.audio;
 const AudioPart = ({ device }: { device: AstalWp.Endpoint }) => {
     return (
         <box spacing={4}>
-            <icon icon={bind(device, "volumeIcon")} />
+            <image iconName={bind(device, "volumeIcon")} />
             <label label={bind(device, "volume").as((vol) => `${Math.round(vol * 100)}%`)} />
         </box>
     );

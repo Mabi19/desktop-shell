@@ -37,7 +37,7 @@ const PowerButton = () => (
             // powerMenu.popup_at_widget(button, Gdk.Gravity.SOUTH, Gdk.Gravity.NORTH_EAST, null)
         }
     >
-        <icon icon="system-shutdown-symbolic" />
+        <image iconName="system-shutdown-symbolic" />
     </button>
 );
 
@@ -54,7 +54,7 @@ const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
         <box spacing={6}>
             {time((timestamp) => timestamp.format("%H:%M"))}
             <Separator />
-            <icon icon="fa-bell-symbolic" />
+            <image iconName="fa-bell-symbolic" />
         </box>
     </button>
 );

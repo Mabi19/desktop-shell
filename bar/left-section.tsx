@@ -17,7 +17,7 @@ const CpuIndicator = () => {
             css={cpuUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
             spacing={4}
         >
-            <icon icon="fa-microchip-symbolic" />
+            <image iconName="fa-microchip-symbolic" />
             <label label={cpuUsage((usage) => `${Math.floor(usage * 100)}%`)} />
         </box>
     );
@@ -32,7 +32,7 @@ const MemoryIndicator = () => {
             css={memoryUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
             spacing={4}
         >
-            <icon icon="fa-memory-symbolic" />
+            <image iconName="fa-memory-symbolic" />
             <label label={memoryUsage((usage) => `${Math.floor(usage * 100)}%`)} />
         </box>
     );
@@ -56,7 +56,7 @@ const CapsIndicator = () => {
             transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
         >
             <box spacing={4}>
-                <icon icon="dialog-warning-symbolic" />
+                <image iconName="dialog-warning-symbolic" />
                 <label label="CAPS" />
             </box>
         </revealer>

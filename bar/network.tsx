@@ -72,7 +72,7 @@ const NetworkIndicatorWired = ({ iface }: { iface?: string }) => {
 
     return (
         <box spacing={4}>
-            <icon icon={bind(network.wired, "icon_name")} />
+            <image iconName={bind(network.wired, "icon_name")} />
             {status}
         </box>
     );
@@ -96,7 +96,7 @@ const NetworkIndicatorWifi = ({ iface }: { iface?: string }) => {
 
     return (
         <box spacing={4}>
-            <icon icon={bind(network.wifi, "icon_name")} />
+            <image iconName={bind(network.wifi, "icon_name")} />
             {status}
         </box>
     );
