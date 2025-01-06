@@ -1,4 +1,5 @@
 # My Desktop Shell
+*Now with GTK 4!*
 
 This is my bar & other assorted widgets that I use on my Linux desktop.
 Not particularly customizable; see config.json.example for the available options.
@@ -19,6 +20,5 @@ In the root of the repository is a `hyprland.conf` file that needs to be sourced
 - Make notification center actually usable
 - GTK 4:
     - Figure out why windows start visible=false
-    - Fix all the CSS
-    - Figure out how to do color shifting without dynamic CSS (predefined steps? custom drawing?)
+    - Add custom drawing so that the usage badges are smooth again (this is way easier in GTK 4)
     - Add all the functionality back in
