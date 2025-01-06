@@ -8,7 +8,9 @@ import style from "./style.scss";
 const windows = new Map<Gdk.Monitor, Gtk.Widget[]>();
 
 function makeWindowsForMonitor(monitor: Gdk.Monitor) {
-    return [Bar(monitor) /* NotificationCenter(monitor) */];
+    const bar = Bar(monitor);
+    // TODO: re-add notification center
+    return [bar];
 }
 
 App.start({

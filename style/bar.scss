@@ -1,4 +1,6 @@
 @use "theme";
+@use "sass:color";
+@use "sass:math";
 
 @function gtk-alpha($color, $opacity) {
     @return #{"alpha(#{$color}, #{$opacity})"}
@@ -27,9 +29,20 @@
 
 .usage-badge {
     @include badge;
+    image {
+        color: white;
+    }
 }
 
-#cpu-badge icon, #memory-badge icon {
+$usage-steps: 6;
+@for $i from 0 to $usage-steps {
+    .usage-badge.step-#{$i} {
+        background-color: color.mix(theme.$active_color, theme.$inactive_color, math.div($i, $usage-steps - 1) * 100%, $method: oklab);
+    }
+}
+
+
+#cpu-badge image, #memory-badge image {
     font-size: 1.05em;
 }
 
@@ -77,7 +90,7 @@
     background-color: white;
     color: black;
 
-    icon {
+    image {
         font-size: 1.05em;
     }
 }
@@ -90,9 +103,9 @@
     background-color: #cfcfcc;
 }
 
-#power-button {
+#power-button button {
     @include circular;
-    icon {
+    image {
         font-size: 1.2em;
     }
 }

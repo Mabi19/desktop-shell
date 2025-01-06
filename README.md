@@ -17,4 +17,8 @@ In the root of the repository is a `hyprland.conf` file that needs to be sourced
 ## TODO
 - Notifications
 - Make notification center actually usable
-- app launcher?
+- GTK 4:
+    - Figure out why windows start visible=false
+    - Fix all the CSS
+    - Figure out how to do color shifting without dynamic CSS (predefined steps? custom drawing?)
+    - Add all the functionality back in

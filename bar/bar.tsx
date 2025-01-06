@@ -14,6 +14,7 @@ export const Bar = (monitor: Gdk.Monitor) => (
         keymode={bind(isDraggingWorkspace).as((dragging) =>
             dragging ? Astal.Keymode.ON_DEMAND : Astal.Keymode.NONE
         )}
+        visible={true}
     >
         <centerbox>
             <LeftSection />

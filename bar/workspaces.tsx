@@ -32,7 +32,7 @@ export const WorkspaceButton = ({
             cssClasses={active.as((activeId) =>
                 activeId == workspace.id ? ["workspace", "active"] : ["workspace"]
             )}
-            onButtonReleased={clickHandler}
+            onClicked={clickHandler}
             name={`workspace-${workspace.id}`}
             // setup={(self) => {
             //     self.drag_source_set(DRAG_DATA.modifier, DRAG_DATA.entries, DRAG_DATA.action);
@@ -141,26 +141,21 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
     }
 
     function addWorkspaceButton(workspace: AstalHyprland.Workspace) {
-        // TODO(gtk4): Use `insert_child_after`
-        // TODO: before gtk4, use a grid for its `attach` method
         const newButton = <WorkspaceButton active={bind(activeWorkspace)} workspace={workspace} />;
-        const lastId = buttons?.get_children()?.at(-1)?.name?.slice("workspace-".length);
-        if (lastId && workspace.id > parseInt(lastId)) {
-            // adding it at the end works
-            buttons?.append(newButton);
-        } else {
-            // recreate list
-            if (buttons) {
-                buttons.children = createWorkspaceButtons();
-            }
-        }
+        const previousButton = buttons?.get_children().findLast((btn) => {
+            const num = parseInt(btn.name.slice("workspace-".length));
+            return num < workspace.id;
+        });
+        buttons?.insert_child_after(newButton, previousButton ?? null);
     }
 
     function removeWorkspaceButton(workspaceId: string) {
-        buttons
+        const button = buttons
             ?.get_children()
-            ?.find((btn) => btn.name == `workspace-${workspaceId}`)
-            ?.destroy();
+            ?.find((btn) => btn.name == `workspace-${workspaceId}`);
+        if (button) {
+            buttons?.remove(button);
+        }
     }
 
     function cleanup() {

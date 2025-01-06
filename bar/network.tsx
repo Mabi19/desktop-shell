@@ -1,7 +1,7 @@
 import { bind } from "astal";
 import AstalNetwork from "gi://AstalNetwork";
 import { networkStats } from "../utils/system-stats";
-import { mixUsageBadgeColor } from "../utils/usage-badge";
+import { getUsageBadgeClass, mixUsageBadgeColor } from "../utils/usage-badge";
 import { Separator } from "../widgets/separator";
 
 const network = AstalNetwork.get_default();
@@ -122,15 +122,14 @@ export const NetworkIndicator = () => {
                         <box>
                             {bind(device, "interface").as((iface) => (
                                 <button
-                                    cssClasses={["usage-badge"]}
+                                    cssClasses={bind(networkStats).as((stats) => [
+                                        "usage-badge",
+                                        getUsageBadgeClass(
+                                            getTotalNetworkThroughput(stats[iface]) /
+                                                MAX_NETWORK_USAGE
+                                        ),
+                                    ])}
                                     name="network-badge"
-                                    css={bind(networkStats).as(
-                                        (stats) => `
-                                background-color: ${mixUsageBadgeColor(
-                                    getTotalNetworkThroughput(stats[iface]) / MAX_NETWORK_USAGE
-                                )};
-                            `
-                                    )}
                                 >
                                     {type == "wired" ? (
                                         <box spacing={8}>

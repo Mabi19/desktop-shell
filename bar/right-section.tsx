@@ -1,5 +1,6 @@
-import { Variable } from "astal";
+import { Variable, exec } from "astal";
 import { App, Gdk, Gtk } from "astal/gtk4";
+import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import { notificationCenterMonitor } from "../notification-center/notification-center";
 import { Separator } from "../widgets/separator";
@@ -8,36 +9,26 @@ import { SystemTray } from "./tray";
 
 const time = Variable(new GLib.DateTime()).poll(1000, () => new GLib.DateTime());
 
-// const powerMenu = createMenu([
-//     {
-//         label: "Suspend",
-//         handler: () => {
-//             exec("systemctl sleep");
-//         },
-//     },
-//     {
-//         label: "Shutdown",
-//         handler: () => {
-//             exec("systemctl poweroff");
-//         },
-//     },
-//     {
-//         label: "Reboot",
-//         handler: () => {
-//             exec("systemctl reboot");
-//         },
-//     },
-// ]);
+const powermenu = new Gio.Menu();
+powermenu.append("Suspend", "app.sleep");
+powermenu.append("Shutdown", "app.shutdown");
+powermenu.append("Reboot", "app.reboot");
+
+const sleepAction = new Gio.SimpleAction({ name: "sleep" });
+sleepAction.connect("activate", () => exec("systemctl sleep"));
+const shutdownAction = new Gio.SimpleAction({ name: "shutdown" });
+shutdownAction.connect("activate", () => exec("systemctl poweroff"));
+const rebootAction = new Gio.SimpleAction({ name: "reboot" });
+rebootAction.connect("activate", () => exec("systemctl reboot"));
+
+App.add_action(sleepAction);
+App.add_action(shutdownAction);
+App.add_action(rebootAction);
 
 const PowerButton = () => (
-    <button
-        name="power-button"
-        // onButtonPressed={
-        //     powerMenu.popup_at_widget(button, Gdk.Gravity.SOUTH, Gdk.Gravity.NORTH_EAST, null)
-        // }
-    >
+    <menubutton name="power-button" menuModel={powermenu}>
         <image iconName="system-shutdown-symbolic" />
-    </button>
+    </menubutton>
 );
 
 function toggleNotificationCenter(monitor: Gdk.Monitor) {
@@ -49,7 +40,7 @@ function toggleNotificationCenter(monitor: Gdk.Monitor) {
 }
 
 const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
-    <button name="time-and-notifications" onButtonPressed={() => toggleNotificationCenter(monitor)}>
+    <button name="time-and-notifications" onClicked={() => toggleNotificationCenter(monitor)}>
         <box spacing={6}>
             {time((timestamp) => timestamp.format("%H:%M"))}
             <Separator />

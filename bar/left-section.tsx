@@ -1,7 +1,7 @@
-import { Variable, execAsync } from "astal";
-import { Gdk, Gtk } from "astal/gtk4";
+import { Variable, bind, execAsync } from "astal";
+import { Gtk } from "astal/gtk4";
 import { cpuUsage, memoryAvailable, memoryTotal, memoryUsage } from "../utils/system-stats";
-import { mixUsageBadgeColor } from "../utils/usage-badge";
+import { getUsageBadgeClass } from "../utils/usage-badge";
 import { NetworkIndicator } from "./network";
 
 const memoryTooltip = Variable.derive(
@@ -13,8 +13,7 @@ const CpuIndicator = () => {
     return (
         <box
             name="cpu-badge"
-            cssClasses={["usage-badge"]}
-            css={cpuUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
+            cssClasses={bind(cpuUsage).as((usage) => ["usage-badge", getUsageBadgeClass(usage)])}
             spacing={4}
         >
             <image iconName="fa-microchip-symbolic" />
@@ -26,10 +25,9 @@ const CpuIndicator = () => {
 const MemoryIndicator = () => {
     return (
         <box
-            name="cpu-badge"
+            name="memory-badge"
             tooltipText={memoryTooltip()}
-            cssClasses={["usage-badge"]}
-            css={memoryUsage((usage) => `background-color: ${mixUsageBadgeColor(usage)}`)}
+            cssClasses={bind(memoryUsage).as((usage) => ["usage-badge", getUsageBadgeClass(usage)])}
             spacing={4}
         >
             <image iconName="fa-memory-symbolic" />
