@@ -21,4 +21,7 @@ In the root of the repository is a `hyprland.conf` file that needs to be sourced
 - GTK 4:
     - Figure out why windows start visible=false
     - Add custom drawing so that the usage badges are smooth again (this is way easier in GTK 4)
-    - Add all the functionality back in
+    - Fix workspace scrolling (this is [an Astal bug](https://github.com/Aylur/astal/issues/228))
+    - Add workspace drag'n'drop back
+    - Add the notification center back (right now it's more of a calendar center anyway)
+    - Add notifications back (they'll need to be reworked a bit anyway)
