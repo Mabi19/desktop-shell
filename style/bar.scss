@@ -36,8 +36,17 @@
 
 $usage-steps: 6;
 @for $i from 0 to $usage-steps {
+    $base-color: color.mix(theme.$active_color, theme.$inactive_color, math.div($i, $usage-steps - 1) * 100%, $method: oklch);
     .usage-badge.step-#{$i} {
-        background-color: color.mix(theme.$active_color, theme.$inactive_color, math.div($i, $usage-steps - 1) * 100%, $method: oklab);
+        background-color: $base-color;
+    }
+    button.usage-badge.step-#{$i} {
+        &:hover {
+            background-color: color.adjust($base-color, $lightness: -3%, $chroma: -3%, $space: oklch);
+        }
+        &:active {
+            background-color: color.adjust($base-color, $lightness: -7.5%, $chroma: -7.5%, $space: oklch);
+        }
     }
 }
 
@@ -65,6 +74,8 @@ $usage-steps: 6;
 
     background-color: theme.$inactive_color;
     font-size: small;
+
+    transition: padding .2s ease-out;
 
     &.active {
         padding: 0 8px;
