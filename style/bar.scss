@@ -75,7 +75,7 @@ $usage-steps: 6;
     background-color: theme.$inactive_color;
     font-size: small;
 
-    transition: padding .2s ease-out;
+    transition: padding .2s ease-out, background-color .2s ease-out;;
 
     &.active {
         padding: 0 8px;
