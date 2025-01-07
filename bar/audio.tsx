@@ -14,7 +14,7 @@ const AudioPart = ({ device }: { device: AstalWp.Endpoint }) => {
 
 export const AudioIndicator = () => {
     return (
-        <button name="audio" onButtonPressed={() => execAsync("pavucontrol")}>
+        <button name="audio" onClicked={() => execAsync("pavucontrol")}>
             <box spacing={8}>
                 {bind(audio, "defaultSpeaker").as((speaker) => (
                     <AudioPart device={speaker} />
