@@ -92,7 +92,8 @@ $usage-steps: 6;
     padding: 0;
 }
 
-#audio {
+// menu buttons include a button inside them
+#audio > button {
     @include badge;
 }
 
