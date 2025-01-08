@@ -10,23 +10,28 @@ import { SystemTray } from "./tray";
 const time = Variable(new GLib.DateTime()).poll(1000, () => new GLib.DateTime());
 
 const powermenu = new Gio.Menu();
-powermenu.append("Suspend", "app.sleep");
-powermenu.append("Shutdown", "app.shutdown");
-powermenu.append("Reboot", "app.reboot");
+powermenu.append("Suspend", "powermenu.suspend");
+powermenu.append("Shutdown", "powermenu.shutdown");
+powermenu.append("Reboot", "powermenu.reboot");
 
-const sleepAction = new Gio.SimpleAction({ name: "sleep" });
-sleepAction.connect("activate", () => exec("systemctl sleep"));
+const suspendAction = new Gio.SimpleAction({ name: "suspend" });
+suspendAction.connect("activate", () => exec("systemctl sleep"));
 const shutdownAction = new Gio.SimpleAction({ name: "shutdown" });
 shutdownAction.connect("activate", () => exec("systemctl poweroff"));
 const rebootAction = new Gio.SimpleAction({ name: "reboot" });
 rebootAction.connect("activate", () => exec("systemctl reboot"));
 
-App.add_action(sleepAction);
-App.add_action(shutdownAction);
-App.add_action(rebootAction);
+const powermenuGroup = new Gio.SimpleActionGroup();
+powermenuGroup.add_action(suspendAction);
+powermenuGroup.add_action(shutdownAction);
+powermenuGroup.add_action(rebootAction);
 
 const PowerButton = () => (
-    <menubutton name="power-button" menuModel={powermenu}>
+    <menubutton
+        name="power-button"
+        menuModel={powermenu}
+        setup={(self) => self.insert_action_group("powermenu", powermenuGroup)}
+    >
         <image iconName="system-shutdown-symbolic" />
     </menubutton>
 );
