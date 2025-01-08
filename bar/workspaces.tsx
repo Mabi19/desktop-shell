@@ -54,8 +54,7 @@ export const WorkspaceButton = ({
 
 export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
     // TODO: check for the reshuffling bug if it happens again
-    // TODO(gtk4): Use Gdk.Monitor.connector instead
-    const hyprlandMonitor = hyprland.get_monitors().find((mon) => mon.model == gdkmonitor.model);
+    const hyprlandMonitor = hyprland.get_monitors().find((mon) => mon.name == gdkmonitor.connector);
     if (!hyprlandMonitor) {
         throw new Error("Couldn't find matching Hyprland monitor");
     }
@@ -160,7 +159,6 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
 
     function cleanup() {
         buttons = null;
-        // we don't need to destroy it, it will be cleaned up by the eventbox (I think)
     }
 
     hook(buttons, hyprland, "event", (_h, event: string, args: string) => {
@@ -199,10 +197,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
     });
 
     return (
-        <box
-            onScroll={(_eventBox, dx, dy) => handleWorkspaceScroll(dx, dy)}
-            onDestroy={() => cleanup()}
-        >
+        <box onScroll={(_box, dx, dy) => handleWorkspaceScroll(dx, dy)} onDestroy={() => cleanup()}>
             {buttons}
         </box>
     );

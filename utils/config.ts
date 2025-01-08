@@ -9,11 +9,11 @@ export const CONFIG: {
     primary_monitor: string;
 } = JSON.parse(readFile("./config.json"));
 
-const primaryMonitorModel = bind(hyprland, "monitors").as(
+const primaryMonitorName = bind(hyprland, "monitors").as(
     (monitorList) =>
-        monitorList.find((mon) => mon.name == CONFIG.primary_monitor)?.model ?? monitorList[0].model
+        monitorList.find((mon) => mon.name == CONFIG.primary_monitor)?.name ?? monitorList[0].name
 );
 
-export const primaryMonitor = bind(primaryMonitorModel).as((primaryModel) =>
-    App.get_monitors().find((mon) => primaryModel == mon.model)
+export const primaryMonitor = bind(primaryMonitorName).as((primaryName) =>
+    App.get_monitors().find((mon) => primaryName == mon.connector)
 );
