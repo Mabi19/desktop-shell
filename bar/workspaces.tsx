@@ -1,17 +1,15 @@
 import { bind, Binding, Variable } from "astal";
-import { Astal, Gdk, Gtk, hook, Widget } from "astal/gtk4";
+import { Gdk, Gtk, hook, Widget } from "astal/gtk4";
 import AstalHyprland from "gi://AstalHyprland";
+import Gio from "gi://Gio?version=2.0";
+import GLib from "gi://GLib?version=2.0";
 
 const hyprland = AstalHyprland.get_default();
 
-// const DRAG_DATA = {
-//     modifier: Gdk.ModifierType.BUTTON1_MASK,
-//     entries: [Gtk.TargetEntry.new("x-mabi-desktop-shell/workspace", 0, 0)],
-//     action: Gdk.DragAction.COPY,
-//     atom: Gdk.atom_intern("x-mabi-desktop-shell/workspace", false),
-// };
-/** This is used to enable input on the bar when dragging. */
-export const isDraggingWorkspace = Variable(false);
+const WORKSPACE_MIME_TYPE = "application/x.mabi-workspace";
+
+Gio._promisify(Gdk.Drop.prototype, "read_async", "read_finish");
+Gio._promisify(Gio.InputStream.prototype, "read_bytes_async", "read_bytes_finish");
 
 export const WorkspaceButton = ({
     active,
@@ -26,30 +24,58 @@ export const WorkspaceButton = ({
         }
     }
 
-    // TODO: add dragging visuals (lower opacity when dragging, perhaps figure out how the dnd tooltip works)
-    return (
-        <button
-            cssClasses={active.as((activeId) =>
-                activeId == workspace.id ? ["workspace", "active"] : ["workspace"]
-            )}
-            onClicked={clickHandler}
+    const button = (
+        // Buttons break after getting drag'n'dropped. So make a fake button out of a box instead
+        <box
+            cssClasses={active.get() == workspace.id ? ["active", "workspace"] : ["workspace"]}
             name={`workspace-${workspace.id}`}
-            // setup={(self) => {
-            //     self.drag_source_set(DRAG_DATA.modifier, DRAG_DATA.entries, DRAG_DATA.action);
-            // }}
-            // onDragDataGet={(_self, _ctx: Gdk.DragContext, data: Gtk.SelectionData) => {
-            //     data.set(DRAG_DATA.atom, 8, new Uint8Array([workspace.id]));
-            // }}
-            // onDragBegin={() => {
-            //     isDraggingWorkspace.set(true);
-            // }}
-            // onDragEnd={() => {
-            //     isDraggingWorkspace.set(false);
-            // }}
+            hexpandSet={true}
         >
-            <label label={workspace.id.toString()} valign={Gtk.Align.CENTER} />
-        </button>
+            <label label={workspace.id.toString()} hexpand={true} valign={Gtk.Align.CENTER} />
+        </box>
     );
+    const clickGesture = new Gtk.GestureClick();
+    clickGesture.connect("released", clickHandler);
+    button.add_controller(clickGesture);
+
+    function makeDragSource() {
+        const dragSource = new Gtk.DragSource();
+        dragSource.connect("prepare", () => {
+            console.log("prepare");
+            return Gdk.ContentProvider.new_for_bytes(
+                WORKSPACE_MIME_TYPE,
+                new Uint8Array([workspace.id])
+            );
+        });
+        dragSource.connect("drag-begin", (source) => {
+            console.log("drag-begin");
+            button.add_css_class("dragging");
+            source.set_icon(new Gtk.WidgetPaintable({ widget: button }), 0, 0);
+        });
+        dragSource.connect("drag-end", () => {
+            console.log("drag-end");
+            button.remove_css_class("dragging");
+        });
+        dragSource.connect("drag-cancel", () => {
+            console.log("drag-cancel");
+            button.remove_css_class("dragging");
+        });
+        return dragSource;
+    }
+
+    // since we're handling the dragging classes imperatively, we also need to do the active class that way
+    hook(button, active, (button, activeWorkspace) => {
+        if (workspace.id == activeWorkspace) {
+            button.add_css_class("active");
+        } else {
+            button.remove_css_class("active");
+        }
+    });
+
+    const dragSource = makeDragSource();
+    button.add_controller(dragSource);
+
+    return button;
 };
 
 export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
@@ -66,30 +92,40 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
             name="workspaces"
             spacing={4}
             onDestroy={() => activeWorkspace.drop()}
-            // setup={(self) => {
-            //     self.drag_dest_set(Gtk.DestDefaults.ALL, DRAG_DATA.entries, DRAG_DATA.action);
-            // }}
-            // onDragDataReceived={(
-            //     self,
-            //     _ctx: Gdk.DragContext,
-            //     _x: number,
-            //     _y: number,
-            //     data: Gtk.SelectionData
-            // ) => {
-            //     if (data.get_data_type() == DRAG_DATA.atom) {
-            //         const movedWorkspaceId = data.get_data()[0];
-            //         // do not move if on the same monitor
-            //         const isOnDifferentMonitor = !buttons
-            //             ?.get_children()
-            //             ?.find((btn) => btn.name == `workspace-${movedWorkspaceId}`);
-            //         if (isOnDifferentMonitor) {
-            //             hyprland.dispatch(
-            //                 "moveworkspacetomonitor",
-            //                 `${movedWorkspaceId} ${hyprlandMonitor.id}`
-            //             );
-            //         }
-            //     }
-            // }}
+            setup={(self) => {
+                const dropTarget = new Gtk.DropTargetAsync({
+                    actions: Gdk.DragAction.COPY,
+                    formats: new Gdk.ContentFormats([WORKSPACE_MIME_TYPE]),
+                });
+                dropTarget.connect("drop", (_dropTarget, drop) => {
+                    drop.read_async([WORKSPACE_MIME_TYPE], GLib.PRIORITY_DEFAULT, null)
+                        .then(([stream, _mime]) => {
+                            return stream?.read_bytes_async(1, GLib.PRIORITY_DEFAULT, null);
+                        })
+                        .then((bytes) => {
+                            const byte = bytes?.get_data()?.[0];
+                            if (typeof byte != "number") return;
+                            // make it signed again
+                            const movedWorkspaceId = new Int8Array([byte])[0];
+
+                            const isOnDifferentMonitor = !buttons
+                                ?.get_children()
+                                ?.find((btn) => btn.name == `workspace-${movedWorkspaceId}`);
+                            if (isOnDifferentMonitor) {
+                                hyprland.dispatch(
+                                    "moveworkspacetomonitor",
+                                    `${movedWorkspaceId} ${hyprlandMonitor.id}`
+                                );
+                            }
+                            // TODO: Finishing a drop causes the next click to not go through. Try finding a workaround for this perhaps
+                        })
+                        .catch(logError);
+
+                    drop.finish(Gdk.DragAction.COPY);
+                    return true;
+                });
+                self.add_controller(dropTarget);
+            }}
         >
             {createWorkspaceButtons()}
         </box>
