@@ -96,6 +96,12 @@ export const SystemTray = () => {
                         hook(button, item, "notify::tooltip-markup", () => {
                             button.tooltipText = item.tooltipMarkup;
                         });
+                        hook(button, item, "notify::menu-model", (button) => {
+                            button.menuModel = item.menuModel;
+                        });
+                        hook(button, item, "notify::action-group", (button) => {
+                            button.actionGroup = item.actionGroup;
+                        });
 
                         return button;
                     });

@@ -1,4 +1,3 @@
-import { bind } from "astal";
 import { App, Astal, Gdk } from "astal/gtk4";
 import { LeftSection } from "./left-section";
 import { RightSection } from "./right-section";
