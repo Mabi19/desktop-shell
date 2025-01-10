@@ -77,7 +77,17 @@ export const SystemTray = () => {
                         });
                         const controller = new Gtk.EventControllerLegacy();
                         controller.connect("event", (_c, event) => {
-                            if (event.get_event_type() == Gdk.EventType.BUTTON_PRESS) {
+                            const type = event.get_event_type();
+
+                            if (
+                                type == Gdk.EventType.BUTTON_PRESS &&
+                                (event as Gdk.ButtonEvent).get_button() == Gdk.BUTTON_SECONDARY
+                            ) {
+                                // do this earlier for less flash-of-invalid-content
+                                item.about_to_show();
+                            }
+
+                            if (type == Gdk.EventType.BUTTON_RELEASE) {
                                 const pressEvent = event as Gdk.ButtonEvent;
                                 const mouseButton = pressEvent.get_button();
                                 const [_, x, y] = pressEvent.get_position();
