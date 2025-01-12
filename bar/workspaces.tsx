@@ -139,40 +139,31 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
             .map((ws) => <WorkspaceButton active={bind(activeWorkspace)} workspace={ws} />);
     }
 
-    function handleWorkspaceScroll(dx: number, dy: number) {
-        console.log("scroll event!", dx, dy);
+    function handleWorkspaceScroll(_dx: number, dy: number) {
+        const direction = Math.sign(dy);
 
-        // let direction: -1 | 1 | null = null;
-        // if (event.direction == Gdk.ScrollDirection.SMOOTH) {
-        //     direction = Math.sign(event.delta_y) as -1 | 1;
-        // } else if (event.direction == Gdk.ScrollDirection.UP) {
-        //     direction = -1;
-        // } else if (event.direction == Gdk.ScrollDirection.DOWN) {
-        //     direction = 1;
-        // }
+        if (direction != 0) {
+            const buttonsChildren = buttons?.get_children() ?? [];
+            const workspaceIndex = buttonsChildren.findIndex(
+                (btn) => btn.name == `workspace-${activeWorkspace.get()}`
+            );
+            if (workspaceIndex == -1) {
+                console.warn("Couldn't find current workspace");
+                console.log(activeWorkspace.get());
+                for (const btn of buttonsChildren) {
+                    console.log(btn.name);
+                }
+                return;
+            }
+            let newIndex = workspaceIndex + direction;
+            // do not scroll outside
+            if (newIndex < 0 || newIndex >= buttonsChildren.length) {
+                return;
+            }
 
-        // if (direction != null) {
-        //     const buttonsChildren = buttons?.get_children() ?? [];
-        //     const workspaceIndex = buttonsChildren.findIndex(
-        //         (btn) => btn.name == `workspace-${activeWorkspace.get()}`
-        //     );
-        //     if (workspaceIndex == -1) {
-        //         console.warn("Couldn't find current workspace");
-        //         console.log(activeWorkspace.get());
-        //         for (const btn of buttonsChildren) {
-        //             console.log(btn.name);
-        //         }
-        //         return;
-        //     }
-        //     let newIndex = workspaceIndex + direction;
-        //     // do not scroll outside
-        //     if (newIndex < 0 || newIndex >= buttonsChildren.length) {
-        //         return;
-        //     }
-
-        //     const targetWorkspaceId = buttonsChildren[newIndex].name.slice("workspace-".length);
-        //     hyprland.dispatch("workspace", targetWorkspaceId);
-        // }
+            const targetWorkspaceId = buttonsChildren[newIndex].name.slice("workspace-".length);
+            hyprland.dispatch("workspace", targetWorkspaceId);
+        }
     }
 
     function addWorkspaceButton(workspace: AstalHyprland.Workspace) {
