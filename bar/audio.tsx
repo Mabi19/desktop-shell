@@ -2,6 +2,7 @@ import { bind, execAsync } from "astal";
 import { Gtk, hook } from "astal/gtk4";
 import AstalWp from "gi://AstalWp";
 import Pango from "gi://Pango?version=1.0";
+import { ToggleButton } from "../widgets/toggle-button";
 
 const audio = AstalWp.get_default()!.audio;
 
@@ -17,7 +18,7 @@ const VolumeSlider = ({ device }: { device: AstalWp.Endpoint }) => {
         adjustment,
         hexpand: true,
     });
-    scale.connect("change-value", (_, type, value) => {
+    scale.connect("change-value", (_, _type, value) => {
         value = Math.round(Math.max(0, Math.min(value * 100, 100))) / 100;
         device.volume = value;
         // TODO: play sounds here if this is a speaker
@@ -28,7 +29,9 @@ const VolumeSlider = ({ device }: { device: AstalWp.Endpoint }) => {
             adjustment.value = volume;
         }
     });
-    // TODO: disable slider when device is muted (set sensitive to false)
+    hook(scale, device, "notify::mute", (scale) => {
+        scale.sensitive = !device.mute;
+    });
 
     return scale;
 };
@@ -42,13 +45,21 @@ const AudioPopover = () => {
     const speaker = audio.defaultSpeaker;
     const microphone = audio.defaultMicrophone;
 
-    // TODO: mute buttons
-
     const popover = (
-        <popover>
+        <popover name="audio-quick-menu">
             <box vertical={true}>
                 <box spacing={4}>
-                    <image iconName="audio-speakers-symbolic" />
+                    <ToggleButton
+                        active={bind(speaker, "mute")}
+                        onClicked={() => speaker.set_mute(!speaker.mute)}
+                        cssClasses={["mute-button"]}
+                    >
+                        <image
+                            iconName={bind(speaker, "mute").as((muted) =>
+                                muted ? "audio-volume-muted-symbolic" : "audio-speakers-symbolic"
+                            )}
+                        />
+                    </ToggleButton>
                     <label
                         label={bind(speaker, "description").as((desc) => desc ?? "Speaker")}
                         ellipsize={Pango.EllipsizeMode.END}
@@ -64,7 +75,19 @@ const AudioPopover = () => {
                     />
                 </box>
                 <box spacing={4}>
-                    <image iconName="audio-input-microphone-symbolic" />
+                    <ToggleButton
+                        active={bind(microphone, "mute")}
+                        onClicked={() => microphone.set_mute(!microphone.mute)}
+                        cssClasses={["mute-button"]}
+                    >
+                        <image
+                            iconName={bind(microphone, "mute").as((muted) =>
+                                muted
+                                    ? "microphone-sensitivity-muted-symbolic"
+                                    : "audio-input-microphone-symbolic"
+                            )}
+                        />
+                    </ToggleButton>
                     <label
                         label={bind(microphone, "description").as((desc) => desc ?? "Microphone")}
                         ellipsize={Pango.EllipsizeMode.END}

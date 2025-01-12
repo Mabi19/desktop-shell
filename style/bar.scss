@@ -103,6 +103,10 @@ $usage-steps: 6;
     @include badge;
 }
 
+#audio-quick-menu .mute-button {
+    padding: 3px 7px;
+}
+
 #time-and-notifications {
     @include badge;
     background-color: white;
