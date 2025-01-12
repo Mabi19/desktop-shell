@@ -1,4 +1,5 @@
 import { App, Gdk, Gtk } from "astal/gtk4";
+import type Gio from "gi://Gio?version=2.0";
 import { Bar } from "./bar/bar";
 import { handleMessage } from "./message";
 import { NotificationPopupWindow } from "./notification-center/notification";
@@ -8,9 +9,7 @@ import style from "./style.scss";
 const windows = new Map<Gdk.Monitor, Gtk.Widget[]>();
 
 function makeWindowsForMonitor(monitor: Gdk.Monitor) {
-    const bar = Bar(monitor);
-    const notificationCenter = NotificationCenter(monitor);
-    return [bar, notificationCenter];
+    return [Bar(monitor), NotificationCenter(monitor)];
 }
 
 App.start({
@@ -22,21 +21,15 @@ App.start({
         }
         // this one reacts to the primary monitor
         // NotificationPopupWindow();
+
+        const display = Gdk.Display.get_default()!;
+        const monitors = display.get_monitors() as Gio.ListModel<Gdk.Monitor>;
+        monitors.connect("items-changed", (self, position, removed, added) => {
+            // TODO: Figure out how this works. It may be easier to just diff the monitor list than use the properties.
+            console.log("monitors changed!", self, position, removed, added);
+        });
     },
     requestHandler(request, res) {
         handleMessage(request, res);
     },
 });
-
-// App.connect("monitor-removed", (_source, monitor) => {
-//     console.log("monitor removed", monitor.model);
-//     for (const win of windows.get(monitor) ?? []) {
-//         // win.destroy();
-//     }
-//     windows.delete(monitor);
-// });
-
-// App.connect("monitor-added", (_source, monitor) => {
-//     console.log("monitor added", monitor.manufacturer, monitor.model, monitor.refreshRate);
-//     windows.set(monitor, makeWindowsForMonitor(monitor));
-// });
