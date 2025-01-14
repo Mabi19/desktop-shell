@@ -1,15 +1,23 @@
 @use "theme";
 
+#notification-popup-window {
+    // This is supposed to be transparent.
+    // However, some pesky bug somewhere makes it so that when the last notification is removed,
+    // it stays on screen.
+    background-color: red;
+}
 
-#notification-popup-area {
-    background-color: transparent;
-    margin: 10px;
+// This class is set when the notification box contains items.
+// It's here so that there isn't a sliver of dead space in the top-right when there aren't any notifications.
+.notification-box-active {
+    // we only need top & right
+    margin: 10px 10px 0 0;
 }
 
 .notification {
     background-color: theme.$bg_color;
     border-radius: 10px;
-    
+
     .content {
         padding: 8px;
     }
@@ -21,6 +29,10 @@
 
     .icon {
         font-size: 2em;
+    }
+
+    progressbar trough, progressbar progress {
+        border-radius: 0;
     }
 }
 
