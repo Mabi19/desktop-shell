@@ -20,13 +20,45 @@ App.start({
             windows.set(monitor, makeWindowsForMonitor(monitor));
         }
         // this one reacts to the primary monitor
-        // NotificationPopupWindow();
+        NotificationPopupWindow();
 
         const display = Gdk.Display.get_default()!;
         const monitors = display.get_monitors() as Gio.ListModel<Gdk.Monitor>;
-        monitors.connect("items-changed", (self, position, removed, added) => {
-            // TODO: Figure out how this works. It may be easier to just diff the monitor list than use the properties.
-            console.log("monitors changed!", self, position, removed, added);
+        monitors.connect("items-changed", (monitorModel, position, idxRemoved, idxAdded) => {
+            console.log("monitors changed!", position, idxRemoved, idxAdded);
+
+            const prevSet = new Set(windows.keys());
+            const currSet = new Set<Gdk.Monitor>();
+            let i = 0;
+            while (true) {
+                const monitor = monitorModel.get_item(i) as Gdk.Monitor | null;
+                i++;
+                if (monitor) {
+                    currSet.add(monitor);
+                } else {
+                    break;
+                }
+            }
+
+            const removed = prevSet.difference(currSet);
+            const added = currSet.difference(prevSet);
+
+            console.log(
+                "prevSet:",
+                Array.from(prevSet).map((mon) => mon.description)
+            );
+            console.log(
+                "currSet:",
+                Array.from(currSet).map((mon) => mon.description)
+            );
+            console.log(
+                "removed:",
+                Array.from(removed).map((mon) => mon.description)
+            );
+            console.log(
+                "added:",
+                Array.from(added).map((mon) => mon.description)
+            );
         });
     },
     requestHandler(request, res) {
