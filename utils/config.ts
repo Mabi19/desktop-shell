@@ -1,19 +1,28 @@
-import { bind } from "astal";
+import { Variable } from "astal";
 import { readFile } from "astal/file";
-import { App } from "astal/gtk4";
-import AstalHyprland from "gi://AstalHyprland";
+import { App, Gdk } from "astal/gtk4";
 
-const hyprland = AstalHyprland.get_default();
+const display = Gdk.Display.get_default()!;
+const monitorModel = display.get_monitors();
 
 export const CONFIG: {
     primary_monitor: string;
 } = JSON.parse(readFile("./config.json"));
 
-const primaryMonitorName = bind(hyprland, "monitors").as(
-    (monitorList) =>
-        monitorList.find((mon) => mon.name == CONFIG.primary_monitor)?.name ?? monitorList[0].name
-);
+function getPrimaryMonitor() {
+    let i = 0;
+    while (true) {
+        const monitor = monitorModel.get_item(i) as Gdk.Monitor | null;
+        i++;
+        if (monitor) {
+            if (monitor.connector == CONFIG.primary_monitor) return monitor;
+        } else {
+            break;
+        }
+    }
 
-export const primaryMonitor = bind(primaryMonitorName).as((primaryName) =>
-    App.get_monitors().find((mon) => primaryName == mon.connector)
-);
+    return monitorModel.get_item(0) as Gdk.Monitor;
+}
+
+export const primaryMonitor = Variable(getPrimaryMonitor());
+monitorModel.connect("items-changed", () => primaryMonitor.set(getPrimaryMonitor()));
