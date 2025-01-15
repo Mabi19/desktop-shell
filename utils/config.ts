@@ -7,6 +7,7 @@ const monitorModel = display.get_monitors();
 
 export const CONFIG: {
     primary_monitor: string;
+    enable_notifications: boolean;
 } = JSON.parse(readFile("./config.json"));
 
 function getPrimaryMonitor() {
