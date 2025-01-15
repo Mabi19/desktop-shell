@@ -1,11 +1,13 @@
 import { bind } from "astal";
 import GObject, { register, signal } from "astal/gobject";
-import { App, Astal, Gdk, Gtk } from "astal/gtk4";
+import { App, Astal, Gdk, Gtk, astalify } from "astal/gtk4";
 import AstalNotifd from "gi://AstalNotifd";
 import Pango from "gi://Pango?version=1.0";
 import { primaryMonitor } from "../utils/config";
 import { Timer } from "../utils/timer";
 import { ProgressBar } from "../widgets/progress-bar";
+
+const Inscription = astalify(Gtk.Inscription);
 
 const DEFAULT_TIMEOUT = 5000;
 const NOTIFICATION_CLEANUP_FUNCTION = Symbol();
@@ -176,11 +178,12 @@ const Notification = ({ notification }: { notification: AstalNotifd.Notification
                     </button>
                 </box>
                 <label
-                    label={notification.body}
+                    // Use U+2028 LINE SEPARATOR in order to not introduce paragraph breaks.
+                    label={notification.body.replaceAll("\n", "\u2028")}
                     cssClasses={["description"]}
                     useMarkup={true}
                     wrap={true}
-                    ellipsize={Pango.EllipsizeMode.END}
+                    ellipsize={Pango.EllipsizeMode.MIDDLE}
                     // Setting this to a value that is definitely smaller than the box width
                     // causes the label to expand to that size.
                     maxWidthChars={5}
