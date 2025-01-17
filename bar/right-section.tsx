@@ -1,9 +1,8 @@
 import { Variable, exec } from "astal";
-import { App, Gdk, Gtk } from "astal/gtk4";
+import { Gdk, Gtk } from "astal/gtk4";
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import { notificationCenterMonitor } from "../notification-center/notification-center";
-import { Separator } from "../widgets/separator";
 import { AudioIndicator } from "./audio";
 import { SystemTray } from "./tray";
 
@@ -48,7 +47,7 @@ const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
     <button name="time-and-notifications" onClicked={() => toggleNotificationCenter(monitor)}>
         <box spacing={6}>
             {time((timestamp) => timestamp.format("%H:%M"))}
-            <Separator />
+            <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
             <image iconName="fa-bell-symbolic" />
         </box>
     </button>

@@ -1,8 +1,8 @@
 import { bind } from "astal";
+import { Gtk } from "astal/gtk4";
 import AstalNetwork from "gi://AstalNetwork";
 import { networkStats } from "../utils/system-stats";
 import { getUsageBadgeClass, mixUsageBadgeColor } from "../utils/usage-badge";
-import { Separator } from "../widgets/separator";
 
 const network = AstalNetwork.get_default();
 
@@ -134,13 +134,13 @@ export const NetworkIndicator = () => {
                                     {type == "wired" ? (
                                         <box spacing={8}>
                                             <NetworkIndicatorWired iface={iface} />
-                                            <Separator />
+                                            <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
                                             <NetworkIndicatorWifi />
                                         </box>
                                     ) : (
                                         <box spacing={8}>
                                             <NetworkIndicatorWifi iface={iface} />
-                                            <Separator />
+                                            <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
                                             <NetworkIndicatorWired />
                                         </box>
                                     )}
