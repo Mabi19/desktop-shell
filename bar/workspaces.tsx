@@ -11,6 +11,7 @@ const WORKSPACE_MIME_TYPE = "application/x.mabi-workspace";
 Gio._promisify(Gdk.Drop.prototype, "read_async", "read_finish");
 Gio._promisify(Gio.InputStream.prototype, "read_bytes_async", "read_bytes_finish");
 
+// This widget doesn't use `hook` or bind props, so it can be used with manual child management.
 export const WorkspaceButton = ({
     active,
     workspace,
@@ -26,6 +27,7 @@ export const WorkspaceButton = ({
 
     const button = (
         // Buttons break after getting drag'n'dropped. So make a fake button out of a box instead
+        // The active class is updated later by the workspace wrapper.
         <box
             cssClasses={active.get() == workspace.id ? ["active", "workspace"] : ["workspace"]}
             name={`workspace-${workspace.id}`}
@@ -38,41 +40,28 @@ export const WorkspaceButton = ({
     clickGesture.connect("released", clickHandler);
     button.add_controller(clickGesture);
 
-    function makeDragSource() {
-        const dragSource = new Gtk.DragSource();
-        dragSource.connect("prepare", () => {
-            console.log("prepare");
-            return Gdk.ContentProvider.new_for_bytes(
-                WORKSPACE_MIME_TYPE,
-                new Uint8Array([workspace.id])
-            );
-        });
-        dragSource.connect("drag-begin", (source) => {
-            console.log("drag-begin");
-            button.add_css_class("dragging");
-            source.set_icon(new Gtk.WidgetPaintable({ widget: button }), 0, 0);
-        });
-        dragSource.connect("drag-end", () => {
-            console.log("drag-end");
-            button.remove_css_class("dragging");
-        });
-        dragSource.connect("drag-cancel", () => {
-            console.log("drag-cancel");
-            button.remove_css_class("dragging");
-        });
-        return dragSource;
-    }
-
-    // since we're handling the dragging classes imperatively, we also need to do the active class that way
-    hook(button, active, (button, activeWorkspace) => {
-        if (workspace.id == activeWorkspace) {
-            button.add_css_class("active");
-        } else {
-            button.remove_css_class("active");
-        }
+    const dragSource = new Gtk.DragSource();
+    dragSource.connect("prepare", () => {
+        console.log("prepare");
+        return Gdk.ContentProvider.new_for_bytes(
+            WORKSPACE_MIME_TYPE,
+            new Uint8Array([workspace.id])
+        );
+    });
+    dragSource.connect("drag-begin", (source) => {
+        console.log("drag-begin");
+        button.add_css_class("dragging");
+        source.set_icon(new Gtk.WidgetPaintable({ widget: button }), 0, 0);
+    });
+    dragSource.connect("drag-end", () => {
+        console.log("drag-end");
+        button.remove_css_class("dragging");
+    });
+    dragSource.connect("drag-cancel", () => {
+        console.log("drag-cancel");
+        button.remove_css_class("dragging");
     });
 
-    const dragSource = makeDragSource();
     button.add_controller(dragSource);
 
     return button;
@@ -193,6 +182,15 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
             const [idString, _name] = args.split(",");
             const workspace = hyprland.get_workspace(parseInt(idString));
             if (workspace?.monitor?.id == hyprlandMonitor.id) {
+                buttons
+                    ?.get_children()
+                    ?.find((btn) => btn.name == `workspace-${activeWorkspace.get()}`)
+                    ?.remove_css_class("active");
+                buttons
+                    ?.get_children()
+                    ?.find((btn) => btn.name == `workspace-${workspace.id}`)
+                    ?.add_css_class("active");
+
                 activeWorkspace.set(workspace.id);
             }
         } else if (event == "createworkspacev2") {
