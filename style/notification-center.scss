@@ -18,8 +18,12 @@
     background-color: theme.$bg_color;
     border-radius: 10px;
 
-    .header, .layout {
+    .header, .layout{
         padding: 8px;
+    }
+
+    .actions {
+        padding: 0 8px 8px 8px;
     }
 
     .close-button {

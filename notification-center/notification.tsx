@@ -188,6 +188,18 @@ function NotificationWrapper({
                     cssClasses={["header-separator"]}
                 />
                 <NotificationLayoutProfile notification={notification} />
+                {notification.get_actions().length > 0 ? (
+                    <box spacing={8} cssClasses={["actions"]}>
+                        {notification.get_actions().map((action) => (
+                            <button
+                                onButtonPressed={() => notification.invoke(action.id)}
+                                hexpand={true}
+                            >
+                                {action.label}
+                            </button>
+                        ))}
+                    </box>
+                ) : null}
                 {progressBar}
             </box>
         ),
@@ -238,20 +250,6 @@ const NotificationLayoutProfile = ({
                 halign={Gtk.Align.FILL}
                 xalign={0}
             />
-
-            {/* TODO: Move this into a separate component */}
-            {notification.get_actions().length > 0 ? (
-                <box spacing={8}>
-                    {notification.get_actions().map((action) => (
-                        <button
-                            onButtonPressed={() => notification.invoke(action.id)}
-                            hexpand={true}
-                        >
-                            {action.label}
-                        </button>
-                    ))}
-                </box>
-            ) : null}
         </box>
     );
 };
