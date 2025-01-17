@@ -162,6 +162,38 @@ function NotificationWrapper({
         icon = null;
     }
 
+    let actions: Gtk.Widget | null;
+    if (notification.get_actions().length > 0) {
+        // actions = new Gtk.FlowBox({
+        //     rowSpacing: 8,
+        //     columnSpacing: 8,
+        //     cssClasses: ["actions"],
+        //     selectionMode: Gtk.SelectionMode.NONE,
+        //     maxChildrenPerLine: 3,
+        // });
+        // for (const action of notification.get_actions()) {
+        //     actions.append(
+        //         <Gtk.FlowBoxChild>
+        //             <button onButtonPressed={() => notification.invoke(action.id)}>
+        //                 {action.label}
+        //             </button>
+        //         </Gtk.FlowBoxChild>
+        //     );
+        // }
+        // TODO: Use the fancy FlexBoxLayout here
+        actions = (
+            <box spacing={8} cssClasses={["actions"]}>
+                {notification.actions.map((action) => (
+                    <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
+                        {action.label}
+                    </button>
+                ))}
+            </box>
+        );
+    } else {
+        actions = null;
+    }
+
     return {
         cleanup,
         widget: (
@@ -192,18 +224,7 @@ function NotificationWrapper({
                     cssClasses={["header-separator"]}
                 />
                 <NotificationLayoutProfile notification={notification} />
-                {notification.get_actions().length > 0 ? (
-                    <box spacing={8} cssClasses={["actions"]}>
-                        {notification.get_actions().map((action) => (
-                            <button
-                                onButtonPressed={() => notification.invoke(action.id)}
-                                hexpand={true}
-                            >
-                                {action.label}
-                            </button>
-                        ))}
-                    </box>
-                ) : null}
+                {actions}
                 {progressBar}
             </box>
         ),
