@@ -117,6 +117,10 @@ function NotificationWrapper({
 }: {
     notification: AstalNotifd.Notification;
 }): WidgetEntry {
+    // TODO: animations
+    // TODO: urgency (low: dimmed progress bar, normal: regular progress bar, critical: red border?)
+    // TODO: move into notification center
+
     console.log("got notification! timeout:", notification.expireTimeout);
     const NOTIFICATION_WIDTH = 400;
 
@@ -206,17 +210,35 @@ function NotificationWrapper({
     };
 }
 
+interface NotificationLabelProps {
+    label: string;
+    lines: number;
+    useMarkup?: boolean;
+    cssClasses?: string[];
+}
+
+function NotificationLabel(props: NotificationLabelProps) {
+    // Use U+2028 LINE SEPARATOR in order to not introduce paragraph breaks
+    props.label = props.label.replaceAll("\n", "\u2028");
+    return (
+        <label
+            {...props}
+            wrap={true}
+            ellipsize={Pango.EllipsizeMode.END}
+            // Setting this to a value that is definitely smaller than the box width
+            // causes the label to expand to that size.
+            maxWidthChars={5}
+            halign={Gtk.Align.FILL}
+            xalign={0}
+        />
+    );
+}
+
 const NotificationLayoutProfile = ({
     notification,
 }: {
     notification: AstalNotifd.Notification;
 }) => {
-    // TODO: rework
-
-    // TODO: animations
-    // TODO: urgency (low: dimmed progress bar, normal: regular progress bar, critical: red border?)
-    // TODO: move into notification center
-
     return (
         <box hexpand={false} vertical={true} cssClasses={["layout", "layout-profile"]} spacing={4}>
             <box spacing={8}>
@@ -225,30 +247,13 @@ const NotificationLayoutProfile = ({
                     iconName="dialog-information-symbolic"
                     visible={Boolean(notification.image)}
                 />
-                <label
-                    label={notification.summary}
-                    cssClasses={["title"]}
-                    wrap={true}
-                    ellipsize={Pango.EllipsizeMode.END}
-                    lines={2}
-                    maxWidthChars={5}
-                    halign={Gtk.Align.FILL}
-                    xalign={0}
-                />
+                <NotificationLabel label={notification.summary} lines={2} cssClasses={["title"]} />
             </box>
-            <label
-                // Use U+2028 LINE SEPARATOR in order to not introduce paragraph breaks.
-                label={notification.body.replaceAll("\n", "\u2028")}
+            <NotificationLabel
+                label={notification.body}
+                lines={5}
                 cssClasses={["description"]}
                 useMarkup={true}
-                wrap={true}
-                ellipsize={Pango.EllipsizeMode.MIDDLE}
-                // Setting this to a value that is definitely smaller than the box width
-                // causes the label to expand to that size.
-                maxWidthChars={5}
-                lines={5}
-                halign={Gtk.Align.FILL}
-                xalign={0}
             />
         </box>
     );
