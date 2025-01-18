@@ -43,6 +43,7 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
         // This is sub-pixel precise
         let expansionUsed = 0;
         for (const entry of line) {
+            // TODO: Look at the Gtk.BoxLayout expansion algorithm.
             let actualWidth = entry.minWidth;
             if (entry.child.hexpand) {
                 const lastStop = Math.round(expansionUsed);

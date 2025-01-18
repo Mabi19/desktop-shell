@@ -160,28 +160,11 @@ function NotificationWrapper({
     } else if (isIcon(notification.desktopEntry)) {
         icon = Gtk.Image.new_from_icon_name(notification.desktopEntry);
     } else {
-        icon = null;
+        icon = Gtk.Image.new_from_icon_name("dialog-information-symbolic");
     }
 
     let actions: Gtk.Widget | null;
     if (notification.get_actions().length > 0) {
-        // actions = new Gtk.FlowBox({
-        //     rowSpacing: 8,
-        //     columnSpacing: 8,
-        //     cssClasses: ["actions"],
-        //     selectionMode: Gtk.SelectionMode.NONE,
-        //     maxChildrenPerLine: 3,
-        // });
-        // for (const action of notification.get_actions()) {
-        //     actions.append(
-        //         <Gtk.FlowBoxChild>
-        //             <button onButtonPressed={() => notification.invoke(action.id)}>
-        //                 {action.label}
-        //             </button>
-        //         </Gtk.FlowBoxChild>
-        //     );
-        // }
-        // TODO: Use the fancy FlexBoxLayout here
         actions = (
             <box
                 spacing={8}
