@@ -6,6 +6,7 @@ import GLib from "gi://GLib?version=2.0";
 import Pango from "gi://Pango?version=1.0";
 import { primaryMonitor } from "../utils/config";
 import { Timer } from "../utils/timer";
+import { FlexBoxLayout } from "./flexbox-layout";
 import { dumpNotification } from "./notification-dump";
 
 const DEFAULT_TIMEOUT = 5000;
@@ -182,7 +183,11 @@ function NotificationWrapper({
         // }
         // TODO: Use the fancy FlexBoxLayout here
         actions = (
-            <box spacing={8} cssClasses={["actions"]}>
+            <box
+                spacing={8}
+                cssClasses={["actions"]}
+                layoutManager={new FlexBoxLayout({ spacing: 8 })}
+            >
                 {notification.actions.map((action) => (
                     <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
                         {action.label}
