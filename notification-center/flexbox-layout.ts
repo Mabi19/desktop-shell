@@ -33,7 +33,6 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
     #allocate_line(line: FlexLineEntry[], width: number) {
         const lastEntry = line.at(-1)!;
         const spaceLeft = width - (lastEntry.x + lastEntry.minWidth);
-        console.log("spaceLeft:", spaceLeft);
 
         const expandableChildren = line
             .map((entry) => entry.child)
@@ -49,10 +48,8 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
                 const lastStop = Math.round(expansionUsed);
                 expansionUsed += extraSpacePerChild;
                 const thisStop = Math.round(expansionUsed);
-                console.log(`giving child ${thisStop - lastStop} of extra space`);
                 actualWidth += thisStop - lastStop;
             }
-            console.log("total expansion used:", expansionUsed);
 
             const allocation = new Gdk.Rectangle({
                 x: currentX,
@@ -67,8 +64,6 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
     }
 
     vfunc_allocate(widget: Gtk.Widget, width: number, height: number, baseline: number): void {
-        console.log("allocate", widget, width, height, baseline);
-
         let thisLineHeight = 0;
         let thisLineUsedSpace = 0;
         let thisLineOffset = 0;
@@ -123,7 +118,6 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
         orientation: Gtk.Orientation,
         for_size: number
     ): [number, number, number, number] {
-        console.log("measure", widget, orientation, for_size);
         if (orientation == Gtk.Orientation.VERTICAL) {
             // height-for-width request, for_size is width
             // Minimum height is all on one line
@@ -170,7 +164,6 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
             }
 
             const natural = thisLineOffset + thisLineHeight;
-            console.log({ minimum, natural });
             return [minimum, natural, -1, -1];
         } else {
             // width-for-height request
@@ -187,10 +180,12 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
                     continue;
                 }
 
-                const [child_min, child_nat, _child_min_baseline, _child_nat_baseline] =
-                    child.measure(Gtk.Orientation.HORIZONTAL, for_size);
-                minimum = Math.max(minimum, child_min);
-                natural = Math.max(natural, child_nat);
+                const [childMinWidth, childNatWidth] = child.measure(
+                    Gtk.Orientation.HORIZONTAL,
+                    for_size
+                );
+                minimum = Math.max(minimum, childMinWidth);
+                natural = Math.max(natural, childNatWidth);
             }
 
             console.log({ minimum, natural });
