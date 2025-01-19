@@ -69,18 +69,18 @@ $usage-steps: 6;
 
 .workspace {
     border-radius: 1em;
-    padding: 0 2px;
-    min-width: 16px;
+    padding: 0 6px;
+    // min-width: 16px;
     min-height: 0;
 
     background-color: theme.$inactive_color;
     font-size: small;
     font-weight: bold;
 
-    transition: padding .2s ease-out, background-color .2s ease-out;;
+    transition: padding .2s ease-out, background-color .2s ease-out;
 
     &.active {
-        padding: 0 8px;
+        padding: 0 12px;
         background-color: theme.$active_color;
     }
 
