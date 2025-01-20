@@ -1,5 +1,5 @@
 import { App, Astal, Gdk } from "astal/gtk4";
-import GdkWayland from "gi://GdkWayland?version=4.0";
+import AstalHyprland from "gi://AstalHyprland?version=0.1";
 import type Gio from "gi://Gio?version=2.0";
 import { Bar } from "./bar/bar";
 import { handleMessage } from "./message";
@@ -7,6 +7,8 @@ import { NotificationPopupWindow } from "./notification-center/notification";
 import { NotificationCenter } from "./notification-center/notification-center";
 import style from "./style.scss";
 import { CONFIG } from "./utils/config";
+
+const hyprland = AstalHyprland.get_default();
 
 const windows = new Map<Gdk.Monitor, Astal.Window[]>();
 
@@ -47,6 +49,14 @@ App.start({
             const removed = prevSet.difference(currSet);
             const added = currSet.difference(prevSet);
 
+            // remove early, before anything else has a chance to break
+            for (const monitor of removed) {
+                const windowsToRemove = windows.get(monitor) ?? [];
+                for (const window of windowsToRemove) {
+                    window.destroy();
+                }
+            }
+
             display.sync();
             console.log(
                 "prevSet:",
@@ -64,13 +74,6 @@ App.start({
                 "added:",
                 Array.from(added).map((mon) => mon.description)
             );
-
-            for (const monitor of removed) {
-                const windowsToRemove = windows.get(monitor) ?? [];
-                for (const window of windowsToRemove) {
-                    window.destroy();
-                }
-            }
 
             for (const monitor of added) {
                 windows.set(monitor, makeWindowsForMonitor(monitor));

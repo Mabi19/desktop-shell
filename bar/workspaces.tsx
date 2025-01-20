@@ -1,12 +1,12 @@
 import { bind, Binding, Variable } from "astal";
-import { Gdk, Gtk, hook, Widget } from "astal/gtk4";
+import { Astal, Gdk, Gtk, hook, Widget } from "astal/gtk4";
 import AstalHyprland from "gi://AstalHyprland";
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 
-const hyprland = AstalHyprland.get_default();
-
 const WORKSPACE_MIME_TYPE = "application/x.mabi-workspace";
+
+const hyprland = AstalHyprland.get_default();
 
 Gio._promisify(Gdk.Drop.prototype, "read_async", "read_finish");
 Gio._promisify(Gio.InputStream.prototype, "read_bytes_async", "read_bytes_finish");
@@ -43,10 +43,7 @@ export const WorkspaceButton = ({
     const dragSource = new Gtk.DragSource();
     dragSource.connect("prepare", () => {
         console.log("prepare");
-        return Gdk.ContentProvider.new_for_bytes(
-            WORKSPACE_MIME_TYPE,
-            new Uint8Array([workspace.id])
-        );
+        return Gdk.ContentProvider.new_for_bytes(WORKSPACE_MIME_TYPE, new Uint8Array([workspace.id]));
     });
     dragSource.connect("drag-begin", (source) => {
         console.log("drag-begin");
@@ -67,20 +64,18 @@ export const WorkspaceButton = ({
     return button;
 };
 
-export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
-    // TODO: check for the reshuffling bug if it happens again
-    const hyprlandMonitor = hyprland.get_monitors().find((mon) => mon.name == gdkmonitor.connector);
-    if (!hyprlandMonitor) {
-        throw new Error("Couldn't find matching Hyprland monitor");
-    }
-
+export function HyprlandWorkspaces({ hyprlandMonitor }: { hyprlandMonitor: AstalHyprland.Monitor }) {
     const activeWorkspace = Variable<number | null>(hyprlandMonitor.active_workspace?.id);
 
     let buttons: ReturnType<typeof Widget.Box> | null = (
         <box
             name="workspaces"
             spacing={4}
-            onDestroy={() => activeWorkspace.drop()}
+            onDestroy={() => {
+                activeWorkspace.drop();
+                cleanup();
+            }}
+            onScroll={(_box, dx, dy) => handleWorkspaceScroll(dx, dy)}
             setup={(self) => {
                 const dropTarget = new Gtk.DropTargetAsync({
                     actions: Gdk.DragAction.COPY,
@@ -103,7 +98,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
                             if (isOnDifferentMonitor) {
                                 hyprland.dispatch(
                                     "moveworkspacetomonitor",
-                                    `${movedWorkspaceId} ${hyprlandMonitor.id}`
+                                    `${movedWorkspaceId} ${hyprlandMonitor?.id}`
                                 );
                             }
                             // TODO: Finishing a drop causes the next click to not go through. Try finding a workaround for this perhaps
@@ -118,14 +113,18 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         >
             {createWorkspaceButtons()}
         </box>
-    ) as ReturnType<typeof Widget.Box>;
+    ) as Astal.Box;
 
     function createWorkspaceButtons() {
-        return hyprland
-            .get_workspaces()
-            .filter((ws) => ws?.monitor.id == hyprlandMonitor!.id)
-            .toSorted((a, b) => a.id - b.id)
-            .map((ws) => <WorkspaceButton active={bind(activeWorkspace)} workspace={ws} />);
+        if (!hyprlandMonitor) {
+            return <image iconName="content-loading-symbolic" />;
+        } else {
+            return hyprland
+                .get_workspaces()
+                .filter((ws) => ws?.monitor.id == hyprlandMonitor.id)
+                .toSorted((a, b) => a.id - b.id)
+                .map((ws) => <WorkspaceButton active={bind(activeWorkspace)} workspace={ws} />);
+        }
     }
 
     function handleWorkspaceScroll(_dx: number, dy: number) {
@@ -133,9 +132,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
 
         if (direction != 0) {
             const buttonsChildren = buttons?.get_children() ?? [];
-            const workspaceIndex = buttonsChildren.findIndex(
-                (btn) => btn.name == `workspace-${activeWorkspace.get()}`
-            );
+            const workspaceIndex = buttonsChildren.findIndex((btn) => btn.name == `workspace-${activeWorkspace.get()}`);
             if (workspaceIndex == -1) {
                 console.warn("Couldn't find current workspace");
                 console.log(activeWorkspace.get());
@@ -165,9 +162,7 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
     }
 
     function removeWorkspaceButton(workspaceId: string) {
-        const button = buttons
-            ?.get_children()
-            ?.find((btn) => btn.name == `workspace-${workspaceId}`);
+        const button = buttons?.get_children()?.find((btn) => btn.name == `workspace-${workspaceId}`);
         if (button) {
             buttons?.remove(button);
         }
@@ -221,9 +216,36 @@ export const Workspaces = ({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) => {
         }
     });
 
-    return (
-        <box onScroll={(_box, dx, dy) => handleWorkspaceScroll(dx, dy)} onDestroy={() => cleanup()}>
-            {buttons}
-        </box>
-    );
-};
+    return buttons;
+}
+
+function getHyprForGdkMonitor(gdkmonitor: Gdk.Monitor) {
+    return hyprland.get_monitors().find((mon) => mon.name == gdkmonitor.connector);
+}
+
+export function Workspaces({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
+    const hyprlandMonitor = getHyprForGdkMonitor(gdkmonitor);
+
+    if (hyprlandMonitor) {
+        return (
+            <box>
+                <HyprlandWorkspaces hyprlandMonitor={hyprlandMonitor} />
+            </box>
+        );
+    } else {
+        // wait for it
+        const box = (
+            <box>
+                <image iconName="content-loading-symbolic" />
+            </box>
+        ) as Astal.Box;
+        const monitorConnectID = hyprland.connect("monitor-added", (_, monitor) => {
+            if (monitor.name == gdkmonitor.connector) {
+                hyprland.disconnect(monitorConnectID);
+                box.set_child(<HyprlandWorkspaces hyprlandMonitor={monitor} />);
+            }
+        });
+
+        return box;
+    }
+}
