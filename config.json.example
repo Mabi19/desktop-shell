@@ -1,4 +1,5 @@
 {
     "primary_monitor": "DP-1",
-    "enable_notifications": true
+    "enable_notifications": true,
+    "max_network_usage": 12500000
 }

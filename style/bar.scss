@@ -29,27 +29,21 @@
 
 .usage-badge {
     @include badge;
-    image {
-        color: white;
-    }
 }
 
-$usage-steps: 6;
-@for $i from 0 to $usage-steps {
-    $base-color: color.mix(theme.$active_color, theme.$inactive_color, math.div($i, $usage-steps - 1) * 100%, $method: oklch);
-    .usage-badge.step-#{$i} {
-        background-color: $base-color;
+// This receives its color from the ShadeBadge
+// TODO: Move this into the ShadeBadge's code.
+button.usage-badge {
+    background-color: transparent;
+
+    &:hover {
+        background-color: rgb(15% 15% 15% / 0.08);
     }
-    button.usage-badge.step-#{$i} {
-        &:hover {
-            background-color: color.adjust($base-color, $lightness: -3%, $chroma: -3%, $space: oklch);
-        }
-        &:active {
-            background-color: color.adjust($base-color, $lightness: -7.5%, $chroma: -7.5%, $space: oklch);
-        }
+
+    &:active {
+        background-color: rgb(15% 15% 15% / 0.2);
     }
 }
-
 
 #cpu-badge image, #memory-badge image {
     font-size: 1.05em;

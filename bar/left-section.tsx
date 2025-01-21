@@ -1,7 +1,7 @@
 import { Variable, bind, execAsync } from "astal";
 import { Gtk } from "astal/gtk4";
 import { cpuUsage, memoryAvailable, memoryTotal, memoryUsage } from "../utils/system-stats";
-import { getUsageBadgeClass } from "../utils/usage-badge";
+import { BackgroundBin, LevelBadge } from "./badge-widgets";
 import { NetworkIndicator } from "./network";
 
 const memoryTooltip = Variable.derive(
@@ -11,36 +11,29 @@ const memoryTooltip = Variable.derive(
 
 const CpuIndicator = () => {
     return (
-        <box
-            name="cpu-badge"
-            cssClasses={bind(cpuUsage).as((usage) => ["usage-badge", getUsageBadgeClass(usage)])}
-            spacing={4}
-        >
-            <image iconName="fa-microchip-symbolic" />
-            <label label={cpuUsage((usage) => `${Math.floor(usage * 100)}%`)} />
-        </box>
+        <LevelBadge level={bind(cpuUsage)}>
+            <box name="cpu-badge" cssClasses={["usage-badge"]} spacing={4}>
+                <image iconName="fa-microchip-symbolic" />
+                <label label={bind(cpuUsage).as((usage) => `${Math.floor(usage * 100)}%`)} />
+            </box>
+        </LevelBadge>
     );
 };
 
 const MemoryIndicator = () => {
     return (
-        <box
-            name="memory-badge"
-            tooltipText={memoryTooltip()}
-            cssClasses={bind(memoryUsage).as((usage) => ["usage-badge", getUsageBadgeClass(usage)])}
-            spacing={4}
-        >
-            <image iconName="fa-memory-symbolic" />
-            <label label={memoryUsage((usage) => `${Math.floor(usage * 100)}%`)} />
-        </box>
+        <LevelBadge level={bind(memoryUsage)}>
+            <box name="memory-badge" tooltipText={memoryTooltip()} cssClasses={["usage-badge"]} spacing={4}>
+                <image iconName="fa-memory-symbolic" />
+                <label label={bind(memoryUsage).as((usage) => `${Math.floor(usage * 100)}%`)} />
+            </box>
+        </LevelBadge>
     );
 };
 
 const capsLockActive = Variable(false);
 export async function updateCapsLockStatus() {
-    const result = JSON.parse(await execAsync(["hyprctl", "devices", "-j"])).keyboards.filter(
-        (kb: any) => kb.main
-    );
+    const result = JSON.parse(await execAsync(["hyprctl", "devices", "-j"])).keyboards.filter((kb: any) => kb.main);
     if (result.length > 0) {
         capsLockActive.set(result[0].capsLock);
     }
@@ -49,10 +42,7 @@ updateCapsLockStatus();
 
 const CapsIndicator = () => {
     return (
-        <revealer
-            revealChild={capsLockActive()}
-            transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
-        >
+        <revealer revealChild={capsLockActive()} transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}>
             <box spacing={4}>
                 <image iconName="dialog-warning-symbolic" />
                 <label label="CAPS" />
@@ -61,11 +51,13 @@ const CapsIndicator = () => {
     );
 };
 
-export const LeftSection = () => (
-    <box halign={Gtk.Align.START} spacing={8}>
-        <CpuIndicator />
-        <MemoryIndicator />
-        <NetworkIndicator />
-        <CapsIndicator />
-    </box>
-);
+export function LeftSection() {
+    return (
+        <box halign={Gtk.Align.START} spacing={8}>
+            <CpuIndicator />
+            <MemoryIndicator />
+            <NetworkIndicator />
+            <CapsIndicator />
+        </box>
+    );
+}

@@ -113,11 +113,7 @@ export const NotificationPopupWindow = () => {
 
 // This widget provides the constant parts of the notification.
 // It also chooses a suitable layout for the notification.
-function NotificationWrapper({
-    notification,
-}: {
-    notification: AstalNotifd.Notification;
-}): WidgetEntry {
+function NotificationWrapper({ notification }: { notification: AstalNotifd.Notification }): WidgetEntry {
     // TODO: animations
     // TODO: urgency (low: dimmed progress bar, normal: regular progress bar, critical: red border?)
     // TODO: move into notification center
@@ -126,9 +122,7 @@ function NotificationWrapper({
     const NOTIFICATION_WIDTH = 400;
 
     // TODO: Replace this with the frame clock?
-    const timer = new Timer(
-        notification.expireTimeout == -1 ? DEFAULT_TIMEOUT : notification.expireTimeout
-    );
+    const timer = new Timer(notification.expireTimeout == -1 ? DEFAULT_TIMEOUT : notification.expireTimeout);
     const progressBar = new Gtk.ProgressBar({ fraction: 1 });
     const cleanup = timer.subscribe(() => {
         progressBar.fraction = 1 - timer.timeLeft / timer.timeout;
@@ -166,11 +160,7 @@ function NotificationWrapper({
     let actions: Gtk.Widget | null;
     if (notification.get_actions().length > 0) {
         actions = (
-            <box
-                spacing={8}
-                cssClasses={["actions"]}
-                layoutManager={new FlexBoxLayout({ spacing: 8 })}
-            >
+            <box spacing={8} cssClasses={["actions"]} layoutManager={new FlexBoxLayout({ spacing: 8 })}>
                 {notification.actions.map((action) => (
                     <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
                         {action.label}
@@ -207,10 +197,7 @@ function NotificationWrapper({
                         }}
                     />
                 </box>
-                <Gtk.Separator
-                    orientation={Gtk.Orientation.HORIZONTAL}
-                    cssClasses={["header-separator"]}
-                />
+                <Gtk.Separator orientation={Gtk.Orientation.HORIZONTAL} cssClasses={["header-separator"]} />
                 <NotificationLayoutProfile notification={notification} />
                 {actions}
                 {progressBar}
@@ -243,27 +230,15 @@ function NotificationLabel(props: NotificationLabelProps) {
     );
 }
 
-const NotificationLayoutProfile = ({
-    notification,
-}: {
-    notification: AstalNotifd.Notification;
-}) => {
+const NotificationLayoutProfile = ({ notification }: { notification: AstalNotifd.Notification }) => {
     return (
         <box hexpand={false} vertical={true} cssClasses={["layout", "layout-profile"]} spacing={4}>
             <box spacing={8}>
                 {/* TODO: test if that's a file or a named icon (see example) */}
-                <image
-                    iconName="dialog-information-symbolic"
-                    visible={Boolean(notification.image)}
-                />
+                <image iconName="dialog-information-symbolic" visible={Boolean(notification.image)} />
                 <NotificationLabel label={notification.summary} lines={2} cssClasses={["title"]} />
             </box>
-            <NotificationLabel
-                label={notification.body}
-                lines={5}
-                cssClasses={["description"]}
-                useMarkup={true}
-            />
+            <NotificationLabel label={notification.body} lines={5} cssClasses={["description"]} useMarkup={true} />
         </box>
     );
 };

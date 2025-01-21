@@ -1,8 +1,9 @@
 import { bind } from "astal";
 import { Gtk } from "astal/gtk4";
 import AstalNetwork from "gi://AstalNetwork";
+import { CONFIG } from "../utils/config";
 import { networkStats } from "../utils/system-stats";
-import { getUsageBadgeClass, mixUsageBadgeColor } from "../utils/usage-badge";
+import { LevelBadge } from "./badge-widgets";
 
 const network = AstalNetwork.get_default();
 
@@ -21,7 +22,6 @@ const INTERNET_STATE_NAMES = {
 };
 
 // How much usage means maximum utilization. Used to generate the badge color. In bytes per second
-const MAX_NETWORK_USAGE = 12_500_000;
 
 function getTotalNetworkThroughput(stats?: { rx: number; tx: number }) {
     if (!stats) {
@@ -121,30 +121,27 @@ export const NetworkIndicator = () => {
                     {bind(network[type], "device").as((device) => (
                         <box>
                             {bind(device, "interface").as((iface) => (
-                                <button
-                                    cssClasses={bind(networkStats).as((stats) => [
-                                        "usage-badge",
-                                        getUsageBadgeClass(
-                                            getTotalNetworkThroughput(stats[iface]) /
-                                                MAX_NETWORK_USAGE
-                                        ),
-                                    ])}
-                                    name="network-badge"
-                                >
-                                    {type == "wired" ? (
-                                        <box spacing={8}>
-                                            <NetworkIndicatorWired iface={iface} />
-                                            <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
-                                            <NetworkIndicatorWifi />
-                                        </box>
-                                    ) : (
-                                        <box spacing={8}>
-                                            <NetworkIndicatorWifi iface={iface} />
-                                            <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
-                                            <NetworkIndicatorWired />
-                                        </box>
+                                <LevelBadge
+                                    level={bind(networkStats).as(
+                                        (stats) => getTotalNetworkThroughput(stats[iface]) / CONFIG.max_network_usage
                                     )}
-                                </button>
+                                >
+                                    <button cssClasses={["usage-badge"]} name="network-badge">
+                                        {type == "wired" ? (
+                                            <box spacing={8}>
+                                                <NetworkIndicatorWired iface={iface} />
+                                                <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
+                                                <NetworkIndicatorWifi />
+                                            </box>
+                                        ) : (
+                                            <box spacing={8}>
+                                                <NetworkIndicatorWifi iface={iface} />
+                                                <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
+                                                <NetworkIndicatorWired />
+                                            </box>
+                                        )}
+                                    </button>
+                                </LevelBadge>
                             ))}
                         </box>
                     ))}
