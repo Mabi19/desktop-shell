@@ -1,5 +1,7 @@
 {
     "primary_monitor": "DP-1",
     "enable_notifications": true,
-    "max_network_usage": 12500000
+    "max_network_usage": 12500000,
+    "theme_inactive": { "l": 0.6460, "a": 0.1412, "b": -0.1027 },
+    "theme_active": { "l": 0.5200, "a": 0.1106, "b": -0.1390 }
 }

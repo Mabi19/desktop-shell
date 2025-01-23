@@ -31,8 +31,7 @@
     @include badge;
 }
 
-// This receives its color from the ShadeBadge
-// TODO: Move this into the ShadeBadge's code.
+// This receives its color from the LevelBin
 button.usage-badge {
     background-color: transparent;
 
@@ -67,7 +66,7 @@ button.usage-badge {
     // min-width: 16px;
     min-height: 0;
 
-    background-color: theme.$inactive_color;
+    background-color: var(--theme-inactive);
     font-size: small;
     font-weight: bold;
 
@@ -75,7 +74,7 @@ button.usage-badge {
 
     &.active {
         padding: 0 12px;
-        background-color: theme.$active_color;
+        background-color: var(--theme-active);
     }
 
     &.dragging {
@@ -83,7 +82,7 @@ button.usage-badge {
     }
 
     &:hover:not(.dragging) {
-        background-color: theme.$active_color;
+        background-color: var(--theme-active);
     }
 }
 

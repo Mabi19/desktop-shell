@@ -16,6 +16,7 @@ type FlexLineEntry = {
 // A multiline box layout.
 // Fits as many children on a line as possible,
 // then lets them expand to fill each line (if they have hexpand set).
+// TODO: Yeet this when libadwaita 1.7 comes out (in favour of AdwWrapBox)
 @register()
 export class FlexBoxLayout extends Gtk.LayoutManager {
     @property(Number)
@@ -34,9 +35,7 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
         const lastEntry = line.at(-1)!;
         const spaceLeft = width - (lastEntry.x + lastEntry.minWidth);
 
-        const expandableChildren = line
-            .map((entry) => entry.child)
-            .filter((child) => child.hexpand);
+        const expandableChildren = line.map((entry) => entry.child).filter((child) => child.hexpand);
         const extraSpacePerChild = spaceLeft / expandableChildren.length;
 
         let currentX = 0;
@@ -70,20 +69,13 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
         let thisLineOffset = 0;
         let thisLineContent: FlexLineEntry[] = [];
 
-        for (
-            let child = widget.get_first_child();
-            child != null;
-            child = child!.get_next_sibling()
-        ) {
+        for (let child = widget.get_first_child(); child != null; child = child!.get_next_sibling()) {
             if (!child.should_layout()) {
                 continue;
             }
 
             const [childMinWidth, childNatWidth] = child.measure(Gtk.Orientation.HORIZONTAL, -1);
-            const [childMinHeight, childNatHeight] = child.measure(
-                Gtk.Orientation.VERTICAL,
-                childMinWidth
-            );
+            const [childMinHeight, childNatHeight] = child.measure(Gtk.Orientation.VERTICAL, childMinWidth);
 
             if (thisLineUsedSpace + childMinWidth > width) {
                 // allocate this line's widgets
@@ -132,23 +124,13 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
             let thisLineUsedSpace = 0;
             let thisLineOffset = 0;
 
-            for (
-                let child = widget.get_first_child();
-                child != null;
-                child = child!.get_next_sibling()
-            ) {
+            for (let child = widget.get_first_child(); child != null; child = child!.get_next_sibling()) {
                 if (!child.should_layout()) {
                     continue;
                 }
 
-                const [childMinWidth, childNatWidth] = child.measure(
-                    Gtk.Orientation.HORIZONTAL,
-                    -1
-                );
-                const [childMinHeight, childNatHeight] = child.measure(
-                    Gtk.Orientation.VERTICAL,
-                    childMinWidth
-                );
+                const [childMinWidth, childNatWidth] = child.measure(Gtk.Orientation.HORIZONTAL, -1);
+                const [childMinHeight, childNatHeight] = child.measure(Gtk.Orientation.VERTICAL, childMinWidth);
 
                 if (thisLineUsedSpace + childMinWidth > for_size) {
                     // set up a new line
@@ -172,19 +154,12 @@ export class FlexBoxLayout extends Gtk.LayoutManager {
             // Natural width is max(nat widths)
             let minimum = 0;
             let natural = 0;
-            for (
-                let child = widget.get_first_child();
-                child != null;
-                child = child!.get_next_sibling()
-            ) {
+            for (let child = widget.get_first_child(); child != null; child = child!.get_next_sibling()) {
                 if (!child.should_layout()) {
                     continue;
                 }
 
-                const [childMinWidth, childNatWidth] = child.measure(
-                    Gtk.Orientation.HORIZONTAL,
-                    for_size
-                );
+                const [childMinWidth, childNatWidth] = child.measure(Gtk.Orientation.HORIZONTAL, for_size);
                 minimum = Math.max(minimum, childMinWidth);
                 natural = Math.max(natural, childNatWidth);
             }

@@ -6,9 +6,8 @@ import { handleMessage } from "./message";
 import { NotificationPopupWindow } from "./notification-center/notification";
 import { NotificationCenter } from "./notification-center/notification-center";
 import style from "./style.scss";
+import { formatOklabAsCSS } from "./utils/color";
 import { CONFIG } from "./utils/config";
-
-const hyprland = AstalHyprland.get_default();
 
 const windows = new Map<Gdk.Monitor, Astal.Window[]>();
 
@@ -16,10 +15,22 @@ function makeWindowsForMonitor(monitor: Gdk.Monitor) {
     return [Bar(monitor), NotificationCenter(monitor)] as Astal.Window[];
 }
 
+function applyThemeCSS() {
+    const themeColorCSS = `
+    :root {
+        --theme-inactive: ${formatOklabAsCSS(CONFIG.theme_inactive)};
+        --theme-active: ${formatOklabAsCSS(CONFIG.theme_active)};
+    }
+    `;
+    App.apply_css(themeColorCSS);
+}
+
 App.start({
     css: style,
     icons: `${SRC}/icons`,
     main() {
+        applyThemeCSS();
+
         for (const monitor of App.get_monitors()) {
             windows.set(monitor, makeWindowsForMonitor(monitor));
         }

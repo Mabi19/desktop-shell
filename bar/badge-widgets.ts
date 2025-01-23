@@ -3,6 +3,8 @@ import { Gdk, Gtk, astalify } from "astal/gtk4";
 import Adw from "gi://Adw?version=1";
 import Graphene from "gi://Graphene?version=1.0";
 import Gsk from "gi://Gsk?version=4.0";
+import { convertOklabToGdk } from "../utils/color";
+import { CONFIG } from "../utils/config";
 
 @register({
     CssName: "background-bin",
@@ -72,14 +74,19 @@ export class LevelBin extends BackgroundBin {
         // TODO: Blend in Oklab
         // TODO: Un-hardcode the colors
 
-        const min = [192, 99, 201];
-        const max = [134, 67, 181];
-        const mixed = [0, 0, 0];
-        for (let i = 0; i < 3; i++) {
-            mixed[i] = Math.round(min[i] * (1 - blendFactor) + max[i] * blendFactor);
+        function lerp(min: number, max: number, factor: number) {
+            return min * (1 - factor) + max * factor;
         }
 
-        const color = new Gdk.RGBA({ red: mixed[0] / 255, green: mixed[1] / 255, blue: mixed[2] / 255, alpha: 1 });
+        const min = CONFIG.theme_inactive;
+        const max = CONFIG.theme_active;
+        const mixed = {
+            l: lerp(min.l, max.l, blendFactor),
+            a: lerp(min.a, max.a, blendFactor),
+            b: lerp(min.b, max.b, blendFactor),
+        };
+
+        const color = convertOklabToGdk(mixed);
         const roundedRect = new Gsk.RoundedRect().init_from_rect(fullRect, fullRect.get_height() / 2);
 
         snapshot.push_rounded_clip(roundedRect);
