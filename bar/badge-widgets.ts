@@ -1,6 +1,7 @@
 import { property, register } from "astal/gobject";
 import { Gdk, Gtk, astalify } from "astal/gtk4";
 import Adw from "gi://Adw?version=1";
+import GLib from "gi://GLib?version=2.0";
 import Graphene from "gi://Graphene?version=1.0";
 import Gsk from "gi://Gsk?version=4.0";
 import { convertOklabToGdk } from "../utils/color";
@@ -41,27 +42,80 @@ export class BackgroundBin extends Adw.Bin {
     }
 }
 
+function lerp(min: number, max: number, factor: number) {
+    return min * (1 - factor) + max * factor;
+}
+
+// in microseconds
+const ANIMATION_LENGTH = 200_000;
+
 interface LevelBinConstructorProps extends Adw.Bin.ConstructorProps {
     level: number;
 }
 
 @register()
 export class LevelBin extends BackgroundBin {
+    #animStartTime: number | null;
+    #animStartLevel: number | null;
+    #animTargetLevel: number | null;
     #level: number;
+
+    constructor(props?: Partial<LevelBinConstructorProps>) {
+        super(props);
+        this.#level = props?.level ?? 0;
+        this.#animStartTime = null;
+        this.#animStartLevel = null;
+        this.#animTargetLevel = null;
+    }
+
+    #stopAnimation() {
+        this.#animStartTime = null;
+        this.#animStartLevel = null;
+        this.#animTargetLevel = null;
+    }
+
+    #animationTick(frameClock: Gdk.FrameClock): boolean {
+        if (this.#animStartTime == null || this.#animStartLevel == null || this.#animTargetLevel == null) {
+            this.#stopAnimation();
+            return GLib.SOURCE_REMOVE;
+        }
+
+        const timeSinceStart = frameClock.get_frame_time() - this.#animStartTime;
+        if (timeSinceStart >= ANIMATION_LENGTH) {
+            this.#level = this.#animTargetLevel;
+            this.queue_draw();
+            this.#stopAnimation();
+            return GLib.SOURCE_REMOVE;
+        } else {
+            // TODO: fancier curve here?
+            this.#level = lerp(this.#animStartLevel, this.#animTargetLevel, timeSinceStart / ANIMATION_LENGTH);
+            this.queue_draw();
+            return GLib.SOURCE_CONTINUE;
+        }
+    }
 
     @property(Number)
     set level(value: number) {
-        this.#level = value;
-        this.queue_draw();
+        // do not animate if it would be unnoticeable
+        if (Math.abs(value - this.#level) < 0.01) {
+            this.#stopAnimation();
+            this.#level = value;
+            return;
+        }
+
+        // start animating
+        const shouldStartClock = this.#animStartTime == null;
+        this.#animStartTime = GLib.get_monotonic_time();
+        this.#animStartLevel = this.#level;
+        this.#animTargetLevel = value;
+
+        if (shouldStartClock) {
+            this.add_tick_callback((_self, frameClock) => this.#animationTick(frameClock));
+        }
     }
 
     get level() {
         return this.#level;
-    }
-
-    constructor(props?: Partial<LevelBinConstructorProps>) {
-        super(props);
-        this.#level = 0;
     }
 
     draw(snapshot: Gtk.Snapshot, fullRect: Graphene.Rect) {
@@ -69,14 +123,6 @@ export class LevelBin extends BackgroundBin {
         let blendFactor = Math.max(Math.min(this.#level, 1), 0);
         // change curve to emphasize changes at small amounts
         blendFactor = Math.pow(blendFactor, 0.75);
-
-        // TODO: Transitions
-        // TODO: Blend in Oklab
-        // TODO: Un-hardcode the colors
-
-        function lerp(min: number, max: number, factor: number) {
-            return min * (1 - factor) + max * factor;
-        }
 
         const min = CONFIG.theme_inactive;
         const max = CONFIG.theme_active;
