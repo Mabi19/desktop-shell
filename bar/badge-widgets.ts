@@ -136,12 +136,75 @@ export class LevelBin extends BackgroundBin {
         const roundedRect = new Gsk.RoundedRect().init_from_rect(fullRect, fullRect.get_height() / 2);
 
         snapshot.push_rounded_clip(roundedRect);
-        snapshot.append_node(Gsk.ColorNode.new(color, fullRect));
+        snapshot.append_color(color, fullRect);
         snapshot.pop();
     }
 }
 
 export const LevelBadge = astalify<LevelBin, LevelBinConstructorProps>(LevelBin, {
+    getChildren(widget) {
+        return [widget.child];
+    },
+    setChildren(widget, children) {
+        widget.child = children[0];
+    },
+});
+
+const themeColorInactive = convertOklabToGdk(CONFIG.theme_inactive);
+const themeColorActive = convertOklabToGdk(CONFIG.theme_active);
+
+interface GraphBinConstructorProps extends Adw.Bin.ConstructorProps {
+    values: number[];
+}
+
+@register()
+export class GraphBin extends BackgroundBin {
+    #values!: number[];
+
+    @property(Object)
+    set values(data: number[]) {
+        this.#values = data;
+        this.queue_draw();
+    }
+
+    get values() {
+        return this.#values;
+    }
+
+    constructor(props?: Partial<GraphBinConstructorProps>) {
+        super(props);
+        if (!this.values) {
+            this.values = [];
+        }
+    }
+
+    draw(snapshot: Gtk.Snapshot, fullRect: Graphene.Rect) {
+        const width = fullRect.get_width();
+        const height = fullRect.get_height();
+        const roundedRect = new Gsk.RoundedRect().init_from_rect(fullRect, height / 2);
+
+        snapshot.push_rounded_clip(roundedRect);
+        // the background
+        snapshot.append_color(themeColorInactive, fullRect);
+        // ... and the graph
+        if (this.values.length > 0) {
+            const builder = new Gsk.PathBuilder();
+            builder.move_to(0, height);
+            for (let i = 0; i < this.#values.length; i++) {
+                const adjustedValue = Math.min(1, this.#values[i] * 1.1);
+
+                builder.line_to(width * (i / (this.#values.length - 1)), height * (1 - adjustedValue));
+            }
+            builder.line_to(width, height);
+            builder.close();
+            const path = builder.to_path();
+            snapshot.append_fill(path, Gsk.FillRule.EVEN_ODD, themeColorActive);
+        }
+        snapshot.pop();
+    }
+}
+
+export const GraphBadge = astalify<GraphBin, GraphBinConstructorProps>(GraphBin, {
     getChildren(widget) {
         return [widget.child];
     },

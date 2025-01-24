@@ -27,14 +27,13 @@
     border-radius: 50%;
 }
 
+// This receives its color from the LevelBin that wraps it
 .usage-badge {
     @include badge;
+    background-color: transparent;
 }
 
-// This receives its color from the LevelBin
 button.usage-badge {
-    background-color: transparent;
-
     &:hover {
         background-color: rgb(15% 15% 15% / 0.08);
     }
@@ -52,6 +51,25 @@ button.usage-badge {
     separator {
         background-color: #ddd;
     }
+}
+
+// menu buttons include a button inside them
+#audio > button {
+    @include badge;
+    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.5);
+    background-color: transparent;
+
+    &:hover {
+        background-color: rgb(15% 15% 15% / 0.08);
+    }
+
+    &:active, &:checked {
+        background-color: rgb(15% 15% 15% / 0.2);
+    }
+}
+
+#audio-quick-menu .mute-button {
+    padding: 3px 7px;
 }
 
 #workspaces {
@@ -89,15 +107,6 @@ button.usage-badge {
 .tray-item > button {
     background: transparent;
     padding: 0;
-}
-
-// menu buttons include a button inside them
-#audio > button {
-    @include badge;
-}
-
-#audio-quick-menu .mute-button {
-    padding: 3px 7px;
 }
 
 #time-and-notifications {

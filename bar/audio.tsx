@@ -1,10 +1,14 @@
 import { bind, execAsync } from "astal";
 import { Gtk, hook } from "astal/gtk4";
-import AstalWp from "gi://AstalWp";
+import AstalCava from "gi://AstalCava?version=0.1";
+import AstalWp from "gi://AstalWp?version=0.1";
 import Pango from "gi://Pango?version=1.0";
 import { ToggleButton } from "../widgets/toggle-button";
+import { GraphBadge } from "./badge-widgets";
 
 const audio = AstalWp.get_default()!.audio;
+const cava = AstalCava.get_default()!;
+cava.bars = 16;
 
 const VolumeSlider = ({ device }: { device: AstalWp.Endpoint }) => {
     const adjustment = new Gtk.Adjustment({
@@ -82,9 +86,7 @@ const AudioPopover = () => {
                     >
                         <image
                             iconName={bind(microphone, "mute").as((muted) =>
-                                muted
-                                    ? "microphone-sensitivity-muted-symbolic"
-                                    : "audio-input-microphone-symbolic"
+                                muted ? "microphone-sensitivity-muted-symbolic" : "audio-input-microphone-symbolic"
                             )}
                         />
                     </ToggleButton>
@@ -121,15 +123,17 @@ const AudioPart = ({ device }: { device: AstalWp.Endpoint }) => {
 
 export const AudioIndicator = () => {
     return (
-        <menubutton name="audio" popover={(<AudioPopover />) as Gtk.Popover}>
-            <box spacing={8}>
-                {bind(audio, "defaultSpeaker").as((speaker) => (
-                    <AudioPart device={speaker} />
-                ))}
-                {bind(audio, "defaultMicrophone").as((microphone) => (
-                    <AudioPart device={microphone} />
-                ))}
-            </box>
-        </menubutton>
+        <GraphBadge values={bind(cava, "values")}>
+            <menubutton name="audio" popover={(<AudioPopover />) as Gtk.Popover}>
+                <box spacing={8}>
+                    {bind(audio, "defaultSpeaker").as((speaker) => (
+                        <AudioPart device={speaker} />
+                    ))}
+                    {bind(audio, "defaultMicrophone").as((microphone) => (
+                        <AudioPart device={microphone} />
+                    ))}
+                </box>
+            </menubutton>
+        </GraphBadge>
     );
 };
