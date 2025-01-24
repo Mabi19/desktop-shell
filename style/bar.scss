@@ -27,10 +27,12 @@
     border-radius: 50%;
 }
 
-// This receives its color from the LevelBin that wraps it
+// This receives its color from the BackgroundBin that wraps it
 .usage-badge {
     @include badge;
     background-color: transparent;
+    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
+    -gtk-icon-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
 }
 
 button.usage-badge {
@@ -56,7 +58,8 @@ button.usage-badge {
 // menu buttons include a button inside them
 #audio > button {
     @include badge;
-    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.5);
+    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
+    -gtk-icon-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
     background-color: transparent;
 
     &:hover {
