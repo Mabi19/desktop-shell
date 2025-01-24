@@ -191,7 +191,7 @@ export class GraphBin extends BackgroundBin {
             const builder = new Gsk.PathBuilder();
             builder.move_to(0, height);
             for (let i = 0; i < this.#values.length; i++) {
-                const adjustedValue = Math.min(1, this.#values[i] * 1.1);
+                const adjustedValue = Math.pow(Math.max(Math.min(1, this.#values[i]), 0), 0.75);
 
                 builder.line_to(width * (i / (this.#values.length - 1)), height * (1 - adjustedValue));
             }
