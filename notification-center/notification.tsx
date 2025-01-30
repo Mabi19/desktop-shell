@@ -1,4 +1,4 @@
-import { bind } from "astal";
+import { bind, Variable } from "astal";
 import GObject, { register, signal } from "astal/gobject";
 import { App, Astal, Gdk, Gtk } from "astal/gtk4";
 import AstalNotifd from "gi://AstalNotifd";
@@ -73,10 +73,14 @@ class NotificationTracker extends GObject.Object {
 export const NotificationPopupWindow = () => {
     const notifs = new NotificationTracker();
 
+    const windowVisible = Variable(false);
     const box = (<box vertical={true} spacing={12} noImplicitDestroy={true}></box>) as Astal.Box;
 
     notifs.connect("create", (_, entry: WidgetEntry) => {
-        box.add_css_class("notification-box-active");
+        if (box.get_children().length == 0) {
+            windowVisible.set(true);
+        }
+
         box.prepend(entry.widget);
     });
     notifs.connect("replace", (_, prev: WidgetEntry, curr: WidgetEntry) => {
@@ -88,7 +92,7 @@ export const NotificationPopupWindow = () => {
         box.remove(entry.widget);
         entry.cleanup();
         if (box.get_first_child() == null) {
-            box.remove_css_class("notification-box-active");
+            windowVisible.set(false);
         }
     });
 
@@ -100,11 +104,12 @@ export const NotificationPopupWindow = () => {
             layer={Astal.Layer.OVERLAY}
             gdkmonitor={bind(primaryMonitor)}
             setup={(self) => App.add_window(self)}
-            visible={true}
+            visible={windowVisible()}
             // This causes the window to be able to shrink back down when the notification is destroyed.
             // But only if it isn't transparent.
-            defaultWidth={-1}
-            defaultHeight={-1}
+            defaultWidth={1}
+            defaultHeight={1}
+            onDestroy={() => windowVisible.drop()}
         >
             {box}
         </window>
@@ -131,7 +136,7 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
     });
 
     /** Invoke an action by its ID, checking if it exists */
-    function handleDefaultClick(event: Gdk.ButtonEvent) {
+    function handleBackgroundClick(event: Gdk.ButtonEvent) {
         const button = event.get_button();
         if (button == Gdk.BUTTON_PRIMARY) {
             const action = notification.get_actions().find((action) => action.id == "default");
@@ -178,7 +183,7 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
             <box
                 onHoverEnter={() => timer.pauseCount++}
                 onHoverLeave={() => timer.pauseCount--}
-                onButtonPressed={(_box, event) => handleDefaultClick(event)}
+                onButtonReleased={(_box, event) => handleBackgroundClick(event)}
                 vertical={true}
                 hexpand={false}
                 widthRequest={NOTIFICATION_WIDTH}
