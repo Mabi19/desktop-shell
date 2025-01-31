@@ -26,6 +26,7 @@ In the future, I may make a PKGBUILD for this or something.
 
 ## Configuration
 This isn't particularly customizable, but some options do exist (they should live in `~/.config/mabi-shell/config.json`).
+See `config.json.example` for an example.
 ```ts
 interface OklabColor {
     l: number;

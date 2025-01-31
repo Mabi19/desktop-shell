@@ -12,10 +12,12 @@ const memoryTooltip = Variable.derive(
 const CpuIndicator = () => {
     return (
         <LevelBadge level={bind(cpuUsage)}>
-            <box name="cpu-badge" cssClasses={["usage-badge"]} spacing={4}>
-                <image iconName="fa-microchip-symbolic" />
-                <label label={bind(cpuUsage).as((usage) => `${Math.floor(usage * 100)}%`)} />
-            </box>
+            <button onClicked={() => execAsync(`gnome-system-monitor -r`)} cssClasses={["usage-badge"]}>
+                <box name="cpu-badge" spacing={4}>
+                    <image iconName="fa-microchip-symbolic" />
+                    <label label={bind(cpuUsage).as((usage) => `${Math.floor(usage * 100)}%`)} />
+                </box>
+            </button>
         </LevelBadge>
     );
 };
@@ -23,10 +25,12 @@ const CpuIndicator = () => {
 const MemoryIndicator = () => {
     return (
         <LevelBadge level={bind(memoryUsage)}>
-            <box name="memory-badge" tooltipText={memoryTooltip()} cssClasses={["usage-badge"]} spacing={4}>
-                <image iconName="fa-memory-symbolic" />
-                <label label={bind(memoryUsage).as((usage) => `${Math.floor(usage * 100)}%`)} />
-            </box>
+            <button onClicked={() => execAsync(`gnome-system-monitor -r`)} cssClasses={["usage-badge"]}>
+                <box name="memory-badge" tooltipText={memoryTooltip()} spacing={4}>
+                    <image iconName="fa-memory-symbolic" />
+                    <label label={bind(memoryUsage).as((usage) => `${Math.floor(usage * 100)}%`)} />
+                </box>
+            </button>
         </LevelBadge>
     );
 };
