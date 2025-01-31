@@ -6,7 +6,7 @@ import { NotificationPopupWindow } from "./notification-center/notification";
 import { NotificationCenter } from "./notification-center/notification-center";
 import style from "./style.scss";
 import { formatOklabAsCSS } from "./utils/color";
-import { CONFIG } from "./utils/config";
+import { CONFIG, DATA } from "./utils/config";
 
 const windows = new Map<Gdk.Monitor, Astal.Window[]>();
 
@@ -26,7 +26,7 @@ function applyThemeCSS() {
 
 App.start({
     css: style,
-    icons: `${SRC}/icons`,
+    icons: `${DATA}/icons`,
     main() {
         applyThemeCSS();
 

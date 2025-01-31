@@ -1,4 +1,5 @@
 node_modules/
 @girs/
+build/
 
 config.json

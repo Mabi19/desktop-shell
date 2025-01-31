@@ -1,7 +1,10 @@
 import { Variable } from "astal";
 import { readFile } from "astal/file";
-import { App, Gdk } from "astal/gtk4";
+import { Gdk } from "astal/gtk4";
+import GLib from "gi://GLib?version=2.0";
 import type { OklabColor } from "./color";
+
+export const DATA = DATADIR ?? SRC;
 
 const display = Gdk.Display.get_default()!;
 const monitorModel = display.get_monitors();
@@ -17,7 +20,7 @@ export const CONFIG: {
     theme_inactive: OklabColor;
     // The second theme color, used for active workspace buttons and badges with maximum usage.
     theme_active: OklabColor;
-} = JSON.parse(readFile("./config.json"));
+} = JSON.parse(readFile(GLib.get_home_dir() + "/.config/mabi-shell/config.json"));
 
 function getPrimaryMonitor() {
     let i = 0;
