@@ -162,20 +162,21 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
         icon = Gtk.Image.new_from_icon_name("dialog-information-symbolic");
     }
 
-    let actions: Gtk.Widget | null;
-    if (notification.get_actions().length > 0) {
-        actions = (
-            <box spacing={8} cssClasses={["actions"]} layoutManager={new FlexBoxLayout({ spacing: 8 })}>
-                {notification.actions.map((action) => (
-                    <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
-                        {action.label}
-                    </button>
-                ))}
-            </box>
-        );
-    } else {
-        actions = null;
+    const actionButtons: Gtk.Widget[] = [];
+    for (const action of notification.get_actions()) {
+        if (action.id != "default") {
+            <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
+                {action.label}
+            </button>;
+        }
     }
+
+    const actionBox =
+        actionButtons.length > 0 ? (
+            <box spacing={8} cssClasses={["actions"]} layoutManager={new FlexBoxLayout({ spacing: 8 })}>
+                {actionButtons}
+            </box>
+        ) : null;
 
     return {
         cleanup,
@@ -204,7 +205,7 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
                 </box>
                 <Gtk.Separator orientation={Gtk.Orientation.HORIZONTAL} cssClasses={["header-separator"]} />
                 <NotificationLayoutProfile notification={notification} />
-                {actions}
+                {actionBox}
                 {progressBar}
             </box>
         ),
@@ -219,6 +220,8 @@ interface NotificationLabelProps {
 }
 
 function NotificationLabel(props: NotificationLabelProps) {
+    // Trim whitespace
+    props.label = props.label.trim();
     // Use U+2028 LINE SEPARATOR in order to not introduce paragraph breaks
     props.label = props.label.replaceAll("\n", "\u2028");
     return (
