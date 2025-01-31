@@ -220,7 +220,7 @@ interface NotificationLabelProps {
 }
 
 function NotificationLabel(props: NotificationLabelProps) {
-    // Trim whitespace
+    // Sometimes there's extra whitespace, especially with KDE Connect
     props.label = props.label.trim();
     // Use U+2028 LINE SEPARATOR in order to not introduce paragraph breaks
     props.label = props.label.replaceAll("\n", "\u2028");
@@ -238,12 +238,31 @@ function NotificationLabel(props: NotificationLabelProps) {
     );
 }
 
+function NotificationImage({
+    notification,
+    ...props
+}: Partial<Gtk.Image.ConstructorProps> & { notification: AstalNotifd.Notification }) {
+    const path =
+        notification.image && notification.image.startsWith("file://")
+            ? notification.image.slice("file://".length)
+            : null;
+
+    if (!path) {
+        return <></>;
+    } else if (fileExists(path)) {
+        return <image {...props} file={path} />;
+    } else if (isIcon(notification.image)) {
+        return <image {...props} iconName={path} />;
+    } else {
+        return <></>;
+    }
+}
+
 const NotificationLayoutProfile = ({ notification }: { notification: AstalNotifd.Notification }) => {
     return (
         <box hexpand={false} vertical={true} cssClasses={["layout", "layout-profile"]} spacing={4}>
             <box spacing={8}>
-                {/* TODO: test if that's a file or a named icon (see example) */}
-                <image iconName="dialog-information-symbolic" visible={Boolean(notification.image)} />
+                <NotificationImage notification={notification} />
                 <NotificationLabel label={notification.summary} lines={2} cssClasses={["title"]} />
             </box>
             <NotificationLabel label={notification.body} lines={5} cssClasses={["description"]} useMarkup={true} />
