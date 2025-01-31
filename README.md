@@ -14,13 +14,14 @@ Required things:
 - GNOME System Monitor
 - pavucontrol
 
-In the root of the repository is a `hyprland.conf` file that needs to be sourced from the main Hyprland configuration for everything to work properly.
-
 ## Installation
 Included is a `meson.build` file allowing this project to be bundled and installed with Meson.
 When using this way to run it, a `config.json` needs to exist in `~/.config/mabi-shell`,
-and the Hyprland configuration lives in `(INSTALL PREFIX)/share/mabi-shell/hyprland.conf`
+and a Hyprland configuration file should be sourced from `(INSTALL PREFIX)/share/mabi-shell/hyprland.conf`
 (where `INSTALL_PREFIX` is `/usr/local` by default)
+
+Running in development mode involves running `./run-dev.sh`
+and sourcing the Hyprland configuration directly from the source directory.
 
 In the future, I may make a PKGBUILD for this or something.
 
