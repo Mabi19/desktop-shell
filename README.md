@@ -2,24 +2,51 @@
 *Now with GTK 4!*
 
 This is my bar & other assorted widgets that I use on my Linux desktop.
-Not particularly customizable; see config.json.example for the available options.
+Not particularly customizable; see [Configuration section](#configuration) for more details.
 
 It has some features I think are neat, notably dynamically colored system usage widgets,
 workspace widget scrolling, and workspace drag'n'drop (to move them between monitors).
 
 Required things:
-- AGS v2
-- Hyprland (0.45)
-- GNOME System Monitor (soon)
+- AGS v2 (for build only)
+- libastal (+ some of its extra libraries)
+- Hyprland (0.45+)
+- GNOME System Monitor
 - pavucontrol
 
 In the root of the repository is a `hyprland.conf` file that needs to be sourced from the main Hyprland configuration for everything to work properly.
 
+## Installation
+Included is a `meson.build` file allowing this project to be bundled and installed with Meson.
+When using this way to run it, a `config.json` needs to exist in `~/.config/mabi-shell`,
+and the Hyprland configuration lives in `(INSTALL PREFIX)/share/mabi-shell/hyprland.conf`
+(where `INSTALL_PREFIX` is `/usr/local` by default)
+
+In the future, I may make a PKGBUILD for this or something.
+
+## Configuration
+This isn't particularly customizable, but some options do exist (they should live in `~/.config/mabi-shell/config.json`).
+```ts
+interface OklabColor {
+    l: number;
+    a: number;
+    b: number;
+}
+
+interface Config {
+    /** Override for the primary monitor. Useful if you don't have one set as primary. */
+    primary_monitor: string;
+    /** Whether to enable notifications. */
+    enable_notifications: boolean;
+    /** The network usage considered to be 100%. In bytes per second. */
+    max_network_usage: number;
+    /** The first theme color, used for inactive workspace buttons and badges with 0 usage. */
+    theme_inactive: OklabColor;
+    /** The second theme color, used for active workspace buttons and badges with maximum usage. */
+    theme_active: OklabColor;
+}
+```
+
 ## TODO
-- Notifications
+- Notification animations
 - Make notification center actually usable
-- GTK 4:
-    - Add custom drawing so that the usage badges are smooth again (this is way easier in GTK 4)
-        - This will also allow for a very fancy audio widget later
-    - Fix workspace scrolling (this is [an Astal bug](https://github.com/Aylur/astal/issues/228))
-    - Add monitor add/remove handling

@@ -9,18 +9,20 @@ export const DATA = DATADIR ?? SRC;
 const display = Gdk.Display.get_default()!;
 const monitorModel = display.get_monitors();
 
-export const CONFIG: {
-    // Override for the primary monitor. Useful if you don't have one set as primary.
+interface Config {
+    /** Override for the primary monitor. Useful if you don't have one set as primary. */
     primary_monitor: string;
-    // Whether to enable notifications.
+    /** Whether to enable notifications. */
     enable_notifications: boolean;
-    // The network usage considered to be 100%. In bytes per second.
+    /** The network usage considered to be 100%. In bytes per second. */
     max_network_usage: number;
-    // The first theme color, used for inactive workspace buttons and badges with 0 usage.
+    /** The first theme color, used for inactive workspace buttons and badges with 0 usage. */
     theme_inactive: OklabColor;
-    // The second theme color, used for active workspace buttons and badges with maximum usage.
+    /** The second theme color, used for active workspace buttons and badges with maximum usage. */
     theme_active: OklabColor;
-} = JSON.parse(readFile(GLib.get_home_dir() + "/.config/mabi-shell/config.json"));
+}
+
+export const CONFIG: Config = JSON.parse(readFile(GLib.get_home_dir() + "/.config/mabi-shell/config.json"));
 
 function getPrimaryMonitor() {
     let i = 0;
