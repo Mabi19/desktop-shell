@@ -36,7 +36,7 @@ interface OklabColor {
 
 interface Config {
     /** Override for the primary monitor. Useful if you don't have one set as primary. */
-    primary_monitor: string;
+    primary_monitor?: string;
     /** Whether to enable notifications. */
     enable_notifications: boolean;
     /** The network usage considered to be 100%. In bytes per second. */
