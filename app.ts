@@ -1,5 +1,4 @@
 import { App, Astal, Gdk } from "astal/gtk4";
-import AstalHyprland from "gi://AstalHyprland?version=0.1";
 import type Gio from "gi://Gio?version=2.0";
 import { Bar } from "./bar/bar";
 import { handleMessage } from "./message";

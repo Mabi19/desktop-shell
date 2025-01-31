@@ -234,18 +234,19 @@ export function Workspaces({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
         );
     } else {
         // wait for it
-        const box = (
+        const wrapper = (
             <box>
                 <image iconName="content-loading-symbolic" />
             </box>
         ) as Astal.Box;
         const monitorConnectID = hyprland.connect("monitor-added", (_, monitor) => {
             if (monitor.name == gdkmonitor.connector) {
+                console.log("matching monitor added!", monitor.name);
                 hyprland.disconnect(monitorConnectID);
-                box.set_child(<HyprlandWorkspaces hyprlandMonitor={monitor} />);
+                wrapper.set_children([<HyprlandWorkspaces hyprlandMonitor={monitor} />]);
             }
         });
 
-        return box;
+        return wrapper;
     }
 }
