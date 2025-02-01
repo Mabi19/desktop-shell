@@ -45,10 +45,6 @@ button.usage-badge {
     }
 }
 
-#cpu-badge image, #memory-badge image {
-    font-size: 1.05em;
-}
-
 #network-badge {
     separator {
         background-color: #ddd;
@@ -83,14 +79,13 @@ button.usage-badge {
 
 .workspace {
     border-radius: 1em;
-    padding: 0 6px;
-    // min-width: 16px;
     min-height: 0;
 
-    background-color: var(--theme-inactive);
     font-size: small;
     font-weight: bold;
 
+    padding: 0 6px;
+    background-color: var(--theme-inactive);
     transition: padding .2s ease-out, background-color .2s ease-out;
 
     &.active {
@@ -116,10 +111,6 @@ button.usage-badge {
     @include badge;
     background-color: white;
     color: black;
-
-    image {
-        font-size: 1.05em;
-    }
 }
 
 #time-and-notifications:hover {
@@ -132,7 +123,4 @@ button.usage-badge {
 
 #power-button button {
     @include circular;
-    image {
-        font-size: 1.2em;
-    }
 }
