@@ -32,6 +32,7 @@ function getPrimaryMonitor() {
         i++;
         if (monitor) {
             // immediately on creation the connector might be null
+            // because the Wayland event hasn't been received yet
             if (monitor.connector == null) {
                 display.sync();
             }

@@ -153,16 +153,16 @@ export function HyprlandWorkspaces({ hyprlandMonitor }: { hyprlandMonitor: Astal
     }
 
     function addWorkspaceButton(workspace: AstalHyprland.Workspace) {
-        // protect against double insertions
-        if (buttons?.get_children()?.find((btn) => btn.name == `workspace-${workspace.id}`)) {
-            return;
-        }
-
         const newButton = <WorkspaceButton active={bind(activeWorkspace)} workspace={workspace} />;
         const previousButton = buttons?.get_children().findLast((btn) => {
             const num = parseInt(btn.name.slice("workspace-".length));
-            return num < workspace.id;
+            return num <= workspace.id;
         });
+        // do not double-insert
+        if (previousButton?.name == `workspace-${workspace.id}`) {
+            return;
+        }
+
         buttons?.insert_child_after(newButton, previousButton ?? null);
     }
 
