@@ -140,6 +140,7 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
         const button = event.get_button();
         if (button == Gdk.BUTTON_PRIMARY) {
             const action = notification.get_actions().find((action) => action.id == "default");
+            console.log("primary click", action);
             if (action) {
                 notification.invoke("default");
             }
@@ -233,6 +234,7 @@ function NotificationLabel(props: NotificationLabelProps) {
             // causes the label to expand to that size.
             maxWidthChars={5}
             halign={Gtk.Align.FILL}
+            valign={Gtk.Align.CENTER}
             xalign={0}
         />
     );
@@ -250,9 +252,9 @@ function NotificationImage({
     if (!path) {
         return <></>;
     } else if (fileExists(path)) {
-        return <image {...props} file={path} />;
+        return <image {...props} file={path} cssClasses={["icon"]} />;
     } else if (isIcon(notification.image)) {
-        return <image {...props} iconName={path} />;
+        return <image {...props} iconName={path} cssClasses={["icon"]} />;
     } else {
         return <></>;
     }
@@ -262,7 +264,9 @@ const NotificationLayoutProfile = ({ notification }: { notification: AstalNotifd
     return (
         <box hexpand={false} vertical={true} cssClasses={["layout", "layout-profile"]} spacing={4}>
             <box spacing={8}>
-                <NotificationImage notification={notification} />
+                <box cssClasses={["rounded-wrapper"]} overflow={Gtk.Overflow.HIDDEN}>
+                    <NotificationImage notification={notification} pixelSize={24} />
+                </box>
                 <NotificationLabel label={notification.summary} lines={2} cssClasses={["title"]} />
             </box>
             <NotificationLabel label={notification.body} lines={5} cssClasses={["description"]} useMarkup={true} />
