@@ -10,9 +10,10 @@ workspace widget scrolling, and workspace drag'n'drop (to move them between moni
 Required things:
 - AGS v2 (for build only)
 - libastal (+ some of its extra libraries)
-- Hyprland (0.45+)
+- Hyprland (0.47.2+)
 - GNOME System Monitor
 - pavucontrol
+- geoclue (and an agent running; in the future this may become an agent itself, use `/usr/lib/geoclue-2.0/demos/agent` for now)
 
 ## Installation
 Included is a `meson.build` file allowing this project to be bundled and installed with Meson.
