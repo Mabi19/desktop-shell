@@ -264,9 +264,11 @@ const NotificationLayoutProfile = ({ notification }: { notification: AstalNotifd
     return (
         <box hexpand={false} vertical={true} cssClasses={["layout", "layout-profile"]} spacing={4}>
             <box spacing={8}>
-                <box cssClasses={["rounded-wrapper"]} overflow={Gtk.Overflow.HIDDEN}>
-                    <NotificationImage notification={notification} pixelSize={24} />
-                </box>
+                {notification.image ? (
+                    <box cssClasses={["rounded-wrapper"]} overflow={Gtk.Overflow.HIDDEN}>
+                        <NotificationImage notification={notification} pixelSize={24} />
+                    </box>
+                ) : null}
                 <NotificationLabel label={notification.summary} lines={2} cssClasses={["title"]} />
             </box>
             <NotificationLabel label={notification.body} lines={5} cssClasses={["description"]} useMarkup={true} />
