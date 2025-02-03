@@ -1,13 +1,12 @@
 import { Variable } from "astal";
 import { readFile } from "astal/file";
 import { Gdk } from "astal/gtk4";
-import type GdkWayland from "gi://GdkWayland?version=4.0";
 import GLib from "gi://GLib?version=2.0";
 import type { OklabColor } from "./color";
 
 export const DATA = DATADIR ?? SRC;
 
-const display = Gdk.Display.get_default() as GdkWayland.WaylandDisplay;
+const display = Gdk.Display.get_default()!;
 const monitorModel = display.get_monitors();
 
 interface Config {
@@ -33,7 +32,8 @@ function getPrimaryMonitor() {
         if (monitor) {
             // immediately on creation the connector might be null
             // because the Wayland event hasn't been received yet
-            if (monitor.connector == null) {
+            while (monitor.connector == null) {
+                console.log("syncing display", monitor.connector);
                 display.sync();
             }
 
