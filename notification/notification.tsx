@@ -236,6 +236,7 @@ function NotificationLabel(props: NotificationLabelProps) {
             halign={Gtk.Align.FILL}
             valign={Gtk.Align.CENTER}
             xalign={0}
+            visible={Boolean(props.label)}
         />
     );
 }
