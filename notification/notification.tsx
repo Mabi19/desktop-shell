@@ -247,26 +247,28 @@ function NotificationImage({
     const path =
         notification.image && notification.image.startsWith("file://")
             ? notification.image.slice("file://".length)
-            : null;
+            : notification.image;
 
     if (!path) {
-        return <></>;
+        return null;
     } else if (fileExists(path)) {
         return <image {...props} file={path} cssClasses={["icon"]} />;
     } else if (isIcon(notification.image)) {
         return <image {...props} iconName={path} cssClasses={["icon"]} />;
     } else {
-        return <></>;
+        return null;
     }
 }
 
 const NotificationLayoutProfile = ({ notification }: { notification: AstalNotifd.Notification }) => {
+    const imageWidget = NotificationImage({ notification, pixelSize: 24 });
+
     return (
         <box hexpand={false} vertical={true} cssClasses={["layout", "layout-profile"]} spacing={4}>
             <box spacing={8}>
-                {notification.image ? (
+                {imageWidget ? (
                     <box cssClasses={["rounded-wrapper"]} overflow={Gtk.Overflow.HIDDEN}>
-                        <NotificationImage notification={notification} pixelSize={24} />
+                        {imageWidget}
                     </box>
                 ) : null}
                 <NotificationLabel label={notification.summary} lines={2} cssClasses={["title"]} />

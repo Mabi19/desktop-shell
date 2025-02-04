@@ -1,14 +1,9 @@
-@use "theme";
 @use "sass:color";
 @use "sass:math";
 
-@function gtk-alpha($color, $opacity) {
-    @return #{"alpha(#{$color}, #{$opacity})"}
-}
-
 .bar {
     & > box {
-        background-color: theme.$bg_color;
+        background-color: var(--window-bg-color);
 
         border-radius: 2em;
         margin: 10px 10px 0px 10px;
@@ -72,7 +67,7 @@ button.usage-badge {
 }
 
 #workspaces {
-    background-color: theme.$view-bg-color;
+    background-color: var(--view-bg-color);
     padding: 2px 12px;
     border-radius: 1em;
 }

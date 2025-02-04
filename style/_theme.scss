@@ -1,5 +1,0 @@
-@use "sass:string";
-
-$fg_color: string.unquote("@theme_fg_color");
-$bg_color: string.unquote("@theme_bg_color");
-$view_bg_color: string.unquote("@view_bg_color");
