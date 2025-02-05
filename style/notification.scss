@@ -1,0 +1,47 @@
+#notification-popup-window {
+    // This is supposed to be transparent.
+    background-color: transparent;
+    margin: 10px 10px 0 0;
+}
+
+.notification {
+    background-color: var(--window-bg-color);
+    border-radius: 10px;
+
+    .header, .layout{
+        padding: 8px;
+    }
+
+    .actions {
+        padding: 0 8px 8px 8px;
+    }
+
+    .close-button {
+        padding: 0px 4px;
+        border-radius: 50%;
+    }
+
+    .header-separator {
+        margin: 0px 8px;
+    }
+
+    progressbar trough {
+        border-radius: 0;
+    }
+
+    progressbar progress {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    .layout-profile {
+        .title {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .rounded-wrapper {
+            border-radius: 50%;
+        }
+    }
+}
