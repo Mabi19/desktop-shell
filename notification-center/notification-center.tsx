@@ -7,7 +7,7 @@ import { WeatherIconDebug, WeatherPanel } from "./weather-panel";
 export const notificationCenterMonitor = Variable<Gdk.Monitor | null>(null);
 
 function TopCarousel() {
-    const carousel = new Adw.Carousel();
+    const carousel = new Adw.Carousel({ spacing: 8 });
     carousel.append(<WeatherPanel />);
 
     return (
