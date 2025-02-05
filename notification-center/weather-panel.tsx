@@ -10,19 +10,88 @@ function formatUnixTimestamp(timestamp: number) {
     return GLib.DateTime.new_from_unix_utc(timestamp).format("%R");
 }
 
+function createIcon(weatherCode: number, isDay: boolean, props: Partial<Gtk.Image.ConstructorProps>) {
+    let iconName: string;
+    const nightSuffix = isDay ? "" : "-night";
+    // TODO: Try making fully custom icons here.
+    // There's a lot of overlap over the codes here,
+    // and coloring them would be a lot easier.
+    switch (weatherCode) {
+        case 0:
+            iconName = "clear" + nightSuffix;
+            break;
+        case 1:
+        case 2:
+            iconName = "few-clouds" + nightSuffix;
+            break;
+        case 3:
+            iconName = "overcast";
+            break;
+        case 45:
+        case 48:
+            iconName = "fog";
+            break;
+        case 51:
+        case 53:
+        case 55:
+        case 56:
+        case 57:
+        case 61:
+        case 63:
+        case 65:
+        case 66:
+        case 67:
+        case 80:
+        case 81:
+        case 82:
+            iconName = "showers";
+            break;
+        case 71:
+        case 73:
+        case 75:
+        case 77:
+        case 85:
+        case 86:
+            iconName = "snow";
+            break;
+        case 95:
+        case 96:
+        case 99:
+            iconName = "storm";
+            break;
+        default:
+            throw new Error("Unhandled weather code " + weatherCode);
+    }
+    return (
+        <image
+            {...props}
+            iconName={`weather-${iconName}-symbolic`}
+            cssClasses={[...(props.cssClasses ?? []), iconName, isDay ? "day" : "night"]}
+        />
+    );
+}
+
+export function WeatherIconDebug() {
+    const wrapper = new Gtk.FlowBox({ cssClasses: ["weather"] });
+    for (const code of [0, 1, 3, 45, 51, 71, 95]) {
+        wrapper.append(createIcon(code, true, { cssClasses: ["main-icon"], pixelSize: 32 }));
+        wrapper.append(createIcon(code, false, { cssClasses: ["main-icon"], pixelSize: 32 }));
+    }
+    return wrapper;
+}
+
 export function WeatherPanel() {
     return (
         <box spacing={8} cssClasses={["panel", "weather"]} widthRequest={400}>
             {bind(weatherData).as((data) =>
                 data ? (
                     <>
-                        <image
-                            iconName="weather-clear-symbolic"
-                            pixelSize={72}
-                            cssClasses={["big-icon"]}
-                            vexpand={false}
-                            valign={Gtk.Align.CENTER}
-                        />
+                        {createIcon(data.current.weather_code, data.current.is_day, {
+                            pixelSize: 72,
+                            cssClasses: ["main-icon"],
+                            vexpand: false,
+                            valign: Gtk.Align.CENTER,
+                        })}
                         <box vertical={true}>
                             <box spacing={8}>
                                 <label
@@ -58,7 +127,7 @@ export function WeatherPanel() {
                                     cssClasses={["timestamp"]}
                                 />
                                 <box spacing={4}>
-                                    <image iconName="weather-clear-symbolic" />
+                                    {createIcon(data.in_6h.weather_code, data.in_6h.is_day, {})}
                                     <label
                                         label={`${Math.round(data.in_6h.temperature)}${nbsp}${
                                             data.in_6h.units.temperature

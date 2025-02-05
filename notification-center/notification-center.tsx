@@ -2,13 +2,12 @@ import { Variable, bind } from "astal";
 import { App, Astal, Gdk } from "astal/gtk4";
 import Adw from "gi://Adw?version=1";
 import { Calendar } from "../widgets/calendar";
-import { WeatherPanel } from "./weather-panel";
+import { WeatherIconDebug, WeatherPanel } from "./weather-panel";
 
 export const notificationCenterMonitor = Variable<Gdk.Monitor | null>(null);
 
 function TopCarousel() {
     const carousel = new Adw.Carousel();
-    carousel.append(<WeatherPanel />);
     carousel.append(<WeatherPanel />);
 
     return (
@@ -44,6 +43,7 @@ export const NotificationCenter = (monitor: Gdk.Monitor) => {
         >
             <box vertical={true} name="notification-center">
                 <TopCarousel />
+                {/* <WeatherIconDebug /> */}
                 <CalendarPanel />
             </box>
         </window>

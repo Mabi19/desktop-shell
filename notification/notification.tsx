@@ -166,9 +166,11 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
     const actionButtons: Gtk.Widget[] = [];
     for (const action of notification.get_actions()) {
         if (action.id != "default") {
-            <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
-                {action.label}
-            </button>;
+            actionButtons.push(
+                <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
+                    {action.label}
+                </button>
+            );
         }
     }
 

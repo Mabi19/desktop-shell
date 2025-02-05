@@ -58,7 +58,6 @@
         border-radius: 8px;
     }
 
-    // TODO: Make this not suck.
     .weather {
         .temperature-main {
             font-size: 1.5em;
@@ -70,16 +69,21 @@
             opacity: 0.75;
         }
 
-        .big-icon {
-            background-color: dodgerblue;
-            padding: 12px;
-            border-radius: 24px;
-        }
-
         .timestamp {
             font-weight: bold;
         }
     }
 
+    .weather .main-icon {
+        &.day {
+            background-color: #6e9dd5;
+        }
 
+        &.night {
+            background-color: #161b2d;
+        }
+
+        padding: 12px;
+        border-radius: 24px;
+    }
 }

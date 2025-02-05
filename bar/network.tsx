@@ -150,3 +150,16 @@ export const NetworkIndicator = () => {
         </box>
     );
 };
+
+// import NM from "gi://NM?version=1.0";
+
+// NM.Client.new_async(null, (client, result) => {
+//     NM.Client.new_finish(result);
+//     console.log("got client", client);
+//     if (!client) {
+//         return;
+//     }
+//     for (const device of client.get_all_devices()) {
+//         console.log("device", device, device.interface);
+//     }
+// });
