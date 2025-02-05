@@ -1,9 +1,14 @@
 import { bind } from "astal";
 import { Gtk } from "astal/gtk4";
+import GLib from "gi://GLib?version=2.0";
 import { weatherData } from "../utils/weather";
 
 const nbsp = "\u202f";
 const endash = "\u2013";
+
+function formatUnixTimestamp(timestamp: number) {
+    return GLib.DateTime.new_from_unix_utc(timestamp).format("%R");
+}
 
 export function WeatherPanel() {
     return (
@@ -26,14 +31,18 @@ export function WeatherPanel() {
                                     valign={Gtk.Align.BASELINE}
                                 />
                                 <label
-                                    label={`-21${endash}37${nbsp}${data.current.units.temperature}`}
+                                    label={`${Math.floor(data.min_temperature)}${endash}${Math.ceil(
+                                        data.max_temperature
+                                    )}${nbsp}${data.temperature_range_unit}`}
                                     cssClasses={["temperature-range"]}
                                     valign={Gtk.Align.BASELINE}
                                 />
                             </box>
 
                             <label
-                                label={`feels like <b>2${nbsp}${data.current.units.temperature}</b>`}
+                                label={`feels like <b>${Math.round(data.current.apparent_temperature)}${nbsp}${
+                                    data.current.units.apparent_temperature
+                                }</b>`}
                                 useMarkup={true}
                                 halign={Gtk.Align.START}
                             />
@@ -44,14 +53,23 @@ export function WeatherPanel() {
                             </box>
 
                             <box spacing={8}>
-                                <label label="14:00:" cssClasses={["timestamp"]} />
+                                <label
+                                    label={`${formatUnixTimestamp(data.in_6h.timestamp)}:`}
+                                    cssClasses={["timestamp"]}
+                                />
                                 <box spacing={4}>
                                     <image iconName="weather-clear-symbolic" />
-                                    <label label={`7${nbsp}°C (3${nbsp}°C)`} />
+                                    <label
+                                        label={`${Math.round(data.in_6h.temperature)}${nbsp}${
+                                            data.in_6h.units.temperature
+                                        } (${Math.round(data.in_6h.apparent_temperature)}${nbsp}${
+                                            data.in_6h.units.apparent_temperature
+                                        })`}
+                                    />
                                 </box>
                                 <box spacing={4}>
                                     <image iconName="weather-windy-symbolic" />
-                                    <label label={`3${nbsp}m/s`} />
+                                    <label label={`${data.in_6h.wind_speed}${nbsp}${data.in_6h.units.wind_speed}`} />
                                 </box>
                             </box>
                         </box>
