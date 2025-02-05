@@ -60,10 +60,24 @@
 
     // TODO: Make this not suck.
     .weather {
-        image {
+        .temperature-main {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .temperature-range {
+            font-size: 1.2em;
+            opacity: 0.75;
+        }
+
+        .big-icon {
             background-color: dodgerblue;
             padding: 12px;
             border-radius: 24px;
+        }
+
+        .timestamp {
+            font-weight: bold;
         }
     }
 

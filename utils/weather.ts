@@ -29,6 +29,7 @@ currentLocation.subscribe((location) => {
         weatherData.set(null);
         return;
     }
+
     const params = {
         latitude: location.latitude,
         longitude: location.longitude,
