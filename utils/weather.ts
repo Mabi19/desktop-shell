@@ -35,6 +35,7 @@ currentLocation.subscribe((location) => {
         weatherData.set(null);
         return;
     }
+    console.log(`updating weather with ${(location.latitude, location.longitude)}`);
 
     const params = {
         latitude: location.latitude,
@@ -113,7 +114,7 @@ currentLocation.subscribe((location) => {
                     temperature: rawObject.hourly.temperature_2m[closestTimeIndex],
                     apparent_temperature: rawObject.hourly.apparent_temperature[closestTimeIndex],
                     weather_code: rawObject.hourly.weather_code[closestTimeIndex],
-                    wind_speed: rawObject.hourly.weather_code[closestTimeIndex],
+                    wind_speed: rawObject.hourly.wind_speed_10m[closestTimeIndex],
                     is_day: rawObject.hourly.is_day[closestTimeIndex],
                     units: {
                         temperature: rawObject.hourly_units.temperature_2m,
