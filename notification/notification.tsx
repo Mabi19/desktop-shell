@@ -231,7 +231,7 @@ function NotificationLabel(props: NotificationLabelProps) {
         <label
             {...props}
             wrap={true}
-            ellipsize={Pango.EllipsizeMode.END}
+            ellipsize={Pango.EllipsizeMode.MIDDLE}
             // Setting this to a value that is definitely smaller than the box width
             // causes the label to expand to that size.
             maxWidthChars={5}
