@@ -5,7 +5,15 @@ function OnScreenDisplay({ icon, value }: { icon: string; value: number }) {
     return (
         <box vertical={true} cssClasses={["osd", "osd-box"]} spacing={8}>
             <image iconName={icon} cssClasses={["osd-icon"]} pixelSize={128} />
-            <levelbar value={value} cssClasses={["osd-bar"]} />
+            <levelbar
+                value={value}
+                cssClasses={["osd-bar"]}
+                setup={(self) => {
+                    self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_LOW);
+                    self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_HIGH);
+                    self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_FULL);
+                }}
+            />
             <label label={`${Math.round(value * 100)}%`} />
         </box>
     ) as Gtk.Window;
