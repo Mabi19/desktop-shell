@@ -25,7 +25,7 @@ function updateOSDWindow() {
     timeoutSource = setTimeout(() => {
         timeoutSource = null;
         osdWindow?.hide();
-    }, 5000);
+    }, 3000);
 }
 
 export function setOSD(icon: string, value: number) {
