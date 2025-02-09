@@ -27,6 +27,7 @@ const chargeMessage = CHARGING_MESSAGES[Math.floor(Math.random() * CHARGING_MESS
 const dischargeMessage = DISCHARGING_MESSAGES[Math.floor(Math.random() * DISCHARGING_MESSAGES.length)];
 
 function buildEnergyRateText(rate: number) {
+    rate = Math.round(rate * 10) / 10;
     if (rate > 0) {
         return dischargeMessage.replace("{rate}", `${rate}`);
     } else {
