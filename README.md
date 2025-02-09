@@ -53,7 +53,8 @@ interface Config {
 ## Dispatchers
 Some actions may be dispatched to the running instance via the `astal` CLI.
 - `capslock_update`: update Caps Lock status.
-- `osd:<icon-name: string>:<value: number>`: show OSD with the specified icon and bar fullness.
+- `osd <icon-name: string> <value: number>`: show OSD with the specified icon and bar fullness.
+- `wpctl <args...>`: execute a `wpctl` command, then show OSD for the default audio sink
 - `quit`: exit.
 
 ## TODO
