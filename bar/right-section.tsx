@@ -4,6 +4,7 @@ import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import { notificationCenterMonitor } from "../notification-center/notification-center";
 import { AudioIndicator } from "./audio";
+import { BatteryIndicator } from "./battery";
 import { SystemTray } from "./tray";
 
 const time = Variable(new GLib.DateTime()).poll(1000, () => new GLib.DateTime());
@@ -57,6 +58,7 @@ export const RightSection = ({ monitor }: { monitor: Gdk.Monitor }) => (
     <box halign={Gtk.Align.END} spacing={8}>
         <SystemTray />
         <AudioIndicator />
+        <BatteryIndicator />
         <TimeAndNotifications monitor={monitor} />
         <PowerButton />
     </box>
