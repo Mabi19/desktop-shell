@@ -8,7 +8,7 @@ export function handleMessage(request: string, respond: (res: any) => void) {
         updateCapsLockStatus();
         respond("ok");
     } else if (/^osd [^ ]+ [0-9.]+%?$/g.test(request)) {
-        const [_, icon, strValue] = request.split(":");
+        const [_, icon, strValue] = request.split(" ");
         const value = strValue.endsWith("%") ? parseFloat(strValue.slice(0, -1)) * 100 : parseFloat(strValue);
         setOSD(icon, value);
         respond("ok");
