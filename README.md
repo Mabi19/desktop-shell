@@ -50,6 +50,13 @@ interface Config {
 }
 ```
 
+## Dispatchers
+Some actions may be dispatched to the running instance via the `astal` CLI.
+- `capslock_update`: update Caps Lock status.
+- `osd:<icon-name: string>:<value: number>`: show OSD with the specified icon and bar fullness.
+- `quit`: exit.
+
 ## TODO
+- OSD for audio volume changes from the keyboard (wrap wpctl for this)
 - Notification animations
 - Make notification center actually usable

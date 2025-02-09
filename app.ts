@@ -1,12 +1,13 @@
 import { App, Astal, Gdk } from "astal/gtk4";
 import type Gio from "gi://Gio?version=2.0";
 import { Bar } from "./bar/bar";
-import { handleMessage } from "./message";
 import { NotificationCenter } from "./notification-center/notification-center";
 import { NotificationPopupWindow } from "./notification/notification";
+import { startOSDListeners } from "./osd/listeners";
 import style from "./style.scss";
 import { formatOklabAsCSS } from "./utils/color";
 import { CONFIG, DATA } from "./utils/config";
+import { handleMessage } from "./utils/message";
 
 const windows = new Map<Gdk.Monitor, Astal.Window[]>();
 
@@ -37,6 +38,8 @@ App.start({
         if (CONFIG.enable_notifications) {
             NotificationPopupWindow();
         }
+
+        startOSDListeners();
 
         const display = Gdk.Display.get_default()!;
         const monitors = display.get_monitors() as Gio.ListModel<Gdk.Monitor>;
