@@ -140,7 +140,7 @@ function updateWeatherData() {
 currentLocation.subscribe(() => updateWeatherData());
 
 interval(300 * 1000, () => {
-    if (GLib.get_real_time() - lastWeatherUpdate < 59.5 * 60 * 1_000_000) {
+    if (GLib.get_real_time() - lastWeatherUpdate > 59.5 * 60 * 1_000_000) {
         updateWeatherData();
     }
 });
