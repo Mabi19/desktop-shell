@@ -19,7 +19,7 @@ Geoclue.Simple.new("mabi-shell", Geoclue.AccuracyLevel.CITY, null, (geoclue, res
     interval(300 * 1000, () => {
         // in milliseconds
         const now = GLib.get_real_time() / 1000;
-        if (now - lastPollTime < 60 * 60 * 1000) {
+        if (now - lastPollTime < 59.5 * 60 * 1000) {
             return;
         }
         lastPollTime = now;

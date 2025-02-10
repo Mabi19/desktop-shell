@@ -86,7 +86,8 @@ currentLocation.subscribe((location) => {
 
             const hourlyTempsToday = (rawObject.hourly.temperature_2m as number[]).slice(0, 24);
             const currentUnixTime = GLib.get_real_time() / 1_000_000;
-            const timeInSixHours = currentUnixTime + 6 * 60 * 60;
+            // 6h30m to round better
+            const timeInSixHours = currentUnixTime + 6.5 * 60 * 60;
             let closestTimeIndex: number = 0;
             let closestTimeDifference: number = Infinity;
             for (let i = 0; i < rawObject.hourly.time.length; i++) {
