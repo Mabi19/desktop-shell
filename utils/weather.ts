@@ -1,4 +1,4 @@
-import { Variable } from "astal";
+import { Variable, interval } from "astal";
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import Soup from "gi://Soup?version=3.0";
@@ -30,7 +30,9 @@ interface WeatherData {
 }
 
 export const weatherData = Variable<WeatherData | null>(null);
-currentLocation.subscribe((location) => {
+let lastWeatherUpdate: number = GLib.get_real_time();
+function updateWeatherData() {
+    const location = currentLocation.get();
     if (!location) {
         weatherData.set(null);
         return;
@@ -129,6 +131,16 @@ currentLocation.subscribe((location) => {
                 temperature_range_unit: rawObject.hourly_units.temperature_2m,
             });
             console.log(weatherData.get());
+            // update this only if successful so that it retries in 5 minutes
+            lastWeatherUpdate = GLib.get_real_time();
         })
         .catch((reason) => console.log("Couldn't get weather info:", reason));
+}
+
+currentLocation.subscribe(() => updateWeatherData());
+
+interval(300 * 1000, () => {
+    if (GLib.get_real_time() - lastWeatherUpdate < 59.5 * 60 * 1_000_000) {
+        updateWeatherData();
+    }
 });
