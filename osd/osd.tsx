@@ -1,27 +1,33 @@
 import { Astal, Gtk } from "astal/gtk4";
 import type { GLib } from "gi://GLib?version=2.0";
 
-function OnScreenDisplay({ icon, value }: { icon: string; value: number }) {
+function OnScreenDisplay({ icon, value }: { icon: string; value: number | string }) {
     return (
         <box vertical={true} cssClasses={["osd", "osd-box"]} spacing={8}>
             <image iconName={icon} cssClasses={["osd-icon"]} pixelSize={128} />
-            <levelbar
-                value={value}
-                cssClasses={["osd-bar"]}
-                setup={(self) => {
-                    self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_LOW);
-                    self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_HIGH);
-                    self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_FULL);
-                }}
-            />
-            <label label={`${Math.round(value * 100)}%`} />
+            {typeof value == "number" ? (
+                <>
+                    <levelbar
+                        value={value}
+                        cssClasses={["osd-bar"]}
+                        setup={(self) => {
+                            self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_LOW);
+                            self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_HIGH);
+                            self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_FULL);
+                        }}
+                    />
+                    <label label={`${Math.round(value * 100)}%`} />
+                </>
+            ) : (
+                <label label={value} />
+            )}
         </box>
     ) as Gtk.Window;
 }
 
 let timeoutSource: GLib.Source | null = null;
 let osdWindow: Gtk.Window | null = null;
-export function setOSD(icon: string, value: number) {
+export function setOSD(icon: string, value: number | string) {
     if (!osdWindow) {
         osdWindow = new Astal.Window({ cssClasses: ["osd-window"] });
     }
