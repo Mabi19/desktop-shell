@@ -45,7 +45,7 @@ export function BatteryIndicator() {
         >
             <box spacing={4} cssClasses={["usage-badge"]}>
                 <image iconName={bind(battery, "batteryIconName")} />
-                <label label={bind(battery, "percentage").as((value) => `${value * 100}%`)} />
+                <label label={bind(battery, "percentage").as((value) => `${Math.round(value * 100)}%`)} />
             </box>
         </LevelBadge>
     );
