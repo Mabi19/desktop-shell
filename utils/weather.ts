@@ -37,7 +37,7 @@ function updateWeatherData() {
         weatherData.set(null);
         return;
     }
-    console.log(`updating weather with ${(location.latitude, location.longitude)}`);
+    console.log(`updating weather with ${location.latitude} ${location.longitude}`);
 
     const params = {
         latitude: location.latitude,

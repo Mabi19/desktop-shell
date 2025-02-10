@@ -13,15 +13,8 @@ Geoclue.Simple.new("mabi-shell", Geoclue.AccuracyLevel.CITY, null, (geoclue, res
     }
 
     currentLocation.set({ latitude: geoclue.location.latitude, longitude: geoclue.location.longitude });
-    geoclue.location.connect("notify::latitude", (loc) => {
-        console.log("latitude changed", loc);
-        currentLocation.set({ latitude: geoclue.location.latitude, longitude: geoclue.location.longitude });
-    });
-    geoclue.location.connect("notify::longitude", (loc) => {
-        console.log("longitude changed", loc);
-        currentLocation.set({ latitude: geoclue.location.latitude, longitude: geoclue.location.longitude });
-    });
     geoclue.connect("notify::location", () => {
-        console.log("location changed! note that this doesn't cause internal updates");
+        console.log("Location changed!");
+        currentLocation.set({ latitude: geoclue.location.latitude, longitude: geoclue.location.longitude });
     });
 });
