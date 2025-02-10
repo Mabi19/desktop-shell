@@ -1,4 +1,4 @@
-import { bind } from "astal";
+import { Variable, bind } from "astal";
 import { Gtk } from "astal/gtk4";
 import AstalNetwork from "gi://AstalNetwork";
 import { CONFIG } from "../utils/config";
@@ -6,14 +6,6 @@ import { networkStats } from "../utils/system-stats";
 import { LevelBadge } from "./badge-widgets";
 
 const network = AstalNetwork.get_default();
-
-const primary = bind(network, "primary").as((id) => {
-    if (id == AstalNetwork.Primary.WIRED || id == AstalNetwork.Primary.UNKNOWN) {
-        return "wired";
-    } else {
-        return "wifi";
-    }
-});
 
 const INTERNET_STATE_NAMES = {
     [AstalNetwork.Internet.CONNECTED]: "Connected",
@@ -51,115 +43,97 @@ function formatNetworkThroughput(value: number, unitIndex: number = 0) {
     }
 }
 
-const NetworkUsage = ({ iface }: { iface: string }) => {
-    return (
-        <label
-            label={bind(networkStats).as(
-                (stats) => `${formatNetworkThroughput(getTotalNetworkThroughput(stats[iface]))}`
-            )}
-        />
-    );
-};
+type AnyNetwork = AstalNetwork.Wired | AstalNetwork.Wifi;
 
-const NetworkIndicatorWired = ({ iface }: { iface?: string }) => {
-    const status = bind(network.wired, "internet").as((state) => {
-        if (state == AstalNetwork.Internet.CONNECTED && iface) {
-            return <NetworkUsage iface={iface} />;
+interface NetworkInterfaces {
+    primary: AnyNetwork | null;
+    other: AnyNetwork[];
+}
+
+const networkInterfaces = Variable.derive(
+    [bind(network, "primary"), bind(network, "wired"), bind(network, "wifi")],
+    (primaryType, wired, wifi): NetworkInterfaces => {
+        console.log("Updating networkInterfaces");
+        let primaryNetwork;
+        if (primaryType == AstalNetwork.Primary.WIFI) {
+            primaryNetwork = wifi ?? wired;
         } else {
-            return <label label={INTERNET_STATE_NAMES[state]} />;
+            primaryNetwork = wired ?? wifi;
         }
-    });
 
+        return {
+            primary: primaryNetwork,
+            other: [wired, wifi].filter((net) => net != primaryNetwork && net != null),
+        };
+    }
+);
+
+const NetworkUsage = ({ network, parenthesize }: { network: AnyNetwork; parenthesize: boolean }) => {
     return (
-        <box spacing={4}>
-            <image iconName={bind(network.wired, "icon_name")} />
-            {status}
-        </box>
-    );
-};
-
-const NetworkIndicatorWifi = ({ iface }: { iface?: string }) => {
-    const status = bind(network.wifi, "internet").as((state) => {
-        if (state == AstalNetwork.Internet.CONNECTED) {
-            return (
-                <>
-                    <label label={bind(network.wifi, "ssid").as((val) => val ?? "[null]")} />
-                    {iface ? <NetworkUsage iface={iface} /> : null}
-                </>
-            );
-        } else if (state == AstalNetwork.Internet.CONNECTING) {
-            return <label label={bind(network.wifi, "ssid").as((val) => val ?? "[null]")} />;
-        } else {
-            return <label label={INTERNET_STATE_NAMES[state]} />;
-        }
-    });
-
-    return (
-        <box spacing={4}>
-            <image iconName={bind(network.wifi, "icon_name")} />
-            {status}
-        </box>
-    );
-};
-
-export const NetworkIndicator = () => {
-    // TODO: steal
-    // And figure out what I want
-    // This is a usage badge, so definitely display the speed
-    // But also figure out how to cleanly display all the state
-    // perhaps [network-wired] <SPEED or state, like D/C> | [network-wifi] <SSID>
-    // first indicator would be the one that is primary
-    // there are only two types of connection - ethernet and wifi - so no complex logic is required here
-    // although if there is only one type of network interface, stuff might break here
-    // show usage only for primary network interface
-
-    return (
-        //! This is a hack to allow getting the stats reactively
         <box>
-            {primary.as((type) => (
-                <box>
-                    {bind(network[type], "device").as((device) => (
-                        <box>
-                            {bind(device, "interface").as((iface) => (
-                                <LevelBadge
-                                    level={bind(networkStats).as(
-                                        (stats) => getTotalNetworkThroughput(stats[iface]) / CONFIG.max_network_usage
-                                    )}
-                                >
-                                    <button cssClasses={["usage-badge"]} name="network-badge">
-                                        {type == "wired" ? (
-                                            <box spacing={8}>
-                                                <NetworkIndicatorWired iface={iface} />
-                                                <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
-                                                <NetworkIndicatorWifi />
-                                            </box>
-                                        ) : (
-                                            <box spacing={8}>
-                                                <NetworkIndicatorWifi iface={iface} />
-                                                <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
-                                                <NetworkIndicatorWired />
-                                            </box>
-                                        )}
-                                    </button>
-                                </LevelBadge>
-                            ))}
-                        </box>
-                    ))}
-                </box>
+            {bind(network, "device").as((device) => (
+                <label
+                    label={bind(networkStats).as((stats) => {
+                        let result = formatNetworkThroughput(getTotalNetworkThroughput(stats[device.interface]));
+                        if (parenthesize) {
+                            result = `(${result})`;
+                        }
+                        return result;
+                    })}
+                />
             ))}
         </box>
     );
 };
 
-// import NM from "gi://NM?version=1.0";
+function NetworkPart({ network, primary }: { network: AnyNetwork; primary: boolean }) {
+    return (
+        <box spacing={4}>
+            <image iconName={bind(network, "icon_name")} />
+            {bind(network, "internet").as((state) => {
+                if (state == AstalNetwork.Internet.CONNECTED) {
+                    return (
+                        <>
+                            {network instanceof AstalNetwork.Wifi ? (
+                                <label label={bind(network, "ssid").as((val) => val ?? "[null]")} />
+                            ) : null}
+                            {primary ? (
+                                <NetworkUsage network={network} parenthesize={network instanceof AstalNetwork.Wifi} />
+                            ) : null}
+                        </>
+                    );
+                } else if (state == AstalNetwork.Internet.CONNECTING) {
+                    return network instanceof AstalNetwork.Wifi ? (
+                        <label label={bind(network, "ssid").as((val) => val ?? "[null]")} />
+                    ) : (
+                        <label label={INTERNET_STATE_NAMES[state]} />
+                    );
+                } else {
+                    return <label label={INTERNET_STATE_NAMES[state]} />;
+                }
+            })}
+        </box>
+    );
+}
 
-// NM.Client.new_async(null, (client, result) => {
-//     NM.Client.new_finish(result);
-//     console.log("got client", client);
-//     if (!client) {
-//         return;
-//     }
-//     for (const device of client.get_all_devices()) {
-//         console.log("device", device, device.interface);
-//     }
-// });
+export const NetworkIndicator = () => {
+    return (
+        // TODO: Compute the level here.
+        // This will be easier when nested bindings are merged, but alas :(
+        <LevelBadge level={0}>
+            <button cssClasses={["usage-badge"]} name="network-badge">
+                {bind(networkInterfaces).as((networks) => (
+                    <box spacing={8}>
+                        {networks.primary ? <NetworkPart network={networks.primary} primary={true} /> : null}
+                        {networks.other.map((net) => (
+                            <>
+                                <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
+                                <NetworkPart network={net} primary={false} />
+                            </>
+                        ))}
+                    </box>
+                ))}
+            </button>
+        </LevelBadge>
+    );
+};
