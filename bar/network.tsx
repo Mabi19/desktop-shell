@@ -76,7 +76,7 @@ const NetworkUsage = ({ network, parenthesize }: { network: AnyNetwork; parenthe
                     label={bind(networkStats).as((stats) => {
                         let result = formatNetworkThroughput(getTotalNetworkThroughput(stats[device.interface]));
                         if (parenthesize) {
-                            result = `(${result})`;
+                            result = ` (${result})`;
                         }
                         return result;
                     })}
@@ -93,14 +93,15 @@ function NetworkPart({ network, primary }: { network: AnyNetwork; primary: boole
             {bind(network, "internet").as((state) => {
                 if (state == AstalNetwork.Internet.CONNECTED) {
                     return (
-                        <>
+                        // use a box to remove the spacing
+                        <box>
                             {network instanceof AstalNetwork.Wifi ? (
                                 <label label={bind(network, "ssid").as((val) => val ?? "[null]")} />
                             ) : null}
                             {primary ? (
                                 <NetworkUsage network={network} parenthesize={network instanceof AstalNetwork.Wifi} />
                             ) : null}
-                        </>
+                        </box>
                     );
                 } else if (state == AstalNetwork.Internet.CONNECTING) {
                     return network instanceof AstalNetwork.Wifi ? (

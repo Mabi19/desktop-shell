@@ -11,6 +11,43 @@ install_data(
 
 install_subdir('icons', install_dir: pkgdatadir)
 
+sources = files([
+    'app.ts',
+    'bar/audio.tsx',
+    'bar/badge-widgets.ts',
+    'bar/battery.tsx',
+    'bar/left-section.tsx',
+    'bar/network.tsx',
+    'bar/right-section.tsx',
+    'bar/tray.tsx',
+    'bar/workspaces.tsx',
+    'notification/flexbox-layout.ts',
+    'notification/notification-dump.ts',
+    'notification/notification.tsx',
+    'notification-center/notification-center.tsx',
+    'notification-center/weather-panel.tsx',
+    'osd/listener-brightness.ts',
+    'osd/listener-wireplumber.ts',
+    'osd/listeners.ts',
+    'osd/osd.tsx',
+    'style.scss',
+    'style/bar.scss',
+    'style/notification-center.scss',
+    'style/notification.scss',
+    'style/osd.scss',
+    'utils/color.ts',
+    'utils/config.ts',
+    'utils/location.ts',
+    'utils/message.ts',
+    'utils/notifier.ts',
+    'utils/system-stats.ts',
+    'utils/timer.ts',
+    'utils/weather.ts',
+    'widgets/calendar.ts',
+    'widgets/regular-window.ts',
+    'widgets/toggle-button.ts',
+])
+
 custom_target(
     command: [
         find_program('ags'),
@@ -21,7 +58,7 @@ custom_target(
         'mabi-shell.js',
     ],
     output: 'mabi-shell.js',
-    input: files('app.ts'),
+    input: sources,
     install: true,
     install_dir: pkgdatadir,
 )
