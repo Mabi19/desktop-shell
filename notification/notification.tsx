@@ -270,7 +270,7 @@ const NotificationLayoutProfile = ({ notification }: { notification: AstalNotifd
         <box hexpand={false} vertical={true} cssClasses={["layout", "layout-profile"]} spacing={4}>
             <box spacing={8}>
                 {imageWidget ? (
-                    <box cssClasses={["rounded-wrapper"]} overflow={Gtk.Overflow.HIDDEN}>
+                    <box cssClasses={["rounded-wrapper"]} valign={Gtk.Align.CENTER} overflow={Gtk.Overflow.HIDDEN}>
                         {imageWidget}
                     </box>
                 ) : null}
