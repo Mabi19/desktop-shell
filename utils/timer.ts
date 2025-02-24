@@ -4,17 +4,7 @@ import GLib from "gi://GLib";
 import { Notifier } from "./notifier";
 
 export class Timer extends Notifier {
-    private _pauseCount: number;
-    public get pauseCount(): number {
-        return this._pauseCount;
-    }
-    public set pauseCount(value: number) {
-        if (value < 0) {
-            console.warn("Tried to set negative pauses");
-            value = 0;
-        }
-        this._pauseCount = value;
-    }
+    isPaused: boolean;
     timeout: number;
     timeLeft: number;
     private lastTickTime: number;
@@ -24,7 +14,7 @@ export class Timer extends Notifier {
         super();
         this.timeout = timeout;
         this.timeLeft = timeout;
-        this._pauseCount = 0;
+        this.isPaused = false;
         this.lastTickTime = GLib.get_monotonic_time();
 
         this.interval = interval(20, () => this.tick());
@@ -32,17 +22,16 @@ export class Timer extends Notifier {
 
     protected unsubscribe(callback: () => void): void {
         super.unsubscribe(callback);
-        if (this.subscriptions.size == 0 && this.pauseCount > 0 && this.interval != null) {
-            console.warn("Timer was disconnected with active pauses");
+        if (this.subscriptions.size == 0 && this.isPaused && this.interval != null) {
+            console.warn("Timer was disconnected while paused");
             // clean it up anyway
-            this.pauseCount = 0;
+            this.isPaused = false;
         }
     }
 
     tick() {
         const now = GLib.get_monotonic_time();
-        if (this.pauseCount > 0) {
-            // timer is paused
+        if (this.isPaused) {
             this.lastTickTime = now;
             return;
         }

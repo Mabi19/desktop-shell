@@ -39,6 +39,8 @@ class NotificationTracker extends GObject.Object {
         this.#widgets = new Map();
 
         const notifd = AstalNotifd.get_default();
+        // This is handled by the notifications themselves.
+        notifd.set_ignore_timeout(true);
 
         notifd.connect("notified", (_, id) => {
             console.log("notification created", id);
@@ -150,6 +152,14 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
         }
     }
 
+    function setPauseState(value: boolean) {
+        // notifications with a set expire timeout need to expire precisely
+        if (notification.expireTimeout != -1) {
+            return;
+        }
+        timer.isPaused = value;
+    }
+
     let icon: Gtk.Widget | null;
     if (notification.appIcon) {
         if (fileExists(notification.appIcon)) {
@@ -185,8 +195,8 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
         cleanup,
         widget: (
             <box
-                onHoverEnter={() => timer.pauseCount++}
-                onHoverLeave={() => timer.pauseCount--}
+                onHoverEnter={() => setPauseState(true)}
+                onHoverLeave={() => setPauseState(false)}
                 onButtonReleased={(_box, event) => handleBackgroundClick(event)}
                 vertical={true}
                 hexpand={false}
