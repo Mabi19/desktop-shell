@@ -62,11 +62,11 @@ const CONFIG_DEFAULTS: Config = {
 
 ## Dispatchers
 Some actions may be dispatched to the running instance via the `astal` CLI.
-- `capslock_update`: update Caps Lock status.
-- `osdn <icon-name: string> <value: number>`: show OSD with the specified icon and bar fullness.
-- `osdt <icon-name: string> <text: string>`: show OSD with the specified icon and text (no level bar).
+- `capslock_update`: update Caps Lock status
+- `osdn <icon-name: string> <value: number>`: show OSD with the specified icon and bar fullness
+- `osdt <icon-name: string> <text: string>`: show OSD with the specified icon and text (no level bar)
 - `wpctl <args...>`: execute a `wpctl` command, then show OSD for the default audio sink
-- `quit`: exit.
+- `quit`: exit
 
 ## TODO
 - Notification animations
