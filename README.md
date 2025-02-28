@@ -28,7 +28,7 @@ In the future, I may make a PKGBUILD for this or something.
 
 ## Configuration
 This isn't particularly customizable, but some options do exist (they should live in `~/.config/mabi-shell/config.json`).
-See `config.json.example` for an example.
+A configuration file is not required; all options have defaults.
 ```ts
 interface OklabColor {
     l: number;
@@ -47,7 +47,17 @@ interface Config {
     theme_inactive: OklabColor;
     /** The second theme color, used for active workspace buttons and badges with maximum usage. */
     theme_active: OklabColor;
+    /** The options to show in the power menu. Hibernate is disabled by default. */
+    power_menu_options: ("suspend" | "hibernate" | "shutdown" | "reboot")[]
 }
+
+const CONFIG_DEFAULTS: Config = {
+    enable_notifications: true,
+    max_network_usage: 12_500_000,
+    theme_inactive: { l: 0.6460, a: 0.1412, b: -0.1027 },
+    theme_active: { l: 0.5200, a: 0.1106, b: -0.1390 },
+    power_menu_options: ["suspend", "shutdown", "reboot"]
+};
 ```
 
 ## Dispatchers
