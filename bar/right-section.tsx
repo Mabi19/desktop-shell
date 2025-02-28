@@ -6,25 +6,41 @@ import { notificationCenterMonitor } from "../notification-center/notification-c
 import { AudioIndicator } from "./audio";
 import { BatteryIndicator } from "./battery";
 import { SystemTray } from "./tray";
+import { CONFIG } from "../utils/config";
 
 const time = Variable(new GLib.DateTime()).poll(1000, () => new GLib.DateTime());
 
 const powermenu = new Gio.Menu();
-powermenu.append("Suspend", "powermenu.suspend");
-powermenu.append("Shutdown", "powermenu.shutdown");
-powermenu.append("Reboot", "powermenu.reboot");
 
 const suspendAction = new Gio.SimpleAction({ name: "suspend" });
 suspendAction.connect("activate", () => exec("systemctl sleep"));
+const hibernateAction = new Gio.SimpleAction({ name: "hibernate" });
+hibernateAction.connect("activate", () => exec("systemctl hibernate"));
 const shutdownAction = new Gio.SimpleAction({ name: "shutdown" });
 shutdownAction.connect("activate", () => exec("systemctl poweroff"));
 const rebootAction = new Gio.SimpleAction({ name: "reboot" });
 rebootAction.connect("activate", () => exec("systemctl reboot"));
 
 const powermenuGroup = new Gio.SimpleActionGroup();
-powermenuGroup.add_action(suspendAction);
-powermenuGroup.add_action(shutdownAction);
-powermenuGroup.add_action(rebootAction);
+for (const action of CONFIG.power_menu_options) {
+    switch (action) {
+        case "suspend":
+            powermenu.append("Suspend", "powermenu.suspend");
+            powermenuGroup.add_action(suspendAction);
+            break;
+        case "hibernate":
+            powermenu.append("Hibernate", "powermenu.hibernate");
+            powermenuGroup.add_action(hibernateAction);
+            break;
+        case "shutdown":
+            powermenu.append("Shutdown", "powermenu.shutdown");
+            powermenuGroup.add_action(shutdownAction);
+            break;
+        case "reboot":
+            powermenu.append("Reboot", "powermenu.reboot");
+            powermenuGroup.add_action(rebootAction);
+    }
+}
 
 const PowerButton = () => (
     <menubutton
