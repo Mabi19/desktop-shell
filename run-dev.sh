@@ -1,2 +1,2 @@
 #!/bin/bash
-ags run ~/programming/desktop-shell/app.ts --define DATADIR=null --gtk4
+ags run ./app.ts --define DATADIR=null --gtk4
