@@ -22,10 +22,7 @@ function TrayItem({ item }: { item: AstalTray.TrayItem }) {
     controller.connect("event", (_c, event) => {
         const type = event.get_event_type();
 
-        if (
-            type == Gdk.EventType.BUTTON_PRESS &&
-            (event as Gdk.ButtonEvent).get_button() == Gdk.BUTTON_SECONDARY
-        ) {
+        if (type == Gdk.EventType.BUTTON_PRESS && (event as Gdk.ButtonEvent).get_button() == Gdk.BUTTON_SECONDARY) {
             // do this earlier for less flash-of-invalid-content
             item.about_to_show();
         }
@@ -39,12 +36,17 @@ function TrayItem({ item }: { item: AstalTray.TrayItem }) {
                 return false;
             }
 
-            if (mouseButton == Gdk.BUTTON_PRIMARY) {
-                item.activate(x, y);
-            } else if (mouseButton == Gdk.BUTTON_MIDDLE) {
-                item.secondary_activate(x, y);
-            } else {
+            console.log("is_menu", item.get_is_menu());
+            if (item.is_menu) {
                 button.popup();
+            } else {
+                if (mouseButton == Gdk.BUTTON_PRIMARY) {
+                    item.activate(x, y);
+                } else if (mouseButton == Gdk.BUTTON_MIDDLE) {
+                    item.secondary_activate(x, y);
+                } else {
+                    button.popup();
+                }
             }
         }
         // Stop processing further.
@@ -67,9 +69,7 @@ export const SystemTray = () => {
     return (
         <box spacing={12}>
             {bind(tray, "items").as((items) => {
-                return items
-                    .toSorted((a, b) => a.title.localeCompare(b.title))
-                    .map((item) => <TrayItem item={item} />);
+                return items.toSorted((a, b) => a.title.localeCompare(b.title)).map((item) => <TrayItem item={item} />);
             })}
         </box>
     );

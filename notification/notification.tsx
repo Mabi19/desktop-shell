@@ -134,10 +134,18 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
     const cleanup = timer.subscribe(() => {
         progressBar.fraction = 1 - timer.timeLeft / timer.timeout;
 
-        if (timer.timeLeft <= 0) notification.dismiss();
+        if (timer.timeLeft <= 0) {
+            // notifications with a timeout must stay for the correct length of time,
+            // so they need to be deleted instead of stored
+            if (notification.expireTimeout != -1 || notification.transient) {
+                notification.dismiss();
+            } else {
+                // TODO: Move to notification center
+                notification.dismiss();
+            }
+        }
     });
 
-    /** Invoke an action by its ID, checking if it exists */
     function handleBackgroundClick(event: Gdk.ButtonEvent) {
         const button = event.get_button();
         if (button == Gdk.BUTTON_PRIMARY) {
