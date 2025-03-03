@@ -1,8 +1,8 @@
 import { Variable } from "astal";
 import { Gdk } from "astal/gtk4";
+import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import type { OklabColor } from "./color";
-import Gio from "gi://Gio?version=2.0";
 
 export const DATA = DATADIR ?? SRC;
 
@@ -16,20 +16,23 @@ interface Config {
     enable_notifications: boolean;
     /** The network usage considered to be 100%. In bytes per second. */
     max_network_usage: number;
+    /** The style of the bar. "floating" is rounded with a margin, "attached" has no margins */
+    bar_style: "floating" | "attached";
     /** The first theme color, used for inactive workspace buttons and badges with 0 usage. */
     theme_inactive: OklabColor;
     /** The second theme color, used for active workspace buttons and badges with maximum usage. */
     theme_active: OklabColor;
     /** The options to show in the power menu. Hibernate is disabled by default. */
-    power_menu_options: ("suspend" | "hibernate" | "shutdown" | "reboot")[]
+    power_menu_options: ("suspend" | "hibernate" | "shutdown" | "reboot")[];
 }
 
 const CONFIG_DEFAULTS: Config = {
     enable_notifications: true,
     max_network_usage: 12_500_000,
-    theme_inactive: { l: 0.6460, a: 0.1412, b: -0.1027 },
-    theme_active: { l: 0.5200, a: 0.1106, b: -0.1390 },
-    power_menu_options: ["suspend", "shutdown", "reboot"]
+    bar_style: "attached",
+    theme_inactive: { l: 0.646, a: 0.1412, b: -0.1027 },
+    theme_active: { l: 0.52, a: 0.1106, b: -0.139 },
+    power_menu_options: ["suspend", "shutdown", "reboot"],
 };
 
 export const CONFIG: Config = CONFIG_DEFAULTS;
@@ -38,10 +41,7 @@ try {
     const configFile = Gio.File.new_for_path(GLib.get_home_dir() + "/.config/mabi-shell/config.json");
     const [_success, data] = configFile.load_contents(null);
     const configFileContents = new TextDecoder().decode(data);
-    Object.assign(
-        CONFIG,
-        JSON.parse(configFileContents)
-    )
+    Object.assign(CONFIG, JSON.parse(configFileContents));
 } catch (e) {
     console.log("config file not present, skipping load");
 }

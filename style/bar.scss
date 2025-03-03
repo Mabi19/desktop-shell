@@ -1,14 +1,22 @@
 @use "sass:color";
 @use "sass:math";
 
-.bar {
-    & > box {
-        background-color: var(--window-bg-color);
+.bar > box {
+    background-color: var(--window-bg-color);
+}
 
+.bar.floating {
+    --margin: 10px;
+
+    & > box {
         border-radius: 2em;
-        margin: 10px 10px 0px 10px;
+        margin: var(--margin) var(--margin) 0px var(--margin);
         padding: 4px 6px;
     }
+}
+
+.bar.attached > box {
+    padding: 6px 8px;
 }
 
 @mixin badge {
@@ -79,12 +87,12 @@ button.usage-badge {
     font-size: small;
     font-weight: bold;
 
-    padding: 0 6px;
+    padding: 0 10px;
     background-color: var(--theme-inactive);
     transition: padding .2s ease-out, background-color .2s ease-out;
 
     &.active {
-        padding: 0 12px;
+        padding: 0 16px;
         background-color: var(--theme-active);
     }
 
