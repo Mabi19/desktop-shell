@@ -1,5 +1,6 @@
-import { App, Astal, Gdk } from "astal/gtk4";
-import type Gio from "gi://Gio?version=2.0";
+import { App, Astal, Gdk, Gtk } from "astal/gtk4";
+import Gio from "gi://Gio?version=2.0";
+import GLib from "gi://GLib?version=2.0";
 import { Bar } from "./bar/bar";
 import { NotificationCenter } from "./notification-center/notification-center";
 import { NotificationPopupWindow } from "./notification/notification";
@@ -15,21 +16,43 @@ function makeWindowsForMonitor(monitor: Gdk.Monitor) {
     return [Bar(monitor), NotificationCenter(monitor)] as Astal.Window[];
 }
 
-function applyThemeCSS() {
-    const themeColorCSS = `
-    :root {
-        --theme-inactive: ${formatOklabAsCSS(CONFIG.theme_inactive)};
-        --theme-active: ${formatOklabAsCSS(CONFIG.theme_active)};
+function applyStyles(display: Gdk.Display) {
+    function loadStyleString(css: string, priority: number) {
+        const provider = new Gtk.CssProvider();
+        provider.load_from_string(css);
+        Gtk.StyleContext.add_provider_for_display(display, provider, priority);
     }
-    `;
-    App.apply_css(themeColorCSS);
+
+    // basic styles
+    loadStyleString(style, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    // theme colors
+    loadStyleString(
+        `
+:root {
+    --theme-inactive: ${formatOklabAsCSS(CONFIG.theme_inactive)};
+    --theme-active: ${formatOklabAsCSS(CONFIG.theme_active)};
+}
+    `,
+        Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+    );
+
+    // overrides
+    try {
+        const styleOverridesFile = Gio.File.new_for_path(GLib.get_home_dir() + "/.config/mabi-shell/overrides.css");
+        const [_success, data] = styleOverridesFile.load_contents(null);
+        const overrideString = new TextDecoder().decode(data);
+        loadStyleString(overrideString, Gtk.STYLE_PROVIDER_PRIORITY_USER);
+    } catch (e) {
+        console.log("style overrides not present, skipping load");
+    }
 }
 
 App.start({
-    css: style,
     icons: `${DATA}/icons`,
     main() {
-        applyThemeCSS();
+        const display = Gdk.Display.get_default()!;
+        applyStyles(display);
 
         for (const monitor of App.get_monitors()) {
             windows.set(monitor, makeWindowsForMonitor(monitor));
@@ -41,7 +64,6 @@ App.start({
 
         startOSDListeners();
 
-        const display = Gdk.Display.get_default()!;
         const monitors = display.get_monitors() as Gio.ListModel<Gdk.Monitor>;
         monitors.connect("items-changed", (monitorModel, position, idxRemoved, idxAdded) => {
             console.log("monitors changed!", position, idxRemoved, idxAdded);

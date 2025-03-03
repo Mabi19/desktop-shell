@@ -43,7 +43,7 @@ try {
     const configFileContents = new TextDecoder().decode(data);
     Object.assign(CONFIG, JSON.parse(configFileContents));
 } catch (e) {
-    console.log("config file not present, skipping load");
+    console.log("config file not present / broken, skipping load");
 }
 
 function getPrimaryMonitor() {
