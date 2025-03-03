@@ -3,12 +3,19 @@ import { Gdk, Gtk } from "astal/gtk4";
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import { notificationCenterMonitor } from "../notification-center/notification-center";
+import { CONFIG } from "../utils/config";
 import { AudioIndicator } from "./audio";
 import { BatteryIndicator } from "./battery";
 import { SystemTray } from "./tray";
-import { CONFIG } from "../utils/config";
 
-const time = Variable(new GLib.DateTime()).poll(1000, () => new GLib.DateTime());
+// this is a very rough approximation of converting POSIX locales into BCP 47 tags
+const languageTag =
+    (GLib.getenv("LC_ALL") || GLib.getenv("LC_TIME") || GLib.getenv("LANG"))?.replaceAll("_", "-")?.split(".")?.[0] ??
+    undefined;
+const timeFormatter = new Intl.DateTimeFormat(languageTag, {
+    timeStyle: "short",
+});
+const time = Variable(timeFormatter.format(new Date())).poll(1000, () => timeFormatter.format(new Date()));
 
 const powermenu = new Gio.Menu();
 
@@ -63,7 +70,7 @@ function toggleNotificationCenter(monitor: Gdk.Monitor) {
 const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
     <button name="time-and-notifications" onClicked={() => toggleNotificationCenter(monitor)}>
         <box spacing={6}>
-            {time((timestamp) => timestamp.format("%H:%M"))}
+            {time()}
             <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
             <image iconName="fa-bell-symbolic" />
         </box>
