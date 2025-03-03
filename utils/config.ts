@@ -29,7 +29,7 @@ interface Config {
 const CONFIG_DEFAULTS: Config = {
     enable_notifications: true,
     max_network_usage: 12_500_000,
-    bar_style: "attached",
+    bar_style: "floating",
     theme_inactive: { l: 0.646, a: 0.1412, b: -0.1027 },
     theme_active: { l: 0.52, a: 0.1106, b: -0.139 },
     power_menu_options: ["suspend", "shutdown", "reboot"],
