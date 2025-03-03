@@ -22,9 +22,12 @@ function TrayItem({ item }: { item: AstalTray.TrayItem }) {
     controller.connect("event", (_c, event) => {
         const type = event.get_event_type();
 
-        if (type == Gdk.EventType.BUTTON_PRESS && (event as Gdk.ButtonEvent).get_button() == Gdk.BUTTON_SECONDARY) {
-            // do this earlier for less flash-of-invalid-content
-            item.about_to_show();
+        if (type == Gdk.EventType.BUTTON_PRESS) {
+            const button = (event as Gdk.ButtonEvent).get_button();
+            if (button == Gdk.BUTTON_SECONDARY || (item.is_menu && button == Gdk.BUTTON_PRIMARY)) {
+                // do this earlier for less flash-of-invalid-content
+                item.about_to_show();
+            }
         }
 
         if (type == Gdk.EventType.BUTTON_RELEASE) {
@@ -36,17 +39,16 @@ function TrayItem({ item }: { item: AstalTray.TrayItem }) {
                 return false;
             }
 
-            console.log("is_menu", item.get_is_menu());
-            if (item.is_menu) {
-                button.popup();
-            } else {
-                if (mouseButton == Gdk.BUTTON_PRIMARY) {
-                    item.activate(x, y);
-                } else if (mouseButton == Gdk.BUTTON_MIDDLE) {
-                    item.secondary_activate(x, y);
-                } else {
+            if (mouseButton == Gdk.BUTTON_PRIMARY) {
+                if (item.is_menu) {
                     button.popup();
+                } else {
+                    item.activate(x, y);
                 }
+            } else if (mouseButton == Gdk.BUTTON_MIDDLE) {
+                item.secondary_activate(x, y);
+            } else {
+                button.popup();
             }
         }
         // Stop processing further.
