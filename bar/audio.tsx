@@ -12,7 +12,7 @@ const audio = AstalWp.get_default()!.audio;
 const cava = AstalCava.get_default()!;
 cava.bars = 16;
 
-const VolumeSlider = ({ device, sounds }: { device: AstalWp.Endpoint; sounds: boolean }) => {
+const VolumeSlider = ({ device, sounds }: { device: AstalWp.Endpoint; sounds?: boolean }) => {
     const soundContext = getSoundContext();
     let isPlayingSound = false;
 
