@@ -10,6 +10,7 @@ workspace widget scrolling, and workspace drag'n'drop (to move them between moni
 Required things:
 - AGS v2 (for build only)
 - libastal (+ some of its extra libraries)
+- GSound
 - Hyprland (0.47.2+)
 - GNOME System Monitor
 - pavucontrol

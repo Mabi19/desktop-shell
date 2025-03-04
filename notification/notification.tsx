@@ -3,8 +3,10 @@ import GObject, { register, signal } from "astal/gobject";
 import { App, Astal, Gdk, Gtk } from "astal/gtk4";
 import AstalNotifd from "gi://AstalNotifd";
 import GLib from "gi://GLib?version=2.0";
+import GSound from "gi://GSound";
 import Pango from "gi://Pango?version=1.0";
 import { primaryMonitor } from "../utils/config";
+import { getSoundContext } from "../utils/sound";
 import { Timer } from "../utils/timer";
 import { FlexBoxLayout } from "./flexbox-layout";
 import { dumpNotification } from "./notification-dump";
@@ -23,6 +25,8 @@ interface WidgetEntry {
 
 @register()
 class NotificationTracker extends GObject.Object {
+    context: GSound.Context;
+
     #widgets: Map<number, WidgetEntry>;
 
     @signal(Object)
@@ -36,6 +40,7 @@ class NotificationTracker extends GObject.Object {
 
     constructor() {
         super();
+        this.context = getSoundContext();
         this.#widgets = new Map();
 
         const notifd = AstalNotifd.get_default();
@@ -56,6 +61,7 @@ class NotificationTracker extends GObject.Object {
             if (existingWidget) {
                 this.emit("replace", existingWidget, newWidget);
             } else {
+                this.context.play_simple({ [GSound.ATTR_EVENT_ID]: "message" }, null);
                 this.emit("create", newWidget);
             }
         });

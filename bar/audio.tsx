@@ -2,7 +2,9 @@ import { bind, execAsync } from "astal";
 import { Gtk, hook } from "astal/gtk4";
 import AstalCava from "gi://AstalCava?version=0.1";
 import AstalWp from "gi://AstalWp?version=0.1";
+import GSound from "gi://GSound?version=1.0";
 import Pango from "gi://Pango?version=1.0";
+import { getSoundContext } from "../utils/sound";
 import { ToggleButton } from "../widgets/toggle-button";
 import { GraphBadge } from "./badge-widgets";
 
@@ -10,7 +12,10 @@ const audio = AstalWp.get_default()!.audio;
 const cava = AstalCava.get_default()!;
 cava.bars = 16;
 
-const VolumeSlider = ({ device }: { device: AstalWp.Endpoint }) => {
+const VolumeSlider = ({ device, sounds }: { device: AstalWp.Endpoint; sounds: boolean }) => {
+    const soundContext = getSoundContext();
+    let isPlayingSound = false;
+
     const adjustment = new Gtk.Adjustment({
         lower: 0,
         upper: 1,
@@ -25,7 +30,13 @@ const VolumeSlider = ({ device }: { device: AstalWp.Endpoint }) => {
     scale.connect("change-value", (_, _type, value) => {
         value = Math.round(Math.max(0, Math.min(value * 100, 100))) / 100;
         device.volume = value;
-        // TODO: play sounds here if this is a speaker
+        if (sounds && !isPlayingSound) {
+            soundContext.play_full({ [GSound.ATTR_EVENT_ID]: "audio-volume-change" }, null, (_ctx, res) => {
+                isPlayingSound = false;
+                soundContext.play_full_finish(res);
+            });
+            isPlayingSound = true;
+        }
     });
     hook(scale, device, "notify::volume", () => {
         const volume = device.volume;
@@ -71,7 +82,7 @@ const AudioPopover = () => {
                     />
                 </box>
                 <box>
-                    <VolumeSlider device={speaker} />
+                    <VolumeSlider device={speaker} sounds={true} />
                     <label
                         label={bind(speaker, "volume").as((vol) => `${Math.round(vol * 100)}%`)}
                         widthChars={5}
