@@ -38,6 +38,18 @@ class NotificationTracker extends GObject.Object {
     @signal(Object)
     declare destroy: (widget: WidgetEntry) => void;
 
+    playSoundFor(notification: AstalNotifd.Notification) {
+        if (notification.suppressSound) {
+            return;
+        }
+
+        if (notification.soundFile) {
+            this.context.play_simple({ [GSound.ATTR_MEDIA_FILENAME]: notification.soundFile }, null);
+        } else {
+            this.context.play_simple({ [GSound.ATTR_EVENT_ID]: notification.soundName ?? "message" }, null);
+        }
+    }
+
     constructor() {
         super();
         this.context = getSoundContext();
@@ -61,7 +73,7 @@ class NotificationTracker extends GObject.Object {
             if (existingWidget) {
                 this.emit("replace", existingWidget, newWidget);
             } else {
-                this.context.play_simple({ [GSound.ATTR_EVENT_ID]: "message" }, null);
+                this.playSoundFor(notification);
                 this.emit("create", newWidget);
             }
         });
