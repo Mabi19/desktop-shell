@@ -5,8 +5,6 @@ import { Calendar } from "../widgets/calendar";
 import { NotificationList } from "./notification-list";
 import { WeatherIconDebug, WeatherPanel } from "./weather-panel";
 
-export const notificationCenterMonitor = Variable<Gdk.Monitor | null>(null);
-
 function TopCarousel() {
     const carousel = new Adw.Carousel({ spacing: 8 });
     carousel.append(<WeatherPanel />);
@@ -29,18 +27,18 @@ function CalendarPanel() {
     return <Calendar />;
 }
 
-export const NotificationCenter = (monitor: Gdk.Monitor) => {
-    return (
+let notificationCenterWindow: Astal.Window | null;
+export function createNotificationCenter() {
+    notificationCenterWindow = (
         <window
-            name={`notification-center${monitor}`}
             cssClasses={["notification-center-window"]}
             namespace="notification-center"
             anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.BOTTOM | Astal.WindowAnchor.RIGHT}
             layer={Astal.Layer.OVERLAY}
             exclusivity={Astal.Exclusivity.NORMAL}
-            gdkmonitor={monitor}
-            setup={(self) => App.add_window(self)}
-            visible={bind(notificationCenterMonitor).as((mon) => mon == monitor)}
+            setup={(self) => {
+                App.add_window(self);
+            }}
         >
             <box vertical={true} name="notification-center">
                 <TopCarousel />
@@ -49,5 +47,28 @@ export const NotificationCenter = (monitor: Gdk.Monitor) => {
                 <CalendarPanel />
             </box>
         </window>
-    );
-};
+    ) as Astal.Window;
+}
+
+export function toggleNotificationCenter(monitor: Gdk.Monitor | null) {
+    if (!notificationCenterWindow) {
+        throw new Error("Notification center window doesn't exist");
+    }
+
+    // if null, then always hide
+    if (!monitor) {
+        notificationCenterWindow.visible = false;
+        return;
+    }
+
+    if (notificationCenterWindow.visible) {
+        if (monitor == notificationCenterWindow.gdkmonitor) {
+            notificationCenterWindow.visible = false;
+        } else {
+            notificationCenterWindow.gdkmonitor = monitor;
+        }
+    } else {
+        notificationCenterWindow.gdkmonitor = monitor;
+        notificationCenterWindow.visible = true;
+    }
+}

@@ -2,18 +2,19 @@ import { App, Astal, Gdk, Gtk } from "astal/gtk4";
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import { Bar } from "./bar/bar";
-import { NotificationCenter } from "./notification-center/notification-center";
+import { createNotificationCenter } from "./notification-center/notification-center";
 import { NotificationPopupWindow } from "./notification/notification";
 import { startOSDListeners } from "./osd/listeners";
 import style from "./style.scss";
 import { formatOklabAsCSS } from "./utils/color";
 import { CONFIG, DATA } from "./utils/config";
 import { handleMessage } from "./utils/message";
+import { NetworkService } from "./utils/network";
 
 const windows = new Map<Gdk.Monitor, Astal.Window[]>();
 
 function makeWindowsForMonitor(monitor: Gdk.Monitor) {
-    return [Bar(monitor), NotificationCenter(monitor)] as Astal.Window[];
+    return [Bar(monitor)] as Astal.Window[];
 }
 
 function applyStyles(display: Gdk.Display) {
@@ -51,6 +52,8 @@ function applyStyles(display: Gdk.Display) {
 App.start({
     icons: `${DATA}/icons`,
     main() {
+        // NetworkService.getInstance();
+
         const display = Gdk.Display.get_default()!;
         applyStyles(display);
 
@@ -62,6 +65,7 @@ App.start({
             NotificationPopupWindow();
         }
 
+        createNotificationCenter();
         startOSDListeners();
 
         const monitors = display.get_monitors() as Gio.ListModel<Gdk.Monitor>;

@@ -2,7 +2,7 @@ import { Variable, exec } from "astal";
 import { Gdk, Gtk } from "astal/gtk4";
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
-import { notificationCenterMonitor } from "../notification-center/notification-center";
+import { toggleNotificationCenter } from "../notification-center/notification-center";
 import { CONFIG } from "../utils/config";
 import { AudioIndicator } from "./audio";
 import { BatteryIndicator } from "./battery";
@@ -58,14 +58,6 @@ const PowerButton = () => (
         <image iconName="system-shutdown-symbolic" />
     </menubutton>
 );
-
-function toggleNotificationCenter(monitor: Gdk.Monitor) {
-    if (notificationCenterMonitor.get() == monitor) {
-        notificationCenterMonitor.set(null);
-    } else {
-        notificationCenterMonitor.set(monitor);
-    }
-}
 
 const TimeAndNotifications = ({ monitor }: { monitor: Gdk.Monitor }) => (
     <button name="time-and-notifications" onClicked={() => toggleNotificationCenter(monitor)}>
