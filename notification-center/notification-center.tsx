@@ -2,6 +2,7 @@ import { Variable, bind } from "astal";
 import { App, Astal, Gdk } from "astal/gtk4";
 import Adw from "gi://Adw?version=1";
 import { Calendar } from "../widgets/calendar";
+import { cancelClickCapture, setupClickCapture } from "./click-capturer";
 import { NotificationList } from "./notification-list";
 import { WeatherIconDebug, WeatherPanel } from "./weather-panel";
 
@@ -50,25 +51,23 @@ export function createNotificationCenter() {
     ) as Astal.Window;
 }
 
-export function toggleNotificationCenter(monitor: Gdk.Monitor | null) {
+export function toggleNotificationCenter(monitor: Gdk.Monitor) {
     if (!notificationCenterWindow) {
         throw new Error("Notification center window doesn't exist");
-    }
-
-    // if null, then always hide
-    if (!monitor) {
-        notificationCenterWindow.visible = false;
-        return;
     }
 
     if (notificationCenterWindow.visible) {
         if (monitor == notificationCenterWindow.gdkmonitor) {
             notificationCenterWindow.visible = false;
+            cancelClickCapture();
         } else {
             notificationCenterWindow.gdkmonitor = monitor;
         }
     } else {
         notificationCenterWindow.gdkmonitor = monitor;
         notificationCenterWindow.visible = true;
+        setupClickCapture(() => {
+            notificationCenterWindow!.visible = false;
+        });
     }
 }
