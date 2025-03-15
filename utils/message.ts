@@ -19,6 +19,7 @@ export function handleMessage(request: string, respond: (res: any) => void) {
         respond("ok");
     } else if (request.startsWith("wpctl")) {
         execWrappedWpCommand(request);
+        respond("ok");
     } else if (request == "quit") {
         respond("ok");
         App.quit();

@@ -8,8 +8,8 @@ function OnScreenDisplay({ icon, value }: { icon: string; value: number | string
             {typeof value == "number" ? (
                 <>
                     <levelbar
-                        value={value}
-                        cssClasses={["osd-bar"]}
+                        value={Math.max(0, Math.min(value, 1))}
+                        cssClasses={value > 1 ? ["osd-bar", "overfilled"] : ["osd-bar"]}
                         setup={(self) => {
                             self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_LOW);
                             self.remove_offset_value(Gtk.LEVEL_BAR_OFFSET_HIGH);

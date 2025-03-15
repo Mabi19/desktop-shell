@@ -15,3 +15,7 @@
 .osd-bar {
     min-height: 8px;
 }
+
+.osd-bar.overfilled block {
+    background: linear-gradient(90deg, var(--theme-active), var(--theme-inactive), var(--theme-active));
+}
