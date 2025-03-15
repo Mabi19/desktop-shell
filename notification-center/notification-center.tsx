@@ -35,7 +35,7 @@ export function createNotificationCenter() {
             cssClasses={["notification-center-window"]}
             namespace="notification-center"
             anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.BOTTOM | Astal.WindowAnchor.RIGHT}
-            layer={Astal.Layer.OVERLAY}
+            layer={Astal.Layer.TOP}
             exclusivity={Astal.Exclusivity.NORMAL}
             setup={(self) => {
                 App.add_window(self);
