@@ -1,6 +1,7 @@
 import { bind, Variable } from "astal";
 import GObject, { register, signal } from "astal/gobject";
 import { App, Astal, Gdk, Gtk } from "astal/gtk4";
+import Adw from "gi://Adw?version=1";
 import AstalNotifd from "gi://AstalNotifd";
 import GLib from "gi://GLib?version=2.0";
 import GSound from "gi://GSound";
@@ -8,7 +9,7 @@ import Pango from "gi://Pango?version=1.0";
 import { primaryMonitor } from "../utils/config";
 import { getSoundContext } from "../utils/sound";
 import { Timer } from "../utils/timer";
-import { FlexBoxLayout } from "./flexbox-layout";
+import { WrapBox } from "../widgets/wrap-box";
 import { dumpNotification } from "./notification-dump";
 
 const DEFAULT_TIMEOUT = 5000;
@@ -203,7 +204,7 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
     for (const action of notification.get_actions()) {
         if (action.id != "default") {
             actionButtons.push(
-                <button onButtonPressed={() => notification.invoke(action.id)} hexpand={true}>
+                <button onClicked={() => notification.invoke(action.id)} hexpand={true}>
                     {action.label}
                 </button>
             );
@@ -212,9 +213,9 @@ function NotificationWrapper({ notification }: { notification: AstalNotifd.Notif
 
     const actionBox =
         actionButtons.length > 0 ? (
-            <box spacing={8} cssClasses={["actions"]} layoutManager={new FlexBoxLayout({ spacing: 8 })}>
+            <WrapBox childSpacing={8} lineSpacing={8} justify={Adw.JustifyMode.FILL} cssClasses={["actions"]}>
                 {actionButtons}
-            </box>
+            </WrapBox>
         ) : null;
 
     return {
