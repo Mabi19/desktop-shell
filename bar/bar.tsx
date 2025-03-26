@@ -16,7 +16,7 @@ export const Bar = (monitor: Gdk.Monitor) => (
         <centerbox>
             <LeftSection />
             <Workspaces gdkmonitor={monitor} />
-            <RightSection monitor={monitor} />
+            <RightSection />
         </centerbox>
     </window>
 );
