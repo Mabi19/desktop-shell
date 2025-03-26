@@ -11,27 +11,28 @@ install_data(
 
 install_subdir('icons', install_dir: pkgdatadir)
 
-sources = files([
-    'app.ts',
+sources = files(
     'bar/audio.tsx',
     'bar/badge-widgets.ts',
+    'bar/bar.tsx',
     'bar/battery.tsx',
     'bar/left-section.tsx',
     'bar/network.tsx',
     'bar/right-section.tsx',
     'bar/tray.tsx',
     'bar/workspaces.tsx',
-    'notification/flexbox-layout.ts',
+    'notification-center/click-capturer.tsx',
+    'notification-center/notification-center.tsx',
+    'notification-center/notification-list.tsx',
+    'notification-center/weather-panel.tsx',
     'notification/notification-dump.ts',
     'notification/notification.tsx',
-    'notification-center/notification-center.tsx',
-    'notification-center/weather-panel.tsx',
     'osd/listener-brightness.ts',
     'osd/listener-wireplumber.ts',
     'osd/listeners.ts',
     'osd/osd.tsx',
-    'style.scss',
     'style/bar.scss',
+    'style/click-capture.scss',
     'style/notification-center.scss',
     'style/notification.scss',
     'style/osd.scss',
@@ -39,14 +40,20 @@ sources = files([
     'utils/config.ts',
     'utils/location.ts',
     'utils/message.ts',
+    'utils/network.ts',
     'utils/notifier.ts',
+    'utils/sound.ts',
     'utils/system-stats.ts',
+    'utils/time.ts',
     'utils/timer.ts',
     'utils/weather.ts',
     'widgets/calendar.ts',
     'widgets/regular-window.ts',
     'widgets/toggle-button.ts',
-])
+    'widgets/wrap-box.ts',
+    'app.ts',
+    'style.scss',
+)
 
 custom_target(
     command: [
