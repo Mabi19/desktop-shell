@@ -117,6 +117,7 @@ export const NotificationPopupWindow = () => {
         }
     });
 
+    // TODO: increase margin-right when notification center is active
     return (
         <window
             name="notification-popup-window"

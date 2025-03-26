@@ -101,7 +101,6 @@ export function HyprlandWorkspaces({ hyprlandMonitor }: { hyprlandMonitor: Astal
                                     `${movedWorkspaceId} ${hyprlandMonitor?.id}`
                                 );
                             }
-                            // TODO: Finishing a drop causes the next click to not go through. Try finding a workaround for this perhaps
                         })
                         .catch(logError);
 

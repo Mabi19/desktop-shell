@@ -1,4 +1,4 @@
-import { Variable } from "astal";
+import { interval, Variable } from "astal";
 import { readFileAsync } from "astal/file";
 
 const UPDATE_INTERVAL = 2000;
@@ -110,9 +110,8 @@ async function recalculateNetworkUsage() {
     lastNetworkInfo = networkInfo;
 }
 
-// TODO: Use Astal.Interval to invoke immediately
-setInterval(() => {
+interval(UPDATE_INTERVAL, () => {
     recalculateCpuUsage();
     recalculateMemoryUsage();
     recalculateNetworkUsage();
-}, UPDATE_INTERVAL);
+});
