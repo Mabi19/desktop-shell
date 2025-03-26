@@ -2,7 +2,6 @@ import { App, Astal, Gdk, Gtk } from "astal/gtk4";
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import { Bar } from "./bar/bar";
-import { ClickCaptureWindow } from "./notification-center/click-capturer";
 import { createNotificationCenter } from "./notification-center/notification-center";
 import { NotificationPopupWindow } from "./notification/notification";
 import { startOSDListeners } from "./osd/listeners";
@@ -15,7 +14,7 @@ import { NetworkService } from "./utils/network";
 const windows = new Map<Gdk.Monitor, Astal.Window[]>();
 
 function makeWindowsForMonitor(monitor: Gdk.Monitor) {
-    return [Bar(monitor), ClickCaptureWindow(monitor)] as Astal.Window[];
+    return [Bar(monitor)] as Astal.Window[];
 }
 
 function applyStyles(display: Gdk.Display) {
