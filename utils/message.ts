@@ -1,5 +1,6 @@
 import { App } from "astal/gtk4";
 import { updateCapsLockStatus } from "../bar/left-section";
+import { toggleNotificationCenter } from "../notification-center/notification-center";
 import { execWrappedWpCommand } from "../osd/listener-wireplumber";
 import { setOSD } from "../osd/osd";
 
@@ -16,6 +17,9 @@ export function handleMessage(request: string, respond: (res: any) => void) {
         const [_, icon, ...rest] = request.split(" ");
         const text = rest.join(" ");
         setOSD(icon, text);
+        respond("ok");
+    } else if (request == "notification-center") {
+        toggleNotificationCenter();
         respond("ok");
     } else if (request.startsWith("wpctl")) {
         execWrappedWpCommand(request);
