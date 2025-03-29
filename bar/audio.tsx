@@ -12,10 +12,24 @@ const audio = AstalWp.get_default()!.audio;
 const cava = AstalCava.get_default()!;
 cava.bars = 16;
 
-const VolumeSlider = ({ device, sounds }: { device: AstalWp.Endpoint; sounds?: boolean }) => {
-    const soundContext = getSoundContext();
-    let isPlayingSound = false;
+let isPlayingSound = false;
 
+function setDeviceVolume(device: AstalWp.Endpoint, volume: number) {
+    const soundContext = getSoundContext();
+
+    volume = Math.round(Math.max(0, Math.min(volume * 100, 100))) / 100;
+    volume = Math.min(Math.max(0, volume), 1.5);
+    device.volume = volume;
+    if (device.get_media_class() == AstalWp.MediaClass.AUDIO_SPEAKER && !isPlayingSound) {
+        soundContext.play_full({ [GSound.ATTR_EVENT_ID]: "audio-volume-change" }, null, (_ctx, res) => {
+            isPlayingSound = false;
+            soundContext.play_full_finish(res);
+        });
+        isPlayingSound = true;
+    }
+}
+
+const VolumeSlider = ({ device }: { device: AstalWp.Endpoint }) => {
     const adjustment = new Gtk.Adjustment({
         lower: 0,
         upper: 1,
@@ -28,15 +42,7 @@ const VolumeSlider = ({ device, sounds }: { device: AstalWp.Endpoint; sounds?: b
         hexpand: true,
     });
     scale.connect("change-value", (_, _type, value) => {
-        value = Math.round(Math.max(0, Math.min(value * 100, 100))) / 100;
-        device.volume = value;
-        if (sounds && !isPlayingSound) {
-            soundContext.play_full({ [GSound.ATTR_EVENT_ID]: "audio-volume-change" }, null, (_ctx, res) => {
-                isPlayingSound = false;
-                soundContext.play_full_finish(res);
-            });
-            isPlayingSound = true;
-        }
+        setDeviceVolume(device, value);
     });
     hook(scale, device, "notify::volume", () => {
         const volume = device.volume;
@@ -82,7 +88,7 @@ const AudioPopover = () => {
                     />
                 </box>
                 <box>
-                    <VolumeSlider device={speaker} sounds={true} />
+                    <VolumeSlider device={speaker} />
                     <label
                         label={bind(speaker, "volume").as((vol) => `${Math.round(vol * 100)}%`)}
                         widthChars={5}
@@ -135,7 +141,14 @@ const AudioPart = ({ device }: { device: AstalWp.Endpoint }) => {
 export const AudioIndicator = () => {
     return (
         <GraphBadge values={bind(cava, "values")}>
-            <menubutton name="audio" popover={(<AudioPopover />) as Gtk.Popover}>
+            <menubutton
+                name="audio"
+                popover={(<AudioPopover />) as Gtk.Popover}
+                onScroll={(_self, dx, dy) => {
+                    const newVolume = audio.defaultSpeaker.volume - dy * 0.05;
+                    setDeviceVolume(audio.defaultSpeaker, newVolume);
+                }}
+            >
                 <box spacing={8}>
                     {bind(audio, "defaultSpeaker").as((speaker) => (
                         <AudioPart device={speaker} />
