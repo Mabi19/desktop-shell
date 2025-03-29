@@ -9,7 +9,7 @@ import { cancelClickCapture, setupClickCapture } from "./click-capturer";
 import { NotificationList } from "./notification-list";
 import { WeatherIconDebug, WeatherPanel } from "./weather-panel";
 
-function TopCarousel() {
+function MediaCarousel() {
     const carousel = new Adw.Carousel({ spacing: 8 });
     carousel.append(<WeatherPanel />);
 
@@ -88,7 +88,7 @@ export function createNotificationCenter() {
             onDestroy={() => console.log("notification center destroyed! this is a certified uh oh moment")}
         >
             <box vertical={true} name="notification-center" spacing={8}>
-                <TopCarousel />
+                <MediaCarousel />
                 {/* <WeatherIconDebug /> */}
                 <NotificationList />
                 <PreciseDateTime />

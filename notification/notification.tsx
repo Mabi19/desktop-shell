@@ -3,8 +3,10 @@ import Adw from "gi://Adw?version=1";
 import AstalNotifd from "gi://AstalNotifd";
 import GLib from "gi://GLib?version=2.0";
 import Pango from "gi://Pango?version=1.0";
+import { makeDateTimeFormat } from "../utils/time";
 import { Timer } from "../utils/timer";
 import { WrapBox } from "../widgets/wrap-box";
+import type { NotificationMeta } from "./tracker";
 
 const DEFAULT_TIMEOUT = 5000;
 
@@ -13,17 +15,26 @@ const isIcon = (name: string | null) => name && iconTheme.has_icon(name);
 
 const fileExists = (path: string | null) => path && GLib.file_test(path, GLib.FileTest.EXISTS);
 
+const notificationTimeFormatter = makeDateTimeFormat({
+    timeStyle: "short",
+});
+
 export interface NotificationWidgetEntry {
     widget: Gtk.Widget;
-    cleanup: () => void;
+    stopTimer: () => void;
+    // Modify the widget for the notification center
+    patchForStorage: () => void;
 }
 
 // This widget provides the constant parts of the notification.
 // It also chooses a suitable layout for the notification.
-export function NotificationWrapper({
+export function NotificationWidget({
     notification,
+    transfer,
 }: {
     notification: AstalNotifd.Notification;
+    transfer: () => void;
+    meta: NotificationMeta;
 }): NotificationWidgetEntry {
     // TODO: animations
     // TODO: urgency (low: dimmed progress bar, normal: regular progress bar, critical: red border?)
@@ -35,7 +46,7 @@ export function NotificationWrapper({
     // TODO: Replace this with the frame clock?
     const timer = new Timer(notification.expireTimeout == -1 ? DEFAULT_TIMEOUT : notification.expireTimeout);
     const progressBar = new Gtk.ProgressBar({ fraction: 1 });
-    const cleanup = timer.subscribe(() => {
+    const stopTimer = timer.subscribe(() => {
         progressBar.fraction = 1 - timer.timeLeft / timer.timeout;
 
         if (timer.timeLeft <= 0) {
@@ -44,8 +55,7 @@ export function NotificationWrapper({
             if (notification.expireTimeout != -1 || notification.transient) {
                 notification.dismiss();
             } else {
-                // TODO: Move to notification center
-                notification.dismiss();
+                transfer();
             }
         }
     });
@@ -103,8 +113,17 @@ export function NotificationWrapper({
             </WrapBox>
         ) : null;
 
+    const timeLabel = (
+        <label label={notificationTimeFormatter.format(new Date(notification.time * 1000))} visible={false} />
+    );
+    function patchForStorage() {
+        timeLabel.show();
+        progressBar.hide();
+    }
+
     return {
-        cleanup,
+        stopTimer,
+        patchForStorage,
         widget: (
             <box
                 onHoverEnter={() => setPauseState(true)}
@@ -119,6 +138,7 @@ export function NotificationWrapper({
                 <box cssClasses={["header"]} spacing={8}>
                     {icon}
                     <label label={notification.appName} halign={Gtk.Align.START} hexpand={true} />
+                    {timeLabel}
                     <button
                         halign={Gtk.Align.END}
                         iconName="window-close-symbolic"

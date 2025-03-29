@@ -4,7 +4,7 @@ import { primaryMonitor } from "../utils/config";
 import type { NotificationWidgetEntry } from "./notification";
 import { NotificationTracker } from "./tracker";
 
-export const NotificationPopupWindow = () => {
+export function NotificationPopupWindow() {
     const notifs = NotificationTracker.getInstance();
 
     const windowVisible = Variable(false);
@@ -15,19 +15,27 @@ export const NotificationPopupWindow = () => {
             windowVisible.set(true);
         }
 
+        entry.widget.add_css_class("slide-in");
         box.prepend(entry.widget);
     });
     notifs.connect("popup-replace", (_, prev: NotificationWidgetEntry, curr: NotificationWidgetEntry) => {
         box.insert_child_after(curr.widget, prev.widget);
         box.remove(prev.widget);
-        prev.cleanup();
     });
-    notifs.connect("popup-remove", (_, entry: NotificationWidgetEntry) => {
-        box.remove(entry.widget);
-        entry.cleanup();
-        if (box.get_first_child() == null) {
-            windowVisible.set(false);
-        }
+    notifs.connect("popup-remove", (_, entry: NotificationWidgetEntry, finishCallback: () => void) => {
+        entry.widget.remove_css_class("slide-in");
+        entry.widget.add_css_class("slide-out");
+        // TODO: Prevent the widget from accepting input while animating out
+        // add an event controller that eats all clicks?
+
+        setTimeout(() => {
+            box.remove(entry.widget);
+            entry.widget.remove_css_class("slide-out");
+            if (box.get_first_child() == null) {
+                windowVisible.set(false);
+            }
+            finishCallback();
+        }, 350);
     });
 
     // TODO: increase margin-right when notification center is active
@@ -49,4 +57,4 @@ export const NotificationPopupWindow = () => {
             {box}
         </window>
     );
-};
+}

@@ -2,21 +2,7 @@ import GObject, { register, signal } from "astal/gobject";
 import AstalNotifd from "gi://AstalNotifd?version=0.1";
 import GSound from "gi://GSound";
 import { getSoundContext } from "../utils/sound";
-import { NotificationWrapper, type NotificationWidgetEntry } from "./notification";
-
-// const notificationProxy = Symbol("notification proxy");
-// interface NotificationData {
-//     [notificationProxy]: AstalNotifd.Notification;
-//     time: number;
-//     appName: string | null;
-//     appIcon: string | null;
-// }
-
-// const URGENCY_NAMES: Record<AstalNotifd.Urgency, string> = {
-//     [AstalNotifd.Urgency.LOW]: "low",
-//     [AstalNotifd.Urgency.NORMAL]: "normal",
-//     [AstalNotifd.Urgency.CRITICAL]: "critical",
-// };
+import { NotificationWidget, type NotificationWidgetEntry } from "./notification";
 
 // export function translateNotification(notification: AstalNotifd.Notification): NotificationData {
 //     return {
@@ -46,24 +32,39 @@ import { NotificationWrapper, type NotificationWidgetEntry } from "./notificatio
 //     };
 // }
 
+export interface NotificationMeta {
+    layout: "profile";
+}
+
 let trackerInstance: NotificationTracker | null;
 
 @register()
 export class NotificationTracker extends GObject.Object {
     private context: GSound.Context;
 
+    // The widgets logically visible as popups.
     private popupWidgets: Map<number, NotificationWidgetEntry>;
+    // Widgets which aren't anywhere logically, but are still attached to the popups window
+    // (i.e. they're animating out)
+    private limboWidgets: Map<number, NotificationWidgetEntry>;
+    // The widgets logically in the notification center.
+    private storedWidgets: Map<number, NotificationWidgetEntry>;
 
     @signal(Object)
     declare popup_add: (widget: NotificationWidgetEntry) => void;
-
     @signal(Object, Object)
     declare popup_replace: (prev: NotificationWidgetEntry, curr: NotificationWidgetEntry) => void;
+    @signal(Object, Object)
+    declare popup_remove: (widget: NotificationWidgetEntry, finishCallback: () => void) => void;
 
     @signal(Object)
-    declare popup_remove: (widget: NotificationWidgetEntry) => void;
+    declare stored_add: (widget: NotificationWidgetEntry) => void;
+    @signal(Object, Object)
+    declare stored_replace: (prev: NotificationWidgetEntry, curr: NotificationWidgetEntry) => void;
+    @signal(Object)
+    declare stored_remove: (widget: NotificationWidgetEntry) => void;
 
-    playSoundFor(notification: AstalNotifd.Notification) {
+    private playSoundFor(notification: AstalNotifd.Notification) {
         if (notification.suppressSound) {
             return;
         }
@@ -75,29 +76,73 @@ export class NotificationTracker extends GObject.Object {
         }
     }
 
+    private transferToStorage(id: number) {
+        const popupWidget = this.popupWidgets.get(id);
+        if (!popupWidget) {
+            return;
+        }
+
+        this.popupWidgets.delete(id);
+        this.limboWidgets.set(id, popupWidget);
+        this.emit("popup-remove", popupWidget, () => {
+            const limboWidget = this.limboWidgets.get(id);
+            if (!limboWidget) {
+                // this might happen if the widget's dismissed while it's animating out
+                return;
+            }
+            this.limboWidgets.delete(id);
+            this.storedWidgets.set(id, limboWidget);
+            limboWidget.patchForStorage();
+            this.emit("stored-add", limboWidget);
+        });
+    }
+
     constructor() {
         super();
         this.context = getSoundContext();
         this.popupWidgets = new Map();
+        this.limboWidgets = new Map();
+        this.storedWidgets = new Map();
 
         const notifd = AstalNotifd.get_default();
-        // This is handled by the notifications themselves.
+        // This is handled by the notification widget.
         notifd.set_ignore_timeout(true);
 
         notifd.connect("notified", (_, id) => {
             console.log("notification created", id);
             const notification = notifd.get_notification(id);
             // translateNotification(notification);
-
-            const existingWidget = this.popupWidgets.get(id);
-            const newWidget = NotificationWrapper({
+            const newWidget = NotificationWidget({
                 notification,
+                transfer: () => this.transferToStorage(id),
+                meta: {
+                    layout: "profile",
+                },
             });
-            this.popupWidgets.set(id, newWidget);
 
-            if (existingWidget) {
-                this.emit("popup-replace", existingWidget, newWidget);
+            const popupWidget = this.popupWidgets.get(id);
+            const limboWidget = this.limboWidgets.get(id);
+            const storedWidget = this.storedWidgets.get(id);
+
+            this.popupWidgets.set(id, newWidget);
+            if (popupWidget) {
+                // existing popup: stop it, replace
+                popupWidget.stopTimer();
+                this.emit("popup-replace", popupWidget, newWidget);
+            } else if (limboWidget) {
+                // in limbo: treat it as new
+                // (cancelling the animation would be better, but it's hard for little benefit)
+                this.limboWidgets.delete(id);
+                this.emit("popup-add", newWidget);
+            } else if (storedWidget) {
+                // in storage: different windows, so remove and add
+                // since it wasn't previously a popup, play its sound again
+                this.storedWidgets.delete(id);
+                this.playSoundFor(notification);
+                this.emit("stored-remove", storedWidget);
+                this.emit("popup-add", newWidget);
             } else {
+                // not an existing widget
                 this.playSoundFor(notification);
                 this.emit("popup-add", newWidget);
             }
@@ -106,10 +151,27 @@ export class NotificationTracker extends GObject.Object {
         notifd.connect("resolved", (_, id) => {
             console.log("notification resolved", id);
 
-            const widget = this.popupWidgets.get(id);
-            if (widget) {
+            const popupWidget = this.popupWidgets.get(id);
+            if (popupWidget) {
                 this.popupWidgets.delete(id);
-                this.emit("popup-remove", widget);
+                popupWidget.stopTimer();
+                // The widget is just gone, so it doesn't need to go into limbo
+                // so there's no need to run code after it's removed from the popups
+                this.emit("popup-remove", popupWidget, () => {});
+                return;
+            }
+
+            const limboWidget = this.limboWidgets.get(id);
+            if (limboWidget) {
+                // The widget will be removed from the popups window eventually.
+                this.limboWidgets.delete(id);
+                return;
+            }
+
+            const storedWidget = this.storedWidgets.get(id);
+            if (storedWidget) {
+                this.storedWidgets.delete(id);
+                this.emit("stored-remove", storedWidget);
             }
         });
     }
