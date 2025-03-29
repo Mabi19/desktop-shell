@@ -1,6 +1,8 @@
-import { Variable, bind } from "astal";
-import { App, Astal, Gdk } from "astal/gtk4";
+import { bind, Variable } from "astal";
+import { App, Astal, hook } from "astal/gtk4";
 import Adw from "gi://Adw?version=1";
+import GLib from "gi://GLib?version=2.0";
+import { Notifier } from "../utils/notifier";
 import { currentTime, makeDateTimeFormat } from "../utils/time";
 import { Calendar } from "../widgets/calendar";
 import { cancelClickCapture, setupClickCapture } from "./click-capturer";
@@ -19,19 +21,46 @@ function TopCarousel() {
     );
 }
 
+const openNotify = new Notifier(void 0);
+const closeNotify = new Notifier(void 0);
+
 function CalendarPanel() {
-    // TODO: Update when the current date changes.
+    // TODO: Consider making a fully custom calendar.
     // TODO: Show calendar events on the side to not make it W I D E.
     // This will require integrating evolution-data-server and gnome-online-accounts.
     // https://nixos.wiki/wiki/GNOME/Calendar
     // This AGS v1 PR may prove helpful: https://github.com/Aylur/ags/pull/177
     // It also includes editing, but that will probably be better left to a dedicated calendar app.
-    return <Calendar />;
+    return (
+        <Calendar
+            setup={(self) => {
+                hook(self, openNotify, (self) => {
+                    self.select_day(new GLib.DateTime());
+                });
+            }}
+        />
+    );
 }
 
 const formatter = makeDateTimeFormat({
     timeStyle: "medium",
     dateStyle: "medium",
+});
+const formattedCurrentTime = new Variable("");
+function updateTime(time: Date) {
+    formattedCurrentTime.set(formatter.format(time));
+}
+
+let timeUnsub: (() => void) | null;
+openNotify.subscribe(() => {
+    if (timeUnsub) timeUnsub();
+
+    updateTime(currentTime.get());
+    timeUnsub = currentTime.subscribe(updateTime);
+});
+closeNotify.subscribe(() => {
+    if (timeUnsub) timeUnsub();
+    timeUnsub = null;
 });
 
 // TODO: Only update this when the center is visible
@@ -39,7 +68,7 @@ function PreciseDateTime() {
     return (
         <box cssClasses={["precise-clock"]} spacing={8}>
             <image iconName="fa-clock-symbolic" pixelSize={24} />
-            <label label={bind(currentTime).as((d) => formatter.format(d))} />
+            <label label={bind(formattedCurrentTime)} />
         </box>
     );
 }
@@ -77,11 +106,13 @@ export function toggleNotificationCenter() {
     if (notificationCenterWindow.visible) {
         notificationCenterWindow.hide();
         cancelClickCapture();
+        closeNotify.notify(void 0);
     } else {
-        // notificationCenterWindow.gdkmonitor = monitor;
+        openNotify.notify(void 0);
         notificationCenterWindow.present();
         setupClickCapture(() => {
             notificationCenterWindow!.hide();
+            closeNotify.notify(void 0);
         });
     }
 }
