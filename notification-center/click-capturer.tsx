@@ -3,23 +3,24 @@ import { App, Astal, Gdk, Gtk } from "astal/gtk4";
 import Graphene from "gi://Graphene?version=1.0";
 
 let clickCallback: (() => void) | null = null;
-let captureWindows = new Map<Gdk.Monitor, Astal.Window>();
+let captureWindows = new Map<Gdk.Monitor, { window: Astal.Window; monitorConnectID: number }>();
 
 function openCaptureWindows() {
     for (const monitor of App.get_monitors()) {
-        captureWindows.set(monitor, ClickCaptureWindow(monitor) as Astal.Window);
-        const id = monitor.connect("invalidate", () => {
+        const monitorConnectID = monitor.connect("invalidate", () => {
             console.log("monitor invalidated, closing corresponding ctc");
-            captureWindows.get(monitor)?.destroy();
+            captureWindows.get(monitor)?.window?.destroy();
             captureWindows.delete(monitor);
-            monitor.disconnect(id);
+            monitor.disconnect(monitorConnectID);
         });
+        captureWindows.set(monitor, { window: ClickCaptureWindow(monitor) as Astal.Window, monitorConnectID });
     }
 }
 
 function closeCaptureWindows() {
-    for (const window of captureWindows.values()) {
+    for (const [monitor, { window, monitorConnectID }] of captureWindows.entries()) {
         window.destroy();
+        monitor.disconnect(monitorConnectID);
     }
     captureWindows.clear();
 }
