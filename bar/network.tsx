@@ -1,6 +1,7 @@
 import { Variable, bind } from "astal";
 import { Gtk } from "astal/gtk4";
 import AstalNetwork from "gi://AstalNetwork";
+import Pango from "gi://Pango?version=1.0";
 import { CONFIG } from "../utils/config";
 import { networkStats } from "../utils/system-stats";
 import { LevelBadge } from "./badge-widgets";
@@ -96,7 +97,12 @@ function NetworkPart({ network, primary }: { network: AnyNetwork; primary: boole
                         // use a box to remove the spacing
                         <box>
                             {network instanceof AstalNetwork.Wifi ? (
-                                <label label={bind(network, "ssid").as((val) => val ?? "[null]")} />
+                                <label
+                                    label={bind(network, "ssid").as((val) => val ?? "[null]")}
+                                    maxWidthChars={12}
+                                    ellipsize={Pango.EllipsizeMode.END}
+                                    tooltipText={bind(network, "ssid").as((val) => val ?? "[null]")}
+                                />
                             ) : null}
                             {primary ? (
                                 <NetworkUsage network={network} parenthesize={network instanceof AstalNetwork.Wifi} />
@@ -105,7 +111,12 @@ function NetworkPart({ network, primary }: { network: AnyNetwork; primary: boole
                     );
                 } else if (state == AstalNetwork.Internet.CONNECTING) {
                     return network instanceof AstalNetwork.Wifi ? (
-                        <label label={bind(network, "ssid").as((val) => val ?? "[null]")} />
+                        <label
+                            label={bind(network, "ssid").as((val) => val ?? "[null]")}
+                            maxWidthChars={12}
+                            ellipsize={Pango.EllipsizeMode.END}
+                            tooltipText={bind(network, "ssid").as((val) => val ?? "[null]")}
+                        />
                     ) : (
                         <label label={INTERNET_STATE_NAMES[state]} />
                     );
