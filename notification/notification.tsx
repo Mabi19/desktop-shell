@@ -1,16 +1,10 @@
-import { bind, Variable } from "astal";
-import GObject, { register, signal } from "astal/gobject";
-import { App, Astal, Gdk, Gtk } from "astal/gtk4";
+import { Gdk, Gtk } from "astal/gtk4";
 import Adw from "gi://Adw?version=1";
 import AstalNotifd from "gi://AstalNotifd";
 import GLib from "gi://GLib?version=2.0";
-import GSound from "gi://GSound";
 import Pango from "gi://Pango?version=1.0";
-import { primaryMonitor } from "../utils/config";
-import { getSoundContext } from "../utils/sound";
 import { Timer } from "../utils/timer";
 import { WrapBox } from "../widgets/wrap-box";
-import { dumpNotification } from "./notification-dump";
 
 const DEFAULT_TIMEOUT = 5000;
 
@@ -19,128 +13,18 @@ const isIcon = (name: string | null) => name && iconTheme.has_icon(name);
 
 const fileExists = (path: string | null) => path && GLib.file_test(path, GLib.FileTest.EXISTS);
 
-interface WidgetEntry {
+export interface NotificationWidgetEntry {
     widget: Gtk.Widget;
     cleanup: () => void;
 }
 
-@register()
-class NotificationTracker extends GObject.Object {
-    context: GSound.Context;
-
-    #widgets: Map<number, WidgetEntry>;
-
-    @signal(Object)
-    declare create: (widget: WidgetEntry) => void;
-
-    @signal(Object, Object)
-    declare replace: (prev: WidgetEntry, curr: WidgetEntry) => void;
-
-    @signal(Object)
-    declare destroy: (widget: WidgetEntry) => void;
-
-    playSoundFor(notification: AstalNotifd.Notification) {
-        if (notification.suppressSound) {
-            return;
-        }
-
-        if (notification.soundFile) {
-            this.context.play_simple({ [GSound.ATTR_MEDIA_FILENAME]: notification.soundFile }, null);
-        } else {
-            this.context.play_simple({ [GSound.ATTR_EVENT_ID]: notification.soundName ?? "message" }, null);
-        }
-    }
-
-    constructor() {
-        super();
-        this.context = getSoundContext();
-        this.#widgets = new Map();
-
-        const notifd = AstalNotifd.get_default();
-        // This is handled by the notifications themselves.
-        notifd.set_ignore_timeout(true);
-
-        notifd.connect("notified", (_, id) => {
-            console.log("notification created", id);
-            const notification = notifd.get_notification(id);
-            dumpNotification(notification);
-
-            const existingWidget = this.#widgets.get(id);
-            const newWidget = NotificationWrapper({
-                notification,
-            });
-            this.#widgets.set(id, newWidget);
-
-            if (existingWidget) {
-                this.emit("replace", existingWidget, newWidget);
-            } else {
-                this.playSoundFor(notification);
-                this.emit("create", newWidget);
-            }
-        });
-
-        notifd.connect("resolved", (_, id) => {
-            console.log("notification resolved", id);
-
-            const widget = this.#widgets.get(id);
-            if (widget) {
-                this.#widgets.delete(id);
-                this.emit("destroy", widget);
-            }
-        });
-    }
-}
-
-export const NotificationPopupWindow = () => {
-    const notifs = new NotificationTracker();
-
-    const windowVisible = Variable(false);
-    const box = (<box vertical={true} spacing={12} noImplicitDestroy={true}></box>) as Astal.Box;
-
-    notifs.connect("create", (_, entry: WidgetEntry) => {
-        if (box.get_children().length == 0) {
-            windowVisible.set(true);
-        }
-
-        box.prepend(entry.widget);
-    });
-    notifs.connect("replace", (_, prev: WidgetEntry, curr: WidgetEntry) => {
-        box.insert_child_after(curr.widget, prev.widget);
-        box.remove(prev.widget);
-        prev.cleanup();
-    });
-    notifs.connect("destroy", (_, entry: WidgetEntry) => {
-        box.remove(entry.widget);
-        entry.cleanup();
-        if (box.get_first_child() == null) {
-            windowVisible.set(false);
-        }
-    });
-
-    // TODO: increase margin-right when notification center is active
-    return (
-        <window
-            name="notification-popup-window"
-            namespace="notification-popups"
-            anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT}
-            layer={Astal.Layer.OVERLAY}
-            gdkmonitor={bind(primaryMonitor)}
-            setup={(self) => App.add_window(self)}
-            visible={windowVisible()}
-            // This causes the window to be able to shrink back down when the notification is destroyed.
-            // But only if it isn't transparent.
-            defaultWidth={1}
-            defaultHeight={1}
-            onDestroy={() => windowVisible.drop()}
-        >
-            {box}
-        </window>
-    );
-};
-
 // This widget provides the constant parts of the notification.
 // It also chooses a suitable layout for the notification.
-function NotificationWrapper({ notification }: { notification: AstalNotifd.Notification }): WidgetEntry {
+export function NotificationWrapper({
+    notification,
+}: {
+    notification: AstalNotifd.Notification;
+}): NotificationWidgetEntry {
     // TODO: animations
     // TODO: urgency (low: dimmed progress bar, normal: regular progress bar, critical: red border?)
     // TODO: move into notification center

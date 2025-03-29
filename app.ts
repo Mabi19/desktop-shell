@@ -3,7 +3,7 @@ import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import { Bar } from "./bar/bar";
 import { createNotificationCenter } from "./notification-center/notification-center";
-import { NotificationPopupWindow } from "./notification/notification";
+import { NotificationPopupWindow } from "./notification/popups";
 import { startOSDListeners } from "./osd/listeners";
 import style from "./style.scss";
 import { formatOklabAsCSS } from "./utils/color";
