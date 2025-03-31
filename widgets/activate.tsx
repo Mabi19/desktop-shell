@@ -41,6 +41,7 @@ export function ActivateWindow(monitor: Gdk.Monitor) {
                     self.get_surface()?.set_input_region(new cairo.Region());
                 });
             }}
+            visible={true}
             marginBottom={72}
             marginRight={72}
         >
