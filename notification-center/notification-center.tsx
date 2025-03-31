@@ -37,6 +37,7 @@ function CalendarPanel() {
                 hook(self, openNotify, (self) => {
                     self.select_day(new GLib.DateTime());
                 });
+                self.add_css_class("calendar");
             }}
         />
     );
