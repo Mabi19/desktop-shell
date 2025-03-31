@@ -19,6 +19,7 @@ export function setAprilFoolsFlag(bit: number, newValue: boolean) {
 }
 
 // TODO: Don't create the windows at all if it isn't April 1st
+// Also, toggling visibility on windows with gdkmonitor set breaks things
 export const shouldDisplayFools = new Variable(isAprilFools() ? 1 : 0);
 setInterval(() => {
     setAprilFoolsFlag(0x1, isAprilFools());
@@ -33,7 +34,6 @@ export function ActivateWindow(monitor: Gdk.Monitor) {
             anchor={Astal.WindowAnchor.BOTTOM | Astal.WindowAnchor.RIGHT}
             layer={Astal.Layer.OVERLAY}
             application={App}
-            visible={bind(shouldDisplayFools).as(Boolean)}
             setup={(self) => {
                 self.get_surface()?.set_input_region(new cairo.Region());
                 self.connect("map", () => {
@@ -44,7 +44,7 @@ export function ActivateWindow(monitor: Gdk.Monitor) {
             marginBottom={72}
             marginRight={72}
         >
-            <box vertical={true}>
+            <box vertical={true} visible={bind(shouldDisplayFools).as(Boolean)}>
                 <label label="Activate Linux" cssClasses={["activate-top"]} xalign={0} />
                 <label
                     label="Run <tt>systemctl activate</tt> to activate Linux"
