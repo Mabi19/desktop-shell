@@ -10,11 +10,12 @@ import { formatOklabAsCSS } from "./utils/color";
 import { CONFIG, DATA } from "./utils/config";
 import { handleMessage } from "./utils/message";
 import { NetworkService } from "./utils/network";
+import { ActivateWindow } from "./widgets/activate";
 
 const windows = new Map<Gdk.Monitor, Astal.Window[]>();
 
 function makeWindowsForMonitor(monitor: Gdk.Monitor) {
-    return [Bar(monitor)] as Astal.Window[];
+    return [Bar(monitor), ActivateWindow(monitor)] as Astal.Window[];
 }
 
 function applyStyles(display: Gdk.Display) {

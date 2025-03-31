@@ -88,11 +88,11 @@ export function createNotificationCenter() {
             onDestroy={() => console.log("notification center destroyed! this is a certified uh oh moment")}
         >
             <box vertical={true} name="notification-center" spacing={8}>
-                <MediaCarousel />
-                {/* <WeatherIconDebug /> */}
-                <NotificationList />
                 <PreciseDateTime />
                 <CalendarPanel />
+                <NotificationList />
+                <MediaCarousel />
+                {/* <WeatherIconDebug /> */}
             </box>
         </window>
     ) as Astal.Window;
