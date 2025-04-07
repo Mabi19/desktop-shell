@@ -16,7 +16,9 @@ export function NotificationPopupWindow() {
         }
 
         entry.widget.add_css_class("slide-in");
-        box.prepend(entry.widget);
+        setTimeout(() => entry.widget.remove_css_class("slide-in"), 350);
+
+        box.append(entry.widget);
     });
     notifs.connect("popup-replace", (_, prev: NotificationWidgetEntry, curr: NotificationWidgetEntry) => {
         box.insert_child_after(curr.widget, prev.widget);
