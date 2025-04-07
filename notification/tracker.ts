@@ -50,6 +50,11 @@ export class NotificationTracker extends GObject.Object {
     // The widgets logically in the notification center.
     private storedWidgets: Map<number, NotificationWidgetEntry>;
 
+    // This is used for debugging.
+    // An ID is added here when a notification is created, and removed when resolved.
+    // Print it using `astal active-notifications`
+    public activeIDs: Set<number>;
+
     @signal(Object)
     declare popup_add: (widget: NotificationWidgetEntry) => void;
     @signal(Object, Object)
@@ -110,6 +115,7 @@ export class NotificationTracker extends GObject.Object {
         this.popupWidgets = new Map();
         this.limboWidgets = new Map();
         this.storedWidgets = new Map();
+        this.activeIDs = new Set();
 
         const notifd = AstalNotifd.get_default();
         // This is handled by the notification widget.
@@ -117,6 +123,8 @@ export class NotificationTracker extends GObject.Object {
 
         notifd.connect("notified", (_, id) => {
             console.log("notification created", id);
+            this.activeIDs.add(id);
+
             const notification = notifd.get_notification(id);
             // translateNotification(notification);
             const newWidget = NotificationWidget({
@@ -157,6 +165,7 @@ export class NotificationTracker extends GObject.Object {
 
         notifd.connect("resolved", (_, id) => {
             console.log("notification resolved", id);
+            this.activeIDs.delete(id);
 
             const popupWidget = this.popupWidgets.get(id);
             if (popupWidget) {

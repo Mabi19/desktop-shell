@@ -1,6 +1,7 @@
 import { App } from "astal/gtk4";
 import { updateCapsLockStatus } from "../bar/left-section";
 import { toggleNotificationCenter } from "../notification-center/notification-center";
+import { NotificationTracker } from "../notification/tracker";
 import { execWrappedWpCommand } from "../osd/listener-wireplumber";
 import { setOSD } from "../osd/osd";
 import { setAprilFoolsFlag, shouldDisplayFools } from "../widgets/activate";
@@ -22,6 +23,8 @@ export function handleMessage(request: string, respond: (res: any) => void) {
     } else if (request == "notification-center") {
         toggleNotificationCenter();
         respond("ok");
+    } else if (request == "active-notifications") {
+        respond(`[${Array.from(NotificationTracker.getInstance().activeIDs).join(", ")}]`);
     } else if (request.startsWith("wpctl")) {
         execWrappedWpCommand(request);
         respond("ok");
