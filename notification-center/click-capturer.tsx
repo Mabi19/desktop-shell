@@ -84,9 +84,12 @@ function ClickCaptureWindow(monitor: Gdk.Monitor) {
             }
             visible={true}
             setup={(self) => {
-                const gesture = new Gtk.GestureClick({ button: Gdk.BUTTON_PRIMARY });
-                gesture.connect("released", handleCaptureClick);
-                self.add_controller(gesture);
+                const gesturePrimary = new Gtk.GestureClick({ button: Gdk.BUTTON_PRIMARY });
+                gesturePrimary.connect("released", handleCaptureClick);
+                self.add_controller(gesturePrimary);
+                const gestureSecondary = new Gtk.GestureClick({ button: Gdk.BUTTON_SECONDARY });
+                gestureSecondary.connect("released", handleCaptureClick);
+                self.add_controller(gestureSecondary);
             }}
             onDestroy={() => console.log("click capture window destroyed")}
         >
