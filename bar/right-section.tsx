@@ -2,6 +2,7 @@ import { bind, exec } from "astal";
 import { Gdk, Gtk } from "astal/gtk4";
 import Gio from "gi://Gio?version=2.0";
 import { toggleNotificationCenter } from "../notification-center/notification-center";
+import { NotificationTracker } from "../notification/tracker";
 import { CONFIG } from "../utils/config";
 import { currentTime, makeDateTimeFormat } from "../utils/time";
 import { AudioIndicator } from "./audio";
@@ -52,15 +53,29 @@ const PowerButton = () => (
 
 const barClockFormatter = makeDateTimeFormat({ timeStyle: "short" });
 
-const TimeAndNotifications = () => (
-    <button name="time-and-notifications" onClicked={() => toggleNotificationCenter()}>
-        <box spacing={6}>
-            {bind(currentTime).as((d) => barClockFormatter.format(d))}
-            <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
-            <image iconName="fa-bell-symbolic" />
-        </box>
-    </button>
-);
+function TimeAndNotifications() {
+    const tracker = NotificationTracker.getInstance();
+    const notificationCount = tracker.storedCount;
+    return (
+        <button name="time-and-notifications" onClicked={() => toggleNotificationCenter()}>
+            <box spacing={6}>
+                {bind(currentTime).as((d) => barClockFormatter.format(d))}
+                <Gtk.Separator orientation={Gtk.Orientation.VERTICAL} />
+                <box spacing={4}>
+                    <image
+                        iconName={bind(tracker.notifd, "dont_disturb").as((dnd) =>
+                            dnd ? "fa-bell-slash-symbolic" : "fa-bell-symbolic"
+                        )}
+                    />
+                    <label
+                        label={bind(notificationCount).as((v) => v.toString())}
+                        visible={bind(notificationCount).as((v) => v > 0)}
+                    />
+                </box>
+            </box>
+        </button>
+    );
+}
 
 export const RightSection = () => (
     <box halign={Gtk.Align.END} spacing={8}>

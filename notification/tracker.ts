@@ -1,6 +1,8 @@
 import GObject, { register, signal } from "astal/gobject";
+import { Variable } from "astal/variable";
 import AstalNotifd from "gi://AstalNotifd?version=0.1";
 import GSound from "gi://GSound";
+import { CountingMap } from "../utils/counting-map";
 import { getSoundContext } from "../utils/sound";
 import { NotificationWidget, type NotificationWidgetEntry } from "./notification";
 
@@ -41,6 +43,7 @@ let trackerInstance: NotificationTracker | null;
 @register()
 export class NotificationTracker extends GObject.Object {
     private context: GSound.Context;
+    public notifd: AstalNotifd.Notifd;
 
     // The widgets logically visible as popups.
     private popupWidgets: Map<number, NotificationWidgetEntry>;
@@ -48,12 +51,18 @@ export class NotificationTracker extends GObject.Object {
     // (i.e. they're animating out)
     private limboWidgets: Map<number, NotificationWidgetEntry>;
     // The widgets logically in the notification center.
-    private storedWidgets: Map<number, NotificationWidgetEntry>;
+    private storedWidgets: CountingMap<number, NotificationWidgetEntry>;
 
     // This is used for debugging.
     // An ID is added here when a notification is created, and removed when resolved.
     // Print it using `astal active-notifications`
     public activeIDs: Set<number>;
+
+    // This is displayed in the bar
+
+    public get storedCount(): Variable<number> {
+        return this.storedWidgets.count;
+    }
 
     @signal(Object)
     declare popup_add: (widget: NotificationWidgetEntry) => void;
@@ -114,18 +123,18 @@ export class NotificationTracker extends GObject.Object {
         this.context = getSoundContext();
         this.popupWidgets = new Map();
         this.limboWidgets = new Map();
-        this.storedWidgets = new Map();
+        this.storedWidgets = new CountingMap();
         this.activeIDs = new Set();
 
-        const notifd = AstalNotifd.get_default();
+        this.notifd = AstalNotifd.get_default();
         // This is handled by the notification widget.
-        notifd.set_ignore_timeout(true);
+        this.notifd.set_ignore_timeout(true);
 
-        notifd.connect("notified", (_, id) => {
+        this.notifd.connect("notified", (_, id) => {
             console.log("notification created", id);
             this.activeIDs.add(id);
 
-            const notification = notifd.get_notification(id);
+            const notification = this.notifd.get_notification(id);
             // translateNotification(notification);
             const newWidget = NotificationWidget({
                 notification,
@@ -163,7 +172,7 @@ export class NotificationTracker extends GObject.Object {
             }
         });
 
-        notifd.connect("resolved", (_, id) => {
+        this.notifd.connect("resolved", (_, id) => {
             console.log("notification resolved", id);
             this.activeIDs.delete(id);
 
