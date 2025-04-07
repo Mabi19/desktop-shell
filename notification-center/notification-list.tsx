@@ -9,7 +9,7 @@ import { StatusPage } from "../widgets/status-page";
 export function NotificationList() {
     const notifs = NotificationTracker.getInstance();
     const notificationBox = (
-        <box vertical={true} valign={Gtk.Align.START} noImplicitDestroy={true}></box>
+        <box vertical={true} spacing={8} valign={Gtk.Align.START} noImplicitDestroy={true}></box>
     ) as Astal.Box;
     const hasNotifications = new Variable(false);
 
