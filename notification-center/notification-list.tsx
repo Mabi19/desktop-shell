@@ -1,6 +1,5 @@
 import { Variable, bind } from "astal";
 import { Astal, Gtk } from "astal/gtk4";
-import Adw from "gi://Adw?version=1";
 import type { NotificationWidgetEntry } from "../notification/notification";
 import { NotificationTracker } from "../notification/tracker";
 import { ScrolledWindow } from "../widgets/scrolled-window";
@@ -28,12 +27,14 @@ export function NotificationList() {
         }
     });
 
-    // TODO: Clear button
     // TODO: Do-not-disturb mode
     return (
         <box vertical={true} spacing={8}>
             <box>
-                <label label="Notifications" cssClasses={["heading"]} />
+                <label label="Notifications" cssClasses={["heading"]} xalign={0} hexpand={true} />
+                <button onClicked={() => notifs.dismissStored()}>
+                    <label label="Clear" />
+                </button>
             </box>
             <ScrolledWindow hexpand={true} vexpand={true} visible={hasNotifications()}>
                 {notificationBox}

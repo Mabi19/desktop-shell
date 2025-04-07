@@ -20,6 +20,7 @@ const notificationTimeFormatter = makeDateTimeFormat({
 });
 
 export interface NotificationWidgetEntry {
+    proxy: AstalNotifd.Notification;
     widget: Gtk.Widget;
     stopTimer: () => void;
     // Modify the widget for the notification center
@@ -38,7 +39,6 @@ export function NotificationWidget({
 }): NotificationWidgetEntry {
     // TODO: animations
     // TODO: urgency (low: dimmed progress bar, normal: regular progress bar, critical: red border?)
-    // TODO: move into notification center
 
     console.log("got notification! timeout:", notification.expireTimeout);
     const NOTIFICATION_WIDTH = 400;
@@ -122,6 +122,7 @@ export function NotificationWidget({
     }
 
     return {
+        proxy: notification,
         stopTimer,
         patchForStorage,
         widget: (

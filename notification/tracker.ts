@@ -97,6 +97,13 @@ export class NotificationTracker extends GObject.Object {
         });
     }
 
+    dismissStored() {
+        for (const entry of this.storedWidgets.values()) {
+            entry.proxy.dismiss();
+        }
+        this.storedWidgets.clear();
+    }
+
     constructor() {
         super();
         this.context = getSoundContext();
