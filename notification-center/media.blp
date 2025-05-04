@@ -14,25 +14,6 @@ template $MediaPlayer: Gtk.Widget {
         spacing: 8;
     };
 
-    // Box {
-    //     width-request: 72;
-    //     height-request: 72;
-    //     hexpand: false;
-    //     vexpand: false;
-    //     valign: center;
-    //     Picture {
-    //         file: bind $get_cover_art_file(template.player as <AstalMpris.Player>.cover-art) as <Gio.File>;
-    //         content-fit: cover;
-    //         width-request: 72;
-    //         height-request: 72;
-    //         hexpand: false;
-    //         vexpand: false;
-    //         can-shrink: true;
-    //         styles [
-    //             "main-icon",
-    //         ]
-    //     }
-    // }
     $CoverArtPicture {
         path: bind template.player as <AstalMpris.Player>.cover-art;
 
@@ -46,8 +27,13 @@ template $MediaPlayer: Gtk.Widget {
         hexpand: true;
         spacing: 4;
 
-        Box {
+        Grid {
             Label {
+                layout {
+                    column: 0;
+                    row: 0;
+                }
+
                 label: bind template.player as <AstalMpris.Player>.title;
                 tooltip-text: bind template.player as <AstalMpris.Player>.title;
                 ellipsize: end;
@@ -60,31 +46,49 @@ template $MediaPlayer: Gtk.Widget {
                 ]
             }
 
-            Button {
-                has-frame: false;
-                sensitive: bind template.player as <AstalMpris.Player>.can-raise;
-                clicked => $raise();
+            Label {
+                layout {
+                    column: 0;
+                    row: 1;
+                }
+
+                label: bind $build_artist_line(template.player as <AstalMpris.Player>.artist, template.player as <AstalMpris.Player>.album) as <string>;
+                ellipsize: end;
+                max-width-chars: 1;
+                hexpand: true;
+                xalign: 0;
 
                 styles [
-                    "player-icon-button",
-                    "circular",
+                    "mpris-artist",
                 ]
+            }
 
-                Image {
-                    icon-name: bind template.player as <AstalMpris.Player>.entry;
-                    tooltip-text: bind $to_title_case(template.player as <AstalMpris.Player>.identity) as <string>;
+            Box {
+                layout {
+                    column: 1;
+                    row: 0;
+                    row-span: 2;
+                }
+
+                orientation: vertical;
+                spacing: 4;
+
+                Button {
+                    has-frame: false;
+                    sensitive: bind template.player as <AstalMpris.Player>.can-raise;
+                    clicked => $raise();
+
+                    styles [
+                        "player-icon-button",
+                        "circular",
+                    ]
+
+                    Image {
+                        icon-name: bind template.player as <AstalMpris.Player>.entry;
+                        tooltip-text: bind $to_title_case(template.player as <AstalMpris.Player>.identity) as <string>;
+                    }
                 }
             }
-        }
-
-        Label {
-            label: bind $build_artist_line(template.player as <AstalMpris.Player>.artist, template.player as <AstalMpris.Player>.album) as <string>;
-            ellipsize: end;
-            xalign: 0;
-
-            styles [
-                "mpris-artist",
-            ]
         }
 
         ProgressBar {
