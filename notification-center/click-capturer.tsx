@@ -2,7 +2,7 @@ import { register } from "astal/gobject";
 import { App, Astal, Gdk, Gtk } from "astal/gtk4";
 import Graphene from "gi://Graphene?version=1.0";
 
-const DEBUG_DISABLE_CTC = true;
+const DEBUG_DISABLE_CTC = false;
 
 let clickCallback: (() => void) | null = null;
 let captureWindows = new Map<Gdk.Monitor, { window: Astal.Window; monitorConnectID: number }>();
