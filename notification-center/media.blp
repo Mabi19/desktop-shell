@@ -1,0 +1,131 @@
+using Gtk 4.0;
+using AstalMpris 0.1;
+
+template $MediaPlayer: Gtk.Widget {
+    width-request: 400;
+
+    styles [
+        "panel",
+        "media",
+    ]
+
+    layout-manager: BoxLayout {
+        orientation: horizontal;
+        spacing: 8;
+    };
+
+    // Box {
+    //     width-request: 72;
+    //     height-request: 72;
+    //     hexpand: false;
+    //     vexpand: false;
+    //     valign: center;
+    //     Picture {
+    //         file: bind $get_cover_art_file(template.player as <AstalMpris.Player>.cover-art) as <Gio.File>;
+    //         content-fit: cover;
+    //         width-request: 72;
+    //         height-request: 72;
+    //         hexpand: false;
+    //         vexpand: false;
+    //         can-shrink: true;
+    //         styles [
+    //             "main-icon",
+    //         ]
+    //     }
+    // }
+    $CoverArtPicture {
+        path: bind template.player as <AstalMpris.Player>.cover-art;
+
+        styles [
+            "main-icon",
+        ]
+    }
+
+    Box {
+        orientation: vertical;
+        hexpand: true;
+        spacing: 4;
+
+        Box {
+            Label {
+                label: bind template.player as <AstalMpris.Player>.title;
+                tooltip-text: bind template.player as <AstalMpris.Player>.title;
+                ellipsize: end;
+                max-width-chars: 1;
+                hexpand: true;
+                xalign: 0;
+
+                styles [
+                    "mpris-title",
+                ]
+            }
+
+            Button {
+                has-frame: false;
+                sensitive: bind template.player as <AstalMpris.Player>.can-raise;
+                clicked => $raise();
+
+                styles [
+                    "player-icon-button",
+                    "circular",
+                ]
+
+                Image {
+                    icon-name: bind template.player as <AstalMpris.Player>.entry;
+                    tooltip-text: bind $to_title_case(template.player as <AstalMpris.Player>.identity) as <string>;
+                }
+            }
+        }
+
+        Label {
+            label: bind $build_artist_line(template.player as <AstalMpris.Player>.artist, template.player as <AstalMpris.Player>.album) as <string>;
+            ellipsize: end;
+            xalign: 0;
+
+            styles [
+                "mpris-artist",
+            ]
+        }
+
+        ProgressBar {
+            fraction: bind $get_progress_fraction(template.player as <AstalMpris.Player>.position, template.player as <AstalMpris.Player>.length) as <double>;
+        }
+
+        CenterBox {
+            [start]
+            Label {
+                label: bind $format_timecode(template.player as <AstalMpris.Player>.position) as <string>;
+                valign: start;
+            }
+
+            [center]
+            Box {
+                spacing: 4;
+
+                Button {
+                    icon-name: "media-seek-backward-symbolic";
+                    clicked => $seek_prev();
+                    visible: bind template.player as <AstalMpris.Player>.can-go-previous;
+                }
+
+                Button {
+                    icon-name: bind $get_playback_icon(template.player as <AstalMpris.Player>.playback-status) as <string>;
+                    clicked => $play_pause();
+                    visible: bind template.player as <AstalMpris.Player>.can-control;
+                }
+
+                Button {
+                    icon-name: "media-seek-forward-symbolic";
+                    clicked => $seek_next();
+                    visible: bind template.player as <AstalMpris.Player>.can-go-next;
+                }
+            }
+
+            [end]
+            Label {
+                label: bind $format_timecode(template.player as <AstalMpris.Player>.length) as <string>;
+                valign: start;
+            }
+        }
+    }
+}

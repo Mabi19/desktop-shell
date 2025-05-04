@@ -8,6 +8,7 @@
         background-color: var(--view-bg-color);
         padding: 8px;
         border-radius: 8px;
+
     }
 
     .weather {
@@ -24,19 +25,36 @@
         .timestamp {
             font-weight: bold;
         }
+
+        .main-icon {
+            &.day {
+                background-color: #6e9dd5;
+            }
+
+            &.night {
+                background-color: #161b2d;
+            }
+
+            padding: 12px;
+            border-radius: 24px;
+        }
     }
 
-    .weather .main-icon {
-        &.day {
-            background-color: #6e9dd5;
+    .media {
+        .main-icon {
+            border-radius: 16px;
         }
 
-        &.night {
-            background-color: #161b2d;
+        .mpris-title {
+            font-size: 1.25em;
+            font-weight: bold;
         }
 
-        padding: 12px;
-        border-radius: 24px;
+        .player-icon-button:disabled {
+            /* we still want the icon to look normal if insensitive */
+            filter: none;
+            opacity: 1;
+        }
     }
 
     .precise-clock {

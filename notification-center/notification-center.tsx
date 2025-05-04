@@ -1,17 +1,40 @@
 import { bind, Variable } from "astal";
 import { App, Astal, hook } from "astal/gtk4";
 import Adw from "gi://Adw?version=1";
+import AstalMpris from "gi://AstalMpris?version=0.1";
 import GLib from "gi://GLib?version=2.0";
 import { Notifier } from "../utils/notifier";
 import { currentTime, makeDateTimeFormat } from "../utils/time";
 import { Calendar } from "../widgets/calendar";
 import { cancelClickCapture, setupClickCapture } from "./click-capturer";
+import { MediaPlayer } from "./media";
 import { NotificationList } from "./notification-list";
 import { WeatherIconDebug, WeatherPanel } from "./weather-panel";
 
 function MediaCarousel() {
     const carousel = new Adw.Carousel({ spacing: 8 });
     carousel.append(<WeatherPanel />);
+
+    const mpris = AstalMpris.get_default();
+    const players = mpris.get_players();
+    for (const player of players) {
+        carousel.append(new MediaPlayer({ player }));
+    }
+    mpris.connect("player-added", (_, player) => {
+        console.log("player-added", player.busName);
+        players.push(player);
+        carousel.append(new MediaPlayer({ player }));
+    });
+    mpris.connect("player-closed", (_, player) => {
+        console.log("player-removed", player.busName);
+        const idx = players.indexOf(player);
+        if (idx < 0) {
+            console.error("couldn't find player to remove", player.busName);
+        }
+        players.splice(idx, 1);
+        const widget = carousel.get_nth_page(idx + 1);
+        carousel.remove(widget);
+    });
 
     return (
         <box vertical={true}>
@@ -64,7 +87,6 @@ closeNotify.subscribe(() => {
     timeUnsub = null;
 });
 
-// TODO: Only update this when the center is visible
 function PreciseDateTime() {
     return (
         <box cssClasses={["precise-clock"]} spacing={8}>
