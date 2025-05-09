@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+    <gresource prefix="/land/mabi/shell/icons/scalable/actions">
+        <!-- Icons -->
+        <file alias="fa-bell-slash-symbolic.svg">icons/fa-bell-slash-symbolic.svg</file>
+        <file alias="fa-bell-symbolic.svg">icons/fa-bell-symbolic.svg</file>
+        <file alias="fa-clock-symbolic.svg">icons/fa-clock-symbolic.svg</file>
+        <file alias="fa-memory-symbolic.svg">icons/fa-memory-symbolic.svg</file>
+        <file alias="fa-microchip-symbolic.svg">icons/fa-microchip-symbolic.svg</file>
+    </gresource>
+    <gresource prefix="/land/mabi/shell/ui">
+        <file>bar/bar.ui</file>
+    </gresource>
+    <gresource prefix="/land/mabi/shell">
+        <!-- Generic files -->
+        <file>shell-styles.css</file>
+    </gresource>
+</gresources>
