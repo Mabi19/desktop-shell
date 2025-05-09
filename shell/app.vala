@@ -3,6 +3,7 @@ class MabiShell : Adw.Application {
     public static Gdk.Display display;
 
     private Gtk.CssProvider style_provider;
+    private Bar bar;
 
     public MabiShell() {
         Object(application_id: "land.mabi.shell");
@@ -30,6 +31,13 @@ class MabiShell : Adw.Application {
         Gtk.StyleContext.add_provider_for_display(disp, style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
         // TODO: load theme colors
         // TODO: load overrides
+
+        bar = new Bar();
+        bar.present();
+
+        // I'm not sure why this is required.
+        // TODO: when a .quit() is implemented, call release()
+        this.hold();
     }
 }
 

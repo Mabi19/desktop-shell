@@ -1,6 +1,10 @@
 @use "sass:color";
 @use "sass:math";
 
+.bar {
+    background-color: transparent;
+}
+
 .bar > box {
     background-color: var(--window-bg-color);
 }

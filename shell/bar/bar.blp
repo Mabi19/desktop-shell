@@ -6,10 +6,18 @@ template $Bar: Astal.Window {
         "bar",
     ]
 
+    namespace: "bar";
+    exclusivity: exclusive;
+
     CenterBox {
         [start]
-        Label {
-            label: "left";
+        Button {
+            styles [
+                "usage-badge",
+            ]
+
+            label: "Inspect";
+            clicked => $open_inspector();
         }
 
         [center]

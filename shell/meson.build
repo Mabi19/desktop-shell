@@ -43,6 +43,6 @@ shell_src = files('bar/bar.vala', 'app.vala')
 executable(
     'mabi-shell',
     sources: [shell_src, resource],
-    dependencies: [gtk4_dep, astal4_dep, astalio_dep, adw_dep],
+    dependencies: [gtk4_layer_shell_dep, astal4_dep, astalio_dep, adw_dep],
     c_args: ['-w'],
 )
