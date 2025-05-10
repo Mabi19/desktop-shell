@@ -38,7 +38,7 @@ resource = gnome.compile_resources(
     source_dir: meson.current_build_dir(),
 )
 
-shell_src = files('bar/bar.vala', 'app.vala')
+shell_src = files('bar/bar.vala', 'app.vala', 'ipc.vala')
 
 executable(
     'mabi-shell',
