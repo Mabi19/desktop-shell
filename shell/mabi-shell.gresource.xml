@@ -10,6 +10,7 @@
     </gresource>
     <gresource prefix="/land/mabi/shell/ui">
         <file>bar/bar.ui</file>
+        <file>bar/time-button.ui</file>
     </gresource>
     <gresource prefix="/land/mabi/shell">
         <!-- Generic files -->

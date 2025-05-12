@@ -2,7 +2,7 @@ class MabiShell : Adw.Application {
     public static MabiShell instance;
     public static Gdk.Display display;
 
-    private Gtk.CssProvider style_provider;
+    private ShellStyleManager styles;
     private Bar bar;
 
     private ShellIPCService? ipc_service = null;
@@ -20,20 +20,7 @@ class MabiShell : Adw.Application {
         instance = this;
         display = disp;
 
-        style_provider = new Gtk.CssProvider();
-        style_provider.parsing_error.connect((section, error) => {
-            critical(
-                     "CSS error: %s (%s:%zu)",
-                     error.message,
-                     section.get_file().get_basename() ?? "<unknown>",
-                     section.get_start_location().lines + 1
-            );
-        });
-
-        style_provider.load_from_resource("/land/mabi/shell/shell-styles.css");
-        Gtk.StyleContext.add_provider_for_display(disp, style_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-        // TODO: load theme colors
-        // TODO: load overrides
+        styles = new ShellStyleManager(disp);
 
         bar = new Bar();
         bar.present();
@@ -43,7 +30,7 @@ class MabiShell : Adw.Application {
         this.hold();
     }
 
-    public override bool dbus_register(DBusConnection conn, string object_path) {
+    public override bool dbus_register(DBusConnection conn,      string object_path) {
         print(object_path);
         try {
             if (!base.dbus_register(conn, object_path)) {

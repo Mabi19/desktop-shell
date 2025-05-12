@@ -1,0 +1,21 @@
+using Gtk 4.0;
+
+template $TimeButton: Gtk.Button {
+    name: "time-and-notifications";
+
+    Box {
+        spacing: 6;
+
+        Label {
+            label: bind template.service as <$TimeService>.time_short as <string>;
+        }
+
+        Separator {
+            orientation: vertical;
+        }
+
+        Image {
+            icon-name: "fa-bell-symbolic";
+        }
+    }
+}

@@ -17,7 +17,7 @@ compiled_styles = custom_target(
     command: [sass, '@CURRENT_SOURCE_DIR@' / 'style.scss', '@OUTPUT@'],
 )
 
-blueprint_src = files('bar/bar.blp')
+blueprint_src = files('bar/bar.blp', 'bar/time-button.blp')
 compiled_ui = custom_target(
     'blueprint',
     input: blueprint_src,
@@ -38,7 +38,14 @@ resource = gnome.compile_resources(
     source_dir: meson.current_build_dir(),
 )
 
-shell_src = files('bar/bar.vala', 'app.vala', 'ipc.vala')
+shell_src = files(
+    'bar/bar.vala',
+    'bar/time-button.vala',
+    'service/time.vala',
+    'app.vala',
+    'ipc.vala',
+    'style.vala',
+)
 
 executable(
     'mabi-shell',
