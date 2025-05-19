@@ -98,7 +98,7 @@ export function HyprlandWorkspaces({ hyprlandMonitor }: { hyprlandMonitor: Astal
                             if (isOnDifferentMonitor) {
                                 hyprland.dispatch(
                                     "moveworkspacetomonitor",
-                                    `${movedWorkspaceId} ${hyprlandMonitor?.id}`
+                                    `${movedWorkspaceId} ${hyprlandMonitor?.id}`,
                                 );
                             }
                         })
@@ -247,7 +247,9 @@ export function Workspaces({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
             if (monitor.name == gdkmonitor.connector) {
                 console.log("matching monitor added!", monitor.name);
                 hyprland.disconnect(monitorConnectID);
-                wrapper.set_children([<HyprlandWorkspaces hyprlandMonitor={monitor} />]);
+                setTimeout(() => {
+                    wrapper.set_children([<HyprlandWorkspaces hyprlandMonitor={monitor} />]);
+                }, 3000);
             }
         });
 
