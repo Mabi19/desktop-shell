@@ -30,8 +30,7 @@ class MabiShell : Adw.Application {
         this.hold();
     }
 
-    public override bool dbus_register(DBusConnection conn,      string object_path) {
-        print(object_path);
+    public override bool dbus_register(DBusConnection conn, string object_path) {
         try {
             if (!base.dbus_register(conn, object_path)) {
                 return false;
