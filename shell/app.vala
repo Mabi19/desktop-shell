@@ -1,3 +1,5 @@
+using MabiShellStyle;
+
 class MabiShell : Adw.Application {
     public static MabiShell instance;
     public static Gdk.Display display;

@@ -44,12 +44,22 @@ shell_src = files(
     'service/time.vala',
     'app.vala',
     'ipc.vala',
-    'style.vala',
 )
+
+style_lib = static_library(
+    'mabi-shell-style',
+    'style.vala',
+    vala_header: 'mabi-shell-style.h',
+    vala_vapi: 'mabi-shell-style-1.0.vapi',
+    dependencies: [gtk4_dep],
+    c_args: ['-w'],
+)
+
+style_dep = declare_dependency(link_with: style_lib, include_directories: include_directories('.'))
 
 executable(
     'mabi-shell',
     sources: [shell_src, resource],
-    dependencies: [gtk4_layer_shell_dep, astal4_dep, astalio_dep, adw_dep],
+    dependencies: [gtk4_layer_shell_dep, astal4_dep, astalio_dep, adw_dep, style_dep],
     c_args: ['-w'],
 )
