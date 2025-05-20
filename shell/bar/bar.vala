@@ -1,6 +1,7 @@
 [GtkTemplate(ui = "/land/mabi/shell/ui/bar/bar.ui")]
 class Bar : Astal.Window {
     static construct {
+        typeof(PowerButton).ensure();
         typeof(TimeButton).ensure();
     }
 

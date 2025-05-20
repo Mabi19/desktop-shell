@@ -1,0 +1,19 @@
+using Gtk 4.0;
+using Adw 1;
+
+menu power_menu {
+    item ("Suspend", "powermenu.suspend", "system-shutdown-symbolic")
+    item ("Shutdown", "powermenu.shutdown")
+    item ("Reboot", "powermenu.reboot", "system-reboot-symbolic")
+}
+
+template $PowerButton: Adw.Bin {
+    MenuButton {
+        name: "power-button";
+        menu-model: power_menu;
+
+        Image {
+            icon-name: "system-shutdown-symbolic";
+        }
+    }
+}
