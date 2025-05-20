@@ -2,6 +2,7 @@ using MabiShellStyle;
 
 class MabiShell : Adw.Application {
     public static MabiShell instance;
+    public static Config config;
     public static Gdk.Display display;
 
     private ShellStyleManager styles;
@@ -20,6 +21,7 @@ class MabiShell : Adw.Application {
             error("Couldn't get GDK display");
         }
         instance = this;
+        config = new Config();
         display = disp;
 
         styles = new ShellStyleManager(disp);

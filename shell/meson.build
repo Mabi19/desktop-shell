@@ -44,6 +44,7 @@ shell_src = files(
     'bar/time-button.vala',
     'service/time.vala',
     'app.vala',
+    'config.vala',
     'ipc.vala',
 )
 
@@ -61,6 +62,13 @@ style_dep = declare_dependency(link_with: style_lib, include_directories: includ
 executable(
     'mabi-shell',
     sources: [shell_src, resource],
-    dependencies: [gtk4_layer_shell_dep, astal4_dep, astalio_dep, adw_dep, style_dep],
+    dependencies: [
+        gtk4_layer_shell_dep,
+        astal4_dep,
+        astalio_dep,
+        adw_dep,
+        json_glib_dep,
+        style_dep,
+    ],
     c_args: ['-w'],
 )

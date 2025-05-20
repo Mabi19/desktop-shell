@@ -5,5 +5,6 @@ gtk4_dep = dependency('gtk4')
 astal4_dep = dependency('astal-4-4.0')
 astalio_dep = dependency('astal-io-0.1')
 adw_dep = dependency('libadwaita-1')
+json_glib_dep = dependency('json-glib-1.0')
 
 subdir('shell')
