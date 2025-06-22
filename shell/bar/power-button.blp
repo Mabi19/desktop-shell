@@ -1,8 +1,15 @@
 using Gtk 4.0;
 using Adw 1;
-// TODO: Include a second menu model with hibernation and let the user choose
+
 menu power_menu {
     item ("Suspend", "powermenu.suspend")
+    item ("Shutdown", "powermenu.shutdown")
+    item ("Reboot", "powermenu.reboot")
+}
+
+menu power_menu_hibernate {
+    item ("Suspend", "powermenu.suspend")
+    item ("Hibernate", "powermenu.hibernate")
     item ("Shutdown", "powermenu.shutdown")
     item ("Reboot", "powermenu.reboot")
 }
@@ -10,6 +17,7 @@ menu power_menu {
 template $PowerButton: Adw.Bin {
     MenuButton {
         name: "power-button";
+        // TODO: Choose the correct value based on config.
         menu-model: power_menu;
 
         Image {
