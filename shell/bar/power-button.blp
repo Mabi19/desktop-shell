@@ -17,8 +17,11 @@ menu power_menu_hibernate {
 template $PowerButton: Adw.Bin {
     MenuButton {
         name: "power-button";
-        // TODO: Choose the correct value based on config.
-        menu-model: power_menu;
+
+        popover: PopoverMenu {
+            menu-model: power_menu;
+            has-arrow: false;
+        };
 
         Image {
             icon-name: "system-shutdown-symbolic";
