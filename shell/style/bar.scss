@@ -7,20 +7,12 @@
 
 .bar > box {
     background-color: var(--window-bg-color);
+    padding: 4px 6px;
 }
 
-.bar.floating {
-    --margin: 10px;
-
-    & > box {
-        border-radius: 2em;
-        margin: var(--margin) var(--margin) 0px var(--margin);
-        padding: 4px 6px;
-    }
-}
-
-.bar.attached > box {
-    padding: 6px 8px;
+.bar.floating > box {
+    border-radius: 2em;
+    padding: 4px 6px;
 }
 
 @mixin badge {

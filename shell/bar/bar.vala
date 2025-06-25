@@ -1,13 +1,28 @@
 [GtkTemplate(ui = "/land/mabi/shell/ui/bar/bar.ui")]
 class Bar : Astal.Window {
+    internal Config config { get; private set; }
+    internal int outer_margin { get; private set; }
+
     static construct {
         typeof(PowerButton).ensure();
         typeof(TimeButton).ensure();
     }
 
-    public Bar() {
+    construct {
         anchor = TOP | LEFT | RIGHT;
-        add_css_class("floating");
+        config = MabiShell.config;
+        update_style();
+        config.notify["bar-style"].connect(this.update_style);
+    }
+
+    private void update_style() {
+        if (config.bar_style == BarStyle.Floating) {
+            this.add_css_class("floating");
+            outer_margin = 10;
+        } else {
+            this.remove_css_class("floating");
+            outer_margin = 0;
+        }
     }
 
     [GtkCallback]
