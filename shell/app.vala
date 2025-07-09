@@ -6,13 +6,34 @@ class MabiShell : Adw.Application {
     public static Gdk.Display display;
 
     private ShellStyleManager styles;
-    private Bar bar;
+
+    private ListModel monitor_model;
+    private Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> > windows;
 
     private ShellIPCService? ipc_service = null;
     private uint ipc_register_id = 0;
 
     public MabiShell() {
         Object(application_id : "land.mabi.shell");
+    }
+
+    private void create_windows_for_monitor(Gdk.Monitor mon) {
+        assert(!windows.has_key(mon));
+        var list = new Gee.ArrayList<Gtk.Window>();
+
+        var bar = new Bar(mon);
+        bar.present();
+        list.add(bar);
+
+        windows.set(mon, list);
+        mon.invalidate.connect(() => {
+            print("monitor invalidated %s\n", mon.get_connector());
+            Gee.List<Gtk.Window> mon_list;
+            windows.unset(mon, out mon_list);
+            foreach (var window in mon_list) {
+                window.destroy();
+            }
+        });
     }
 
     public override void activate() {
@@ -26,8 +47,26 @@ class MabiShell : Adw.Application {
 
         styles = new ShellStyleManager(disp);
 
-        bar = new Bar();
-        bar.present();
+        monitor_model = display.get_monitors();
+        windows = new Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> >();
+        Gdk.Monitor? mon;
+        for (var i = 0;; i++) {
+            mon = (Gdk.Monitor?)monitor_model.get_item(i);
+            if (mon == null) {
+                break;
+            }
+            print("creating surfaces on monitor %s\n", mon.get_connector());
+            create_windows_for_monitor(mon);
+        }
+        monitor_model.items_changed.connect((position, removed, added) => {
+            display.sync();
+            print("monitor model changed\n");
+            for (int i = 0; i < added; i++) {
+                var monitor = (Gdk.Monitor)monitor_model.get_item(position + i);
+                print("new monitor: %s\n", monitor.get_connector());
+                create_windows_for_monitor(monitor);
+            }
+        });
 
         // I'm not sure why this is required.
         // TODO: when a .quit() is implemented, call release()

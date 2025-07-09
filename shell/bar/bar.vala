@@ -4,8 +4,13 @@ class Bar : Astal.Window {
     internal int outer_margin { get; private set; }
 
     static construct {
+        typeof(WorkspaceBox).ensure();
         typeof(PowerButton).ensure();
         typeof(TimeButton).ensure();
+    }
+
+    public Bar(Gdk.Monitor monitor) {
+        Object(gdkmonitor: monitor);
     }
 
     construct {
