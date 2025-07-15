@@ -11,10 +11,13 @@ class WorkspaceButton : Adw.Bin {
     }
 
     construct {
+        print("construct WorkspaceButton\n");
         // the monitor never changes: a workspace widget stays on its bar
         // when it moves, a new workspace widget is created
         monitor.notify["active-workspace"].connect(update_active);
         workspace.notify["monitor"].connect(update_monitor_flag);
+        update_active();
+        update_monitor_flag();
     }
 
     private void update_active() {
@@ -70,6 +73,7 @@ class WorkspaceBox : Gtk.Box {
         if (!try_get_hyprmonitor()) {
             assert(monitor_match_conn_id == 0);
             monitor_match_conn_id = service.hyprland.notify["monitors"].connect(() => {
+                print("hyprland monitors updated\n");
                 if (try_get_hyprmonitor()) {
                     service.hyprland.disconnect(monitor_match_conn_id);
                     monitor_match_conn_id = 0;
@@ -95,6 +99,7 @@ class WorkspaceBox : Gtk.Box {
         int i = 0;
         while ((workspace = (Workspace?)service.workspaces.get_item(i)) != null) {
             this.append(new WorkspaceButton(workspace, hyprmonitor));
+            i++;
         }
         service.workspaces.items_changed.connect((position, removed, added) => {
             print("workspaces changed: pos = %u, -%u, +%u\n", position, removed, added);

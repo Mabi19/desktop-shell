@@ -11,7 +11,7 @@ class WorkspaceService : Object {
         return instance;
     }
 
-    internal Hyprland hyprland;
+    public Hyprland hyprland;
     public ListStore workspaces;
 
     construct {
@@ -21,14 +21,12 @@ class WorkspaceService : Object {
             insert_workspace(workspace);
         }
 
-        hyprland.workspace_added.connect((workspace) => {
-            insert_workspace(workspace);
-        });
-
+        hyprland.workspace_added.connect(insert_workspace);
         hyprland.workspace_removed.connect(remove_workspace);
     }
 
     private void insert_workspace(Workspace workspace) {
+        print("insert_workspace %p\n", workspace);
         workspaces.insert_sorted(workspace, (a, b) => {
             return ((Workspace)a).id - ((Workspace)b).id;
         });
