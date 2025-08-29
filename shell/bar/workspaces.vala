@@ -34,12 +34,14 @@ class WorkspaceButton : Adw.Bin {
 
     [GtkCallback]
     void handle_click() {
-        workspace.focus();
+        if (workspace.id > 0) {
+            workspace.focus();
+        }
     }
 
     [GtkCallback]
     string format_workspace_id(int workspace_id) {
-        return workspace_id.to_string();
+        return workspace_id < 0 ? "S" : workspace_id.to_string();
     }
 }
 
@@ -152,7 +154,12 @@ class WorkspaceBox : Gtk.Box {
         if (adjusted_index < 0 || adjusted_index >= workspaces_on_monitor.size) {
             return false;
         }
-        workspaces_on_monitor[adjusted_index].focus();
+        var workspace = workspaces_on_monitor[adjusted_index];
+        // Do not enable special workspaces
+        if (workspace.id < 0) {
+            return false;
+        }
+        workspace.focus();
 
         return true;
     }

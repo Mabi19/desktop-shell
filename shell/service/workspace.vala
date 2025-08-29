@@ -1,6 +1,5 @@
 using AstalHyprland;
 
-// A class that provides workspace tracking functionality.
 class WorkspaceService : Object {
     private static WorkspaceService instance;
     public static WorkspaceService get_default() {
@@ -26,6 +25,9 @@ class WorkspaceService : Object {
     }
 
     private void insert_workspace(Workspace workspace) {
+        if (workspace.id < 0) {
+            return;
+        }
         print("insert_workspace %p\n", workspace);
         workspaces.insert_sorted(workspace, (a, b) => {
             return ((Workspace)a).id - ((Workspace)b).id;
