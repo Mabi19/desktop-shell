@@ -4,7 +4,6 @@ blueprint = find_program('blueprint-compiler', required: true)
 
 scss_src = files(
     'style/bar.scss',
-    'style/click-capture.scss',
     'style/notification-center.scss',
     'style/notification.scss',
     'style/osd.scss',
