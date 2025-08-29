@@ -19,7 +19,7 @@ public class ShellStyleManager {
         // TODO: actually load this from the config
         // oh wait, the config won't be available here D:
         // add an external method that the config calls to make this work?
-        theme.load_from_string(@":root { --theme-inactive: #C063C9; --theme-active: rebeccapurple; }");
+        theme.load_from_string(@":root { --theme-inactive: #c063c9; --theme-active: #8643b5; }");
         use_provider(theme);
 
 
