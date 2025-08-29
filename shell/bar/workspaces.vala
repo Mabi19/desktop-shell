@@ -48,12 +48,14 @@ class WorkspaceBox : Gtk.Box {
     private WorkspaceService service;
     private Monitor hyprmonitor;
     private ulong monitor_match_conn_id = 0;
+    private Gee.ArrayList<WorkspaceButton> widgets;
     public Gdk.Monitor gdkmonitor { get; set; }
 
     construct {
         this.set_name("workspaces");
         this.add_css_class("icon-view-box");
         service = WorkspaceService.get_default();
+        widgets = new Gee.ArrayList<WorkspaceButton>();
 
         match_monitors();
         notify["gdkmonitor"].connect(() => {
@@ -98,11 +100,35 @@ class WorkspaceBox : Gtk.Box {
         Workspace? workspace = null;
         int i = 0;
         while ((workspace = (Workspace?)service.workspaces.get_item(i)) != null) {
-            this.append(new WorkspaceButton(workspace, hyprmonitor));
+            var button = new WorkspaceButton(workspace, hyprmonitor);
+            this.append(button);
+            widgets.add(button);
             i++;
         }
         service.workspaces.items_changed.connect((position, removed, added) => {
             print("workspaces changed: pos = %u, -%u, +%u\n", position, removed, added);
+            for (uint j = position; j < position + removed; j++) {
+                // removing shifts all the further elements back,
+                // so removeat position removed times
+                this.remove(widgets[(int)position]);
+                widgets.remove_at((int)position);
+            }
+
+            // the widget that was originally one before position
+            var anchor_widget = position == 0 ? null : widgets[(int)position - 1];
+            for (uint j = position; j < position + added; j++) {
+                var new_ws = (Workspace)service.workspaces.get_item(j);
+                var new_button = new WorkspaceButton(new_ws, hyprmonitor);
+                this.insert_child_after(new_button, anchor_widget);
+                widgets.insert((int)j, new_button);
+                anchor_widget = new_button;
+            }
+
+            print("state of widgets afterwards:\n");
+            foreach (var widget in widgets) {
+                print("%d ", widget.workspace.id);
+            }
+            print("\n");
         });
     }
 }
