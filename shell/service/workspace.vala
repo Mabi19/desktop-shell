@@ -1,6 +1,6 @@
 using AstalHyprland;
 
-// A class that provides
+// A class that provides workspace tracking functionality.
 class WorkspaceService : Object {
     private static WorkspaceService instance;
     public static WorkspaceService get_default() {

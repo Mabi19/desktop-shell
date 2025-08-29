@@ -11,7 +11,6 @@ class WorkspaceButton : Adw.Bin {
     }
 
     construct {
-        print("construct WorkspaceButton\n");
         // the monitor never changes: a workspace widget stays on its bar
         // when it moves, a new workspace widget is created
         monitor.notify["active-workspace"].connect(update_active);
@@ -21,7 +20,7 @@ class WorkspaceButton : Adw.Bin {
     }
 
     private void update_active() {
-        bool is_active = monitor.active_workspace.id == workspace.id;
+        var is_active = monitor.active_workspace.id == workspace.id;
         if (is_active) {
             add_css_class("active");
         } else {
@@ -54,6 +53,10 @@ class WorkspaceBox : Gtk.Box {
     construct {
         this.set_name("workspaces");
         this.add_css_class("icon-view-box");
+        var scroll_controller = new Gtk.EventControllerScroll(Gtk.EventControllerScrollFlags.DISCRETE | Gtk.EventControllerScrollFlags.VERTICAL);
+        scroll_controller.scroll.connect(this.handle_scroll);
+        this.add_controller(scroll_controller);
+
         service = WorkspaceService.get_default();
         widgets = new Gee.ArrayList<WorkspaceButton>();
 
@@ -130,5 +133,27 @@ class WorkspaceBox : Gtk.Box {
             }
             print("\n");
         });
+    }
+
+    private bool handle_scroll(Gtk.EventControllerScroll _self, double _dx, double dy) {
+        var workspaces_on_monitor = new Gee.ArrayList<Workspace>();
+        int active_index = -1;
+        for (int i = 0; i < service.workspaces.get_n_items(); i++) {
+            var ws = (Workspace)service.workspaces.get_item(i);
+            if (ws.monitor.id == hyprmonitor.id) {
+                if (hyprmonitor.active_workspace.id == ws.id) {
+                    active_index = workspaces_on_monitor.size;
+                }
+                workspaces_on_monitor.add(ws);
+            }
+        }
+        assert(active_index != -1);
+        int adjusted_index = active_index + (int)dy;
+        if (adjusted_index < 0 || adjusted_index >= workspaces_on_monitor.size) {
+            return false;
+        }
+        workspaces_on_monitor[adjusted_index].focus();
+
+        return true;
     }
 }
