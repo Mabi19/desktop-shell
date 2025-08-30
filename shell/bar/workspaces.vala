@@ -17,6 +17,16 @@ class WorkspaceButton : Adw.Bin {
         workspace.notify["monitor"].connect(update_monitor_flag);
         update_active();
         update_monitor_flag();
+
+        var drag_source = new Gtk.DragSource();
+        var wrapped_id = new Bytes(workspace.id.to_string().data);
+        drag_source.set_content(new Gdk.ContentProvider.for_bytes("application/x.mabi-workspace", wrapped_id));
+        drag_source.drag_begin.connect((source, drag) => {
+            add_css_class("dragging");
+            source.set_icon(new Gtk.WidgetPaintable(this), 0, 0);
+        });
+        drag_source.drag_end.connect(() => remove_css_class("dragging"));
+        add_controller(drag_source);
     }
 
     private void update_active() {
@@ -57,7 +67,15 @@ class WorkspaceBox : Gtk.Box {
         this.add_css_class("icon-view-box");
         var scroll_controller = new Gtk.EventControllerScroll(Gtk.EventControllerScrollFlags.DISCRETE | Gtk.EventControllerScrollFlags.VERTICAL);
         scroll_controller.scroll.connect(this.handle_scroll);
-        this.add_controller(scroll_controller);
+        add_controller(scroll_controller);
+        var drop_target = new Gtk.DropTargetAsync(new Gdk.ContentFormats({"application/x.mabi-workspace"}), Gdk.DragAction.COPY);
+        drop_target.drop.connect((drop) => {
+            handle_drop.begin(drop, (obj, res) => {
+                handle_drop.end(res);
+            });
+            return true;
+        });
+        add_controller(drop_target);
 
         service = WorkspaceService.get_default();
         widgets = new Gee.ArrayList<WorkspaceButton>();
@@ -162,5 +180,19 @@ class WorkspaceBox : Gtk.Box {
         workspace.focus();
 
         return true;
+    }
+
+    private async void handle_drop(Gdk.Drop drop) {
+        try {
+            var stream = yield drop.read_async({"application/x.mabi-workspace"}, Priority.DEFAULT, null, null);
+            uint8 buffer[16];
+            size_t bytes_read;
+            yield stream.read_all_async(buffer, Priority.DEFAULT, null, out bytes_read);
+            drop.finish(Gdk.DragAction.COPY);
+            var workspace_id = int.parse((string)buffer);
+            service.hyprland.dispatch("moveworkspacetomonitor", @"$workspace_id $(hyprmonitor.id)");
+        } catch (Error e) {
+            warning("Workspace drag'n'drop failed: %s\n", e.message);
+        }
     }
 }
