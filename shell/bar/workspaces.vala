@@ -189,6 +189,11 @@ class WorkspaceBox : Gtk.Box {
             size_t bytes_read;
             yield stream.read_all_async(buffer, Priority.DEFAULT, null, out bytes_read);
             drop.finish(Gdk.DragAction.COPY);
+            // If the buffer fills exactly, there won't be a null terminator
+            if (bytes_read >= 16) {
+                warning("Workspace drag'n'drop payload too long");
+                return;
+            }
             var workspace_id = int.parse((string)buffer);
             service.hyprland.dispatch("moveworkspacetomonitor", @"$workspace_id $(hyprmonitor.id)");
         } catch (Error e) {
