@@ -17,6 +17,7 @@ compiled_styles = custom_target(
 )
 
 blueprint_src = files(
+    'bar/audio-button.blp',
     'bar/bar.blp',
     'bar/power-button.blp',
     'bar/time-button.blp',
@@ -43,6 +44,7 @@ resource = gnome.compile_resources(
 )
 
 shell_src = files(
+    'bar/audio.vala',
     'bar/bar.vala',
     'bar/power-button.vala',
     'bar/time-button.vala',
@@ -73,10 +75,12 @@ executable(
         astal4_dep,
         astalio_dep,
         astal_hyprland_dep,
+        astal_wp_dep,
         adw_dep,
         gee_dep,
         json_glib_dep,
         style_dep,
     ],
     c_args: ['-w'],
+    link_args: ['-lm'],
 )

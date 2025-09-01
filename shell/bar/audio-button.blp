@@ -1,0 +1,43 @@
+using Gtk 4.0;
+using Adw 1;
+using AstalWp 0.1;
+
+template $AudioButton: Adw.Bin {
+    MenuButton {
+        name: "audio-button";
+
+        popover: Popover {
+            Label {
+                label: "hi";
+            }
+        };
+
+        Box {
+            spacing: 8;
+
+            Box {
+                spacing: 4;
+
+                Image {
+                    icon-name: bind template.speaker as <AstalWp.Endpoint>.volume-icon;
+                }
+
+                Label {
+                    label: bind $format_volume(template.speaker as <AstalWp.Endpoint>.volume) as <string>;
+                }
+            }
+
+            Box {
+                spacing: 4;
+
+                Image {
+                    icon-name: bind template.microphone as <AstalWp.Endpoint>.volume-icon;
+                }
+
+                Label {
+                    label: bind $format_volume(template.microphone as <AstalWp.Endpoint>.volume) as <string>;
+                }
+            }
+        }
+    }
+}

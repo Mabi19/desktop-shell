@@ -7,6 +7,7 @@ class Bar : Astal.Window {
         typeof(WorkspaceBox).ensure();
         typeof(PowerButton).ensure();
         typeof(TimeButton).ensure();
+        typeof(AudioButton).ensure();
     }
 
     public Bar(Gdk.Monitor monitor) {
