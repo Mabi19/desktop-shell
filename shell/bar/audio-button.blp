@@ -7,8 +7,84 @@ template $AudioButton: Adw.Bin {
         name: "audio-button";
 
         popover: Popover {
-            Label {
-                label: "hi";
+            name: "audio-quick-menu";
+
+            Box {
+                orientation: vertical;
+
+                Box {
+                    spacing: 4;
+
+                    ToggleButton {
+                        active: bind template.speaker as <AstalWp.Endpoint>.mute;
+                        clicked => $toggle_mute_speaker();
+
+                        styles [
+                            "mute-button",
+                        ]
+
+                        Image {
+                            icon-name: bind $get_button_icon(template.speaker as <AstalWp.Endpoint>.mute, "audio-volume-muted-symbolic", "audio-speakers-symbolic") as <string>;
+                        }
+                    }
+
+                    Label {
+                        label: bind template.speaker as <AstalWp.Endpoint>.description;
+                        width-chars: 32;
+                        max-width-chars: 32;
+                        ellipsize: end;
+                        xalign: 0;
+                    }
+                }
+
+                Box {
+                    $VolumeSlider {
+                        device: bind template.speaker as <AstalWp.Endpoint>;
+                    }
+
+                    Label {
+                        label: bind $format_volume(template.speaker as <AstalWp.Endpoint>.volume) as <string>;
+                        width-chars: 5;
+                        xalign: 0;
+                    }
+                }
+
+                Box {
+                    spacing: 4;
+
+                    ToggleButton {
+                        active: bind template.microphone as <AstalWp.Endpoint>.mute;
+                        clicked => $toggle_mute_microphone();
+
+                        styles [
+                            "mute-button",
+                        ]
+
+                        Image {
+                            icon-name: bind $get_button_icon(template.microphone as <AstalWp.Endpoint>.mute, "microphone-sensitivity-muted-symbolic", "audio-input-microphone-symbolic") as <string>;
+                        }
+                    }
+
+                    Label {
+                        label: bind template.microphone as <AstalWp.Endpoint>.description;
+                        width-chars: 32;
+                        max-width-chars: 32;
+                        ellipsize: end;
+                        xalign: 0;
+                    }
+                }
+
+                Box {
+                    $VolumeSlider {
+                        device: bind template.microphone as <AstalWp.Endpoint>;
+                    }
+
+                    Label {
+                        label: bind $format_volume(template.microphone as <AstalWp.Endpoint>.volume) as <string>;
+                        width-chars: 5;
+                        xalign: 0;
+                    }
+                }
             }
         };
 
