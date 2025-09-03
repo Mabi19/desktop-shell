@@ -15,9 +15,9 @@ class VolumeSlider : Gtk.Scale {
         volume_conn_device = null;
         notify["device"].connect(setup_connections);
         value_changed.connect(() => {
-            if (device != null && adjustment != null) {
-                // TODO: play sound here
+            if (device != null && adjustment != null && (device.volume - adjustment.value).abs() > 0.001) {
                 device.volume = adjustment.value;
+                SoundService.get_default().play_deduped("audio-volume-change");
             }
         });
     }
@@ -104,5 +104,15 @@ class AudioButton : Adw.Bin {
     [GtkCallback]
     string get_button_icon(bool is_muted, string if_muted, string if_not_muted) {
         return is_muted ? if_muted : if_not_muted;
+    }
+
+    [GtkCallback]
+    bool handle_scroll(Gtk.EventControllerScroll controller, double dx, double dy) {
+        if (dy == 0.0) {
+            return false;
+        }
+        speaker.volume = (speaker.volume - dy * 0.05).clamp(0, 1);
+        SoundService.get_default().play_deduped("audio-volume-change");
+        return true;
     }
 }

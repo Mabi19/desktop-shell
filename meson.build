@@ -8,6 +8,7 @@ astal_hyprland_dep = dependency('astal-hyprland-0.1')
 astal_wp_dep = dependency('astal-wireplumber-0.1')
 adw_dep = dependency('libadwaita-1')
 gee_dep = dependency('gee-0.8')
+gsound_dep = dependency('gsound')
 json_glib_dep = dependency('json-glib-1.0')
 
 subdir('shell')
