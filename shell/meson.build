@@ -52,9 +52,9 @@ shell_src = files(
     'service/sound.vala',
     'service/time.vala',
     'service/workspace.vala',
+    'utils/color.vala',
     'app.vala',
     'config.vala',
-    'ipc.vala',
 )
 
 style_lib = static_library(

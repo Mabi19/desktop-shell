@@ -49,8 +49,6 @@ class AudioButton : Adw.Bin {
     internal AstalWp.Wp service;
     public AstalWp.Endpoint speaker { get; construct; }
     public AstalWp.Endpoint microphone { get; construct; }
-    // TODO: Properly source this from the config once that exists
-    private Gdk.RGBA background_color;
 
     static construct {
         typeof(VolumeSlider).ensure();
@@ -60,8 +58,6 @@ class AudioButton : Adw.Bin {
         service = AstalWp.get_default();
         speaker = service.get_default_speaker();
         microphone = service.get_default_microphone();
-        background_color = Gdk.RGBA();
-        background_color.parse("#c063c9");
     }
 
     public override void snapshot(Gtk.Snapshot snapshot) {
@@ -75,7 +71,8 @@ class AudioButton : Adw.Bin {
             );
 
         snapshot.push_rounded_clip(clip_bounds);
-        snapshot.append_color(background_color, full_bounds);
+        // TODO: queue redraws when the theme colors change
+        snapshot.append_color(MabiShell.config.theme_inactive.rgba, full_bounds);
         snapshot.pop();
 
         var child = get_child();

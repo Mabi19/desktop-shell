@@ -10,11 +10,11 @@ enum BarStyle {
 }
 
 class Config : Object {
-    // These have to be properties for notify signals to work, but can't be properties for getting pointers to them.
-    // TODO: rework read_X methods to take a string name and reflect to them
     public string? primary_monitor_name { get; set; }
     public int64 max_network_usage { get; set; }
     public bool power_menu_hibernate { get; set; }
+    public Color theme_inactive { get; set; }
+    public Color theme_active { get; set; }
     public BarStyle bar_style { get; set; }
 
     private File config_file;
@@ -47,6 +47,12 @@ class Config : Object {
         primary_monitor_name = null;
         max_network_usage = 12500000;
         power_menu_hibernate = false;
+        theme_inactive = Color() {
+            l = 0.646f, a = 0.1412f, b = -0.1027f, alpha = 1.0f
+        }.recompute_rgba();
+        theme_active = Color() {
+            l = 0.52f, a = 0.1106f, b = -0.139f, alpha = 1.0f
+        }.recompute_rgba();
         bar_style = BarStyle.Floating;
     }
 
@@ -91,6 +97,25 @@ class Config : Object {
         set(target, member.get_int());
     }
 
+    private void read_color(Json.Object obj, string key, string target) {
+        var member = obj.get_member(key);
+        if (member == null) {
+            return;
+        }
+
+        if (member.get_value_type() != Type.STRING) {
+            warning("Config: key '%s' has wrong type (should be color)", key);
+            return;
+        }
+        var str_val = member.get_string();
+        var rgba = Gdk.RGBA();
+        if (!rgba.parse(str_val)) {
+            warning("Config: key '%s' has wrong type (should be color)", key);
+            return;
+        }
+        set(target, Color.from_rgba(rgba));
+    }
+
     private void read_bar_style(Json.Object obj) {
         var member = obj.get_member("bar_style");
         if (member == null) {
@@ -99,6 +124,7 @@ class Config : Object {
 
         if (member.get_value_type() != Type.STRING) {
             warning("Config: Invalid bar_style (should be \"floating\" | \"attached\")");
+            return;
         }
 
         var str_val = member.get_string();
@@ -121,6 +147,8 @@ class Config : Object {
         read_string_or_null(obj, "primary_monitor", "primary-monitor-name");
         read_int64(obj, "max_network_usage", "max-network-usage");
         read_bool(obj, "power_menu_hibernate", "power-menu-hibernate");
+        read_color(obj, "theme_inactive", "theme-inactive");
+        read_color(obj, "theme_active", "theme-active");
         read_bar_style(obj);
     }
 
