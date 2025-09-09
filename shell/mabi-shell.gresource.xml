@@ -13,6 +13,7 @@
         <file>bar/bar.ui</file>
         <file>bar/power-button.ui</file>
         <file>bar/time-button.ui</file>
+        <file>bar/tray-item.ui</file>
         <file>bar/workspace-button.ui</file>
     </gresource>
     <gresource prefix="/land/mabi/shell">

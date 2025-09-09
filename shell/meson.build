@@ -21,6 +21,7 @@ blueprint_src = files(
     'bar/bar.blp',
     'bar/power-button.blp',
     'bar/time-button.blp',
+    'bar/tray-item.blp',
     'bar/workspace-button.blp',
 )
 compiled_ui = custom_target(
@@ -48,6 +49,7 @@ shell_src = files(
     'bar/bar.vala',
     'bar/power-button.vala',
     'bar/time-button.vala',
+    'bar/tray.vala',
     'bar/workspaces.vala',
     'service/sound.vala',
     'service/time.vala',
@@ -76,6 +78,7 @@ executable(
         astal4_dep,
         astalio_dep,
         astal_hyprland_dep,
+        astal_tray_dep,
         astal_wp_dep,
         adw_dep,
         gee_dep,

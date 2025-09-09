@@ -1,0 +1,26 @@
+using Gtk 4.0;
+using Adw 1;
+using AstalTray 0.1;
+
+template $TrayItem: Adw.Bin {
+    MenuButton button {
+        styles [
+            "tray-item",
+        ]
+
+        tooltip-text: bind template.item as <AstalTray.TrayItem>.tooltip-text;
+
+        Image {
+            gicon: bind template.item as <AstalTray.TrayItem>.gicon;
+        }
+
+        popover: PopoverMenu {
+            menu-model: bind template.item as <AstalTray.TrayItem>.menu-model;
+        };
+
+        EventControllerLegacy {
+            propagation-phase: capture;
+            event => $handle_event();
+        }
+    }
+}
