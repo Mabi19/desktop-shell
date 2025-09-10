@@ -34,6 +34,9 @@ class MabiShell : Adw.Application {
         var bar = new Bar(mon);
         bar.present();
         list.add(bar);
+        var side_panel = new RightPopupWindow(mon);
+        side_panel.present();
+        list.add(side_panel);
 
         windows.set(mon, list);
         mon.invalidate.connect(() => {

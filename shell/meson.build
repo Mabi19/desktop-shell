@@ -4,9 +4,9 @@ blueprint = find_program('blueprint-compiler', required: true)
 
 scss_src = files(
     'style/bar.scss',
-    'style/notification-center.scss',
     'style/notification.scss',
     'style/osd.scss',
+    'style/side-panel.scss',
     'style.scss',
 )
 compiled_styles = custom_target(
@@ -54,6 +54,7 @@ shell_src = files(
     'service/sound.vala',
     'service/time.vala',
     'service/workspace.vala',
+    'side-panel/side-panel.vala',
     'utils/color.vala',
     'app.vala',
     'config.vala',

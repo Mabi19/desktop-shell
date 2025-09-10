@@ -1,4 +1,8 @@
-#notification-center {
+popup-window {
+    background-color: red;
+}
+
+side-panel {
     background-color: var(--window-bg-color);
     border-radius: 16px;
     margin: 10px;
@@ -8,7 +12,6 @@
         background-color: var(--view-bg-color);
         padding: 8px;
         border-radius: 8px;
-
     }
 
     .weather {
