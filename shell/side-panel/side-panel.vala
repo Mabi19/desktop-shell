@@ -24,10 +24,25 @@ class SidePanel : Gtk.Box {
  */
 class RightPopupContent : Gtk.Widget {
     private SidePanel side_panel;
+    private bool is_side_panel_shown;
 
     construct {
         side_panel = new SidePanel();
         side_panel.set_parent(this);
+        is_side_panel_shown = false;
+    }
+
+    public override void measure(Gtk.Orientation orientation, int for_size, out int minimum, out int natural, out int minimum_baseline, out int natural_baseline) {
+        side_panel.measure(orientation, for_size, out minimum, out natural, null, null);
+
+        minimum_baseline = -1;
+        natural_baseline = -1;
+    }
+
+    public override void size_allocate(int width, int height, int baseline) {
+        side_panel.allocate(width, height, -1, new Gsk.Transform().translate(Graphene.Point() {
+            x = width * 0.1f, y = 0
+        }));
     }
 
     public override void dispose() {
@@ -35,8 +50,6 @@ class RightPopupContent : Gtk.Widget {
         side_panel = null;
         base.dispose();
     }
-
-    // TODO: implement measure and size_allocate
 }
 
 /**
@@ -44,6 +57,15 @@ class RightPopupContent : Gtk.Widget {
  */
 class RightPopupWindow : Astal.Window {
     private RightPopupContent content;
+
+    private bool _side_panel_shown = false;
+    public bool side_panel_shown {
+        get { return _side_panel_shown; }
+        set {
+            _side_panel_shown = value;
+            print("side panel toggled! new state: %b\n", value);
+        }
+    }
 
     static construct {
         set_css_name("popup-window");

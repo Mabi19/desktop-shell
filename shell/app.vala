@@ -15,11 +15,10 @@ class MabiShell : Adw.Application {
     public static Config config;
     public static Gdk.Display display;
 
-    private ShellStyleManager styles;
-
     private ListModel monitor_model;
-    private Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> > windows;
+    public Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> > windows;
 
+    private ShellStyleManager styles;
     private ShellIPCService? ipc_service = null;
     private uint ipc_register_id = 0;
 

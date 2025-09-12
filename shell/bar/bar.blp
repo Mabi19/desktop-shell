@@ -40,7 +40,9 @@ template $Bar: Astal.Window {
 
             $AudioButton {}
 
-            $TimeButton {}
+            $TimeButton {
+                gdkmonitor: bind template.gdkmonitor as <Gdk.Monitor>;
+            }
 
             $PowerButton {}
         }
