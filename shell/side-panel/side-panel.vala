@@ -18,18 +18,125 @@ class SidePanel : Gtk.Box {
 // https://docs.gtk.org/gtk4/vfunc.Widget.size_allocate.html
 // https://blog.gtk.org/2020/04/27/custom-widgets-in-gtk-4-layout/
 
+enum SidePanelAnimationState {
+    SHOWN,
+    HIDDEN,
+    ANIMATING_IN,
+    ANIMATING_OUT,
+}
+
 /**
  * This is the content of the RightPopupWindow. It includes the side panel and optionally notifications.
  * It also serves as a revealer for the side panel widget.
  */
 class RightPopupContent : Gtk.Widget {
+    const float ANIMATION_DURATION = 0.4f;
+
     private SidePanel side_panel;
-    private bool is_side_panel_shown;
+    private SidePanelAnimationState side_panel_state;
+    private float side_panel_anim_progress;
+    private int64 last_frame_time;
+    private uint anim_tick_id;
 
     construct {
         side_panel = new SidePanel();
+        side_panel.set_child_visible(false);
         side_panel.set_parent(this);
-        is_side_panel_shown = false;
+        side_panel_state = HIDDEN;
+        side_panel_anim_progress = 0.0f;
+        last_frame_time = 0;
+        anim_tick_id = 0;
+    }
+
+    public void set_side_panel_state(bool visible) {
+        SidePanelAnimationState new_state = side_panel_state;
+        // change_state will adjust the time accordingly
+        switch (side_panel_state) {
+        case SHOWN:
+        case ANIMATING_IN:
+            if (!visible) {
+                new_state = ANIMATING_OUT;
+            }
+            break;
+        case HIDDEN:
+        case ANIMATING_OUT:
+            if (visible) {
+                new_state = ANIMATING_IN;
+            }
+            break;
+        }
+
+        change_state(new_state);
+    }
+
+    private void change_state(SidePanelAnimationState new_state) {
+        if (side_panel_state != new_state) {
+            if (new_state == HIDDEN) {
+                // going to hidden
+                side_panel.set_child_visible(false);
+            }
+            if (side_panel_state == HIDDEN) {
+                // going away from hidden
+                side_panel.set_child_visible(true);
+            }
+
+            if (new_state == ANIMATING_IN || new_state == ANIMATING_OUT) {
+                if (side_panel_state == ANIMATING_IN || side_panel_state == ANIMATING_OUT) {
+                    // direction switch: set the time to when the other direction would be here
+                    // This formula took a surprisingly high amount of effort to figure out.
+                    side_panel_anim_progress = 1.0f - Math.cbrtf(Math.powf(side_panel_anim_progress - 1.0f, 3.0f) + 1.0f);
+                } else {
+                    // start new
+                    side_panel_anim_progress = 0.0f;
+                }
+
+                if (anim_tick_id == 0) {
+                    // if the animation was ever inactive, reset the frame time
+                    last_frame_time = 0;
+                    // this gets cleared by the animation callback itself
+                    anim_tick_id = add_tick_callback(this.animation_tick);
+                }
+            }
+
+            side_panel_state = new_state;
+            print("state change: %s\n", new_state.to_string());
+            queue_allocate();
+        }
+    }
+
+    private bool animation_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock) {
+        if (side_panel_state != ANIMATING_IN && side_panel_state != ANIMATING_OUT) {
+            return false;
+        }
+
+        var frame_time = frame_clock.get_frame_time();
+        if (last_frame_time == 0) {
+            last_frame_time = frame_time;
+        }
+
+        var delta_micros = frame_time - last_frame_time;
+        last_frame_time = frame_time;
+        var delta_seconds = (float)delta_micros / 1000000.0f;
+        var delta_progress = delta_seconds / ANIMATION_DURATION;
+        side_panel_anim_progress = (side_panel_anim_progress + delta_progress).clamp(0, 1);
+        if (side_panel_anim_progress >= 1.0f) {
+            // animation ends!
+            if (side_panel_state == ANIMATING_IN) {
+                change_state(SHOWN);
+            } else if (side_panel_state == ANIMATING_OUT) {
+                change_state(HIDDEN);
+            }
+            anim_tick_id = 0;
+            return false;
+        } else {
+            queue_allocate();
+            return true;
+        }
+    }
+
+    private static float ease_out_cubic(float x) {
+        var m = 1.0f - x;
+        return 1.0f - m * m * m;
     }
 
     public override void measure(Gtk.Orientation orientation, int for_size, out int minimum, out int natural, out int minimum_baseline, out int natural_baseline) {
@@ -40,8 +147,23 @@ class RightPopupContent : Gtk.Widget {
     }
 
     public override void size_allocate(int width, int height, int baseline) {
+        float anim_x_offset = 0.0f;
+        switch (side_panel_state) {
+        case SHOWN:
+            anim_x_offset = 0.0f;
+            break;
+        case ANIMATING_IN:
+            anim_x_offset = width * (1.0f - ease_out_cubic(side_panel_anim_progress));
+            break;
+        case ANIMATING_OUT:
+            anim_x_offset = width * ease_out_cubic(side_panel_anim_progress);
+            break;
+        case HIDDEN:
+            return;
+        }
+
         side_panel.allocate(width, height, -1, new Gsk.Transform().translate(Graphene.Point() {
-            x = width * 0.1f, y = 0
+            x = anim_x_offset, y = 0
         }));
     }
 
@@ -64,6 +186,7 @@ class RightPopupWindow : Astal.Window {
         set {
             _side_panel_shown = value;
             print("side panel toggled! new state: %b\n", value);
+            content.set_side_panel_state(value);
         }
     }
 
