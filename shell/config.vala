@@ -1,5 +1,3 @@
-// TODO: Wrapper functionality for accessing the primary monitor
-
 errordomain ConfigError {
     INVALID_STRUCTURE,
 }
@@ -58,7 +56,7 @@ class Config : Object {
 
     private void read_string_or_null(Json.Object obj, string key, string target) {
         var member = obj.get_member(key);
-        if (member == null) {
+        if (member == null || member.is_null()) {
             set(target, null);
             return;
         }

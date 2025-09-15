@@ -17,6 +17,7 @@ class MabiShell : Adw.Application {
 
     private ListModel monitor_model;
     public Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> > windows;
+    public Gdk.Monitor? primary_monitor { get; private set; }
 
     private ShellStyleManager styles;
     private ShellIPCService? ipc_service = null;
@@ -48,7 +49,37 @@ class MabiShell : Adw.Application {
         });
     }
 
+    private void recompute_primary_monitor() {
+        Gdk.Monitor? new_primary = null;
+        if (config.primary_monitor_name == null) {
+            new_primary = (Gdk.Monitor?)monitor_model.get_item(0);
+        } else {
+            for (var i = 0;; i++) {
+                var mon = (Gdk.Monitor?)monitor_model.get_item(i);
+                if (mon == null) {
+                    // no monitor with the right connector
+                    new_primary = (Gdk.Monitor?)monitor_model.get_item(0);
+                    break;
+                }
+
+                if (mon.connector == config.primary_monitor_name) {
+                    new_primary = mon;
+                    break;
+                }
+            }
+        }
+
+        if (new_primary != primary_monitor) {
+            print("new primary monitor: %s\n", new_primary == null ? "[null]" : new_primary.connector);
+            primary_monitor = new_primary;
+        }
+    }
+
     public override void activate() {
+        if (display != null) {
+            return;
+        }
+
         var disp = Gdk.Display.get_default();
         if (disp == null) {
             error("Couldn't get GDK display");
@@ -60,6 +91,8 @@ class MabiShell : Adw.Application {
         styles = new ShellStyleManager(disp);
 
         monitor_model = display.get_monitors();
+        recompute_primary_monitor();
+
         windows = new Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> >();
         Gdk.Monitor? mon;
         for (var i = 0;; i++) {
@@ -78,6 +111,11 @@ class MabiShell : Adw.Application {
                 print("new monitor: %s\n", monitor.get_connector());
                 create_windows_for_monitor(monitor);
             }
+            recompute_primary_monitor();
+        });
+
+        config.notify["primary-monitor-name"].connect(() => {
+            recompute_primary_monitor();
         });
 
         // I'm not sure why this is required.
