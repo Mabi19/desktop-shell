@@ -23,6 +23,8 @@ blueprint_src = files(
     'bar/time-button.blp',
     'bar/tray-item.blp',
     'bar/workspace-button.blp',
+    'side-panel/precise-clock.blp',
+    'side-panel/side-panel.blp',
 )
 compiled_ui = custom_target(
     'blueprint',
@@ -54,6 +56,7 @@ shell_src = files(
     'service/sound.vala',
     'service/time.vala',
     'service/workspace.vala',
+    'side-panel/precise-clock.vala',
     'side-panel/side-panel.vala',
     'utils/color.vala',
     'app.vala',

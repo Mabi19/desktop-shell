@@ -1,0 +1,12 @@
+using Gtk 4.0;
+
+template $SidePanel: Gtk.Box {
+    orientation: vertical;
+    spacing: 8;
+
+    $PreciseClock {
+        active: bind template.active;
+    }
+
+    Calendar calendar {}
+}

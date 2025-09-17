@@ -16,6 +16,7 @@ class TimeService : Object {
         assert_null(instance);
         interval = AstalIO.Time.interval(1000, null);
         interval.now.connect(this.update);
+        this.update();
     }
 
     private void update() {

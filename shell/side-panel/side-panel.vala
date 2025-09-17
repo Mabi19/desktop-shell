@@ -1,13 +1,30 @@
+[GtkTemplate(ui = "/land/mabi/shell/ui/side-panel/side-panel.ui")]
 class SidePanel : Gtk.Box {
+    private bool _active;
+
+    // Whether the side panel should be updating.
+    public bool active {
+        get {
+            return _active;
+        }
+        set {
+            _active = value;
+            if (value) {
+                calendar.select_day(new DateTime.now());
+            }
+        }
+    }
+
+    [GtkChild]
+    private unowned Gtk.Calendar calendar;
+
     static construct {
         set_css_name("side-panel");
-        print("sidepanel layout manager: %s\n", get_layout_manager_type().name());
+        typeof(PreciseClock).ensure();
     }
 
     construct {
-        append(new Gtk.Label("label 1"));
-        append(new Gtk.Label("label 2"));
-        append(new Gtk.Label("label 3"));
+        _active = false;
     }
 }
 
@@ -74,10 +91,12 @@ class RightPopupContent : Gtk.Widget {
             if (new_state == HIDDEN) {
                 // going to hidden
                 side_panel.set_child_visible(false);
+                side_panel.active = false;
             }
             if (side_panel_state == HIDDEN) {
                 // going away from hidden
                 side_panel.set_child_visible(true);
+                side_panel.active = true;
             }
 
             if (new_state == ANIMATING_IN || new_state == ANIMATING_OUT) {

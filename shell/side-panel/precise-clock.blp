@@ -1,0 +1,18 @@
+using Gtk 4.0;
+
+template $PreciseClock: Gtk.Box {
+    styles [
+        "precise-clock",
+    ]
+
+    spacing: 8;
+
+    Image {
+        icon-name: "fa-clock-symbolic";
+        pixel-size: 24;
+    }
+
+    Label {
+        label: bind template.time_long;
+    }
+}
