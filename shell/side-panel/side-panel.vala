@@ -173,8 +173,6 @@ class RightPopupContent : Gtk.Widget {
             natural = SIDE_PANEL_SIZE;
         }
 
-        print("measure %s for_size = %d minimum = %d natural = %d\n", orientation.to_string(), for_size, minimum, natural);
-
         minimum_baseline = -1;
         natural_baseline = -1;
     }
