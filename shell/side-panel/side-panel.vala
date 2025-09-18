@@ -48,6 +48,10 @@ enum SidePanelAnimationState {
  */
 class RightPopupContent : Gtk.Widget {
     const float ANIMATION_DURATION = 0.4f;
+    // The panel is sized so that notifications are full-width.
+    const int NOTIFICATION_SIZE = 400;
+    const int NOTIFICATION_POPUP_SIZE = NOTIFICATION_SIZE + 8;
+    const int SIDE_PANEL_SIZE = NOTIFICATION_SIZE + 24;
 
     private SidePanel side_panel;
     private SidePanelAnimationState side_panel_state;
@@ -159,13 +163,25 @@ class RightPopupContent : Gtk.Widget {
     }
 
     public override void measure(Gtk.Orientation orientation, int for_size, out int minimum, out int natural, out int minimum_baseline, out int natural_baseline) {
-        side_panel.measure(orientation, for_size, out minimum, out natural, null, null);
+        // TODO: Factor in popups widget once it exists.
+        if (orientation == VERTICAL) {
+            // Computing height.
+            side_panel.measure(orientation, for_size, out minimum, out natural, null, null);
+        } else {
+            // Computing width.
+            minimum = SIDE_PANEL_SIZE;
+            natural = SIDE_PANEL_SIZE;
+        }
+
+        print("measure %s for_size = %d minimum = %d natural = %d\n", orientation.to_string(), for_size, minimum, natural);
 
         minimum_baseline = -1;
         natural_baseline = -1;
     }
 
     public override void size_allocate(int width, int height, int baseline) {
+        // TODO: Factor in popups widget once it exists.
+
         float anim_x_offset = 0.0f;
         switch (side_panel_state) {
         case SHOWN:
