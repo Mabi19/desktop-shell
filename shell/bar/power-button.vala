@@ -14,12 +14,12 @@ class PowerButton : Adw.Bin {
     }
 
     private void exec_systemctl(string command) {
-        AstalIO.Process.exec_asyncv.begin({"systemctl", command}, (obj, res) => {
-            try {
-                AstalIO.Process.exec_asyncv.end(res);
-            } catch (Error e) {
-                critical("Couldn't spawn systemctl process: %s", e.message);
-            }
-        });
+        try {
+            Pid pid;
+            Process.spawn_async(null, {"systemctl", command}, null, SpawnFlags.SEARCH_PATH, null, out pid);
+            Process.close_pid(pid);
+        } catch (SpawnError e) {
+            critical("Error spawning systemctl: %s", e.message);
+        }
     }
 }
