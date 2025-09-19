@@ -3,8 +3,8 @@ errordomain ConfigError {
 }
 
 enum BarStyle {
-    Floating,
-    Attached,
+    FLOATING,
+    ATTACHED,
 }
 
 class Config : Object {
@@ -51,7 +51,7 @@ class Config : Object {
         theme_active = Color() {
             l = 0.52f, a = 0.1106f, b = -0.139f, alpha = 1.0f
         }.recompute_rgba();
-        bar_style = BarStyle.Floating;
+        bar_style = BarStyle.FLOATING;
     }
 
     private void read_string_or_null(Json.Object obj, string key, string target) {
@@ -127,9 +127,9 @@ class Config : Object {
 
         var str_val = member.get_string();
         if (str_val == "floating") {
-            this.bar_style = BarStyle.Floating;
+            this.bar_style = BarStyle.FLOATING;
         } else if (str_val == "attached") {
-            this.bar_style = BarStyle.Attached;
+            this.bar_style = BarStyle.ATTACHED;
         } else {
             warning("Config: Invalid bar_style (should be \"floating\" | \"attached\")");
         }
