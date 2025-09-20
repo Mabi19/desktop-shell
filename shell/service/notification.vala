@@ -47,26 +47,38 @@ class NotificationService : Object {
         notifd.resolved.connect(this.handle_resolved);
     }
 
-    private void handle_notified(uint id, bool replaced) {
+    private void handle_notified(uint id) {
         var proxy = new NotificationProxy(notifd.get_notification(id));
-
-        if (!replaced) {
-            // just make a popup
-            popup_notifs.set(id, proxy);
-            // TODO: emit signal
-        } else {
-            // this is gonna vary.
-            // if it's in the popups area: replace the widget content and reset timer
-            // but take care if it's animating out!
-            // previously this was the job of limbo, but now I think actually cancelling the animation would be better.
-            // if it's in the stored popup area, take it out of there (always).
-            // if something was in popup_notifs, then send a replace, otherwise send an add.
-            // or actually we could just do one signal and let the popups widget handle the logic
-            // and not even care about whether it was replaced.
-        }
+        // this is gonna vary.
+        // if it's in the popups area: replace the widget content and reset timer
+        // but take care if it's animating out!
+        // previously this was the job of limbo, but now I think actually cancelling the animation would be better.
+        // if it's in the stored popup area, take it out of there (always).
+        // if something was in popup_notifs, then send a replace, otherwise send an add.
+        // or actually we could just do one signal and let the popups widget handle the logic
+        // and not even care about whether it was replaced.
     }
 
     private void handle_resolved(uint id, AstalNotifd.ClosedReason reason) {
 
     }
+
+    /** Transfer a notification from popups to storage. */
+    public void transfer(NotificationProxy proxy) {
+
+    }
+
+    /** Dismiss a notification, removing it from both popups and storage. */
+    public void dismiss(NotificationProxy proxy) {
+
+    }
+
+    /**
+     * Handlers for this signal should always return true, so that any notifications lost due to lack of popups widget at that moment are tracked.
+     * Conceptually this should use the `true_handled` accumulator, but there's no way to specify signal accumulators in Vala.
+     */
+    public signal bool popup_set(NotificationProxy proxy);
+    public signal void popup_remove(NotificationProxy proxy);
+    public signal void stored_set(NotificationProxy proxy);
+    public signal void stored_remove(NotificationProxy proxy);
 }
