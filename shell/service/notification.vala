@@ -1,12 +1,3 @@
-// This thing needs to be designed.
-// It should probably emit signals like the old NotificationTracker.
-// But yeeting callbacks over signals is very meh.
-// And it shouldn't store widgets, just notification proxies.
-// Also I'm not sure if it's worth it to have limbo anymore.
-
-// All visual notification changes should be steered by the service object.
-// With multiple stored notification lists, this is gonna make it way simpler.
-
 enum NotificationLayout {
     MESSAGE,
 }
@@ -21,6 +12,9 @@ class NotificationProxy : Object {
     }
 }
 
+// All visual notification changes are be steered by the service object's logical state.
+// With multiple stored notification lists, this makes it way simpler.
+// TODO: consider manipulating internal maps using default signal handlers? this would work if the default handlers can cancel
 class NotificationService : Object {
     private static NotificationService instance = null;
     public static NotificationService get_default() {
@@ -49,28 +43,51 @@ class NotificationService : Object {
 
     private void handle_notified(uint id) {
         var proxy = new NotificationProxy(notifd.get_notification(id));
-        // this is gonna vary.
-        // if it's in the popups area: replace the widget content and reset timer
-        // but take care if it's animating out!
-        // previously this was the job of limbo, but now I think actually cancelling the animation would be better.
-        // if it's in the stored popup area, take it out of there (always).
-        // if something was in popup_notifs, then send a replace, otherwise send an add.
-        // or actually we could just do one signal and let the popups widget handle the logic
-        // and not even care about whether it was replaced.
+
+        // if this notification is currently stored, remove it.
+        NotificationProxy? stale_stored = null;
+        stored_notifs.unset(id, out stale_stored);
+        if (stale_stored != null) {
+            stored_remove(stale_stored);
+        }
+
+        popup_notifs.set(id, proxy);
+        if (!popup_set(proxy)) {
+            warning("Notification with ID %u wasn't handled!", id);
+        }
     }
 
     private void handle_resolved(uint id, AstalNotifd.ClosedReason reason) {
+        NotificationProxy? removed_popup = null;
+        popup_notifs.unset(id, out removed_popup);
+        if (removed_popup != null) {
+            popup_remove(removed_popup);
+        }
 
+        NotificationProxy? removed_stored = null;
+        stored_notifs.unset(id, out removed_stored);
+        if (removed_stored != null) {
+            stored_remove(removed_stored);
+        }
     }
 
     /** Transfer a notification from popups to storage. */
     public void transfer(NotificationProxy proxy) {
+        var id = proxy.notification.id;
+        if (!popup_notifs.has_key(id)) {
+            warning("Attempted to transfer notification %u to storage, but it wasn't a popup", id);
+            return;
+        }
 
+        popup_notifs.unset(id);
+        popup_remove(proxy);
+        stored_notifs.set(id, proxy);
+        stored_set(proxy);
     }
 
     /** Dismiss a notification, removing it from both popups and storage. */
     public void dismiss(NotificationProxy proxy) {
-
+        proxy.notification.dismiss();
     }
 
     /**
