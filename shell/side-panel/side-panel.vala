@@ -53,13 +53,18 @@ class RightPopupContent : Gtk.Widget {
     const int NOTIFICATION_POPUP_SIZE = NOTIFICATION_SIZE + 8;
     const int SIDE_PANEL_SIZE = NOTIFICATION_SIZE + 24;
 
+    private Gdk.Monitor monitor;
+    private NotificationList? notification_popups;
     private SidePanel side_panel;
     private SidePanelAnimationState side_panel_state;
     private float side_panel_anim_progress;
     private int64 last_frame_time;
     private uint anim_tick_id;
 
-    construct {
+    public RightPopupContent(Gdk.Monitor monitor) {
+        this.monitor = monitor;
+        notification_popups = null;
+
         side_panel = new SidePanel();
         side_panel.set_child_visible(false);
         side_panel.set_parent(this);
@@ -67,6 +72,12 @@ class RightPopupContent : Gtk.Widget {
         side_panel_anim_progress = 0.0f;
         last_frame_time = 0;
         anim_tick_id = 0;
+
+        // TODO: listen to primary_monitor for changes
+        assert_nonnull(monitor);
+        if (monitor == MabiShell.instance.primary_monitor) {
+            change_active_monitor(true);
+        }
     }
 
     public void set_side_panel_state(bool visible) {
@@ -163,14 +174,18 @@ class RightPopupContent : Gtk.Widget {
     }
 
     public override void measure(Gtk.Orientation orientation, int for_size, out int minimum, out int natural, out int minimum_baseline, out int natural_baseline) {
-        // TODO: Factor in popups widget once it exists.
         if (orientation == VERTICAL) {
             // Computing height.
             side_panel.measure(orientation, for_size, out minimum, out natural, null, null);
         } else {
             // Computing width.
-            minimum = SIDE_PANEL_SIZE;
-            natural = SIDE_PANEL_SIZE;
+            if (notification_popups != null) {
+                minimum = NOTIFICATION_POPUP_SIZE + SIDE_PANEL_SIZE;
+                natural = NOTIFICATION_POPUP_SIZE + SIDE_PANEL_SIZE;
+            } else {
+                minimum = SIDE_PANEL_SIZE;
+                natural = SIDE_PANEL_SIZE;
+            }
         }
 
         minimum_baseline = -1;
@@ -178,31 +193,62 @@ class RightPopupContent : Gtk.Widget {
     }
 
     public override void size_allocate(int width, int height, int baseline) {
-        // TODO: Factor in popups widget once it exists.
-
         float anim_x_offset = 0.0f;
         switch (side_panel_state) {
         case SHOWN:
             anim_x_offset = 0.0f;
             break;
         case ANIMATING_IN:
-            anim_x_offset = width * (1.0f - ease_out_cubic(side_panel_anim_progress));
+            anim_x_offset = SIDE_PANEL_SIZE * (1.0f - ease_out_cubic(side_panel_anim_progress));
             break;
         case ANIMATING_OUT:
-            anim_x_offset = width * ease_out_cubic(side_panel_anim_progress);
+            anim_x_offset = SIDE_PANEL_SIZE * ease_out_cubic(side_panel_anim_progress);
             break;
         case HIDDEN:
             return;
         }
 
-        side_panel.allocate(width, height, -1, new Gsk.Transform().translate(Graphene.Point() {
-            x = anim_x_offset, y = 0
+        float notification_popup_offset = 0.0f;
+        if (notification_popups != null) {
+            notification_popups.allocate(NOTIFICATION_POPUP_SIZE, height, -1, new Gsk.Transform().translate(Graphene.Point() {
+                x = anim_x_offset, y = 0
+            }));
+            notification_popup_offset = NOTIFICATION_POPUP_SIZE;
+        }
+
+        side_panel.allocate(SIDE_PANEL_SIZE, height, -1, new Gsk.Transform().translate(Graphene.Point() {
+            x = anim_x_offset + notification_popup_offset, y = 0
         }));
+    }
+
+    private void change_active_monitor(bool is_active) {
+        var old_state = notification_popups != null;
+        if (old_state == is_active) {
+            return;
+        }
+
+        if (is_active) {
+            // create
+            notification_popups = new NotificationList(POPUPS);
+            notification_popups.set_parent(this);
+        } else {
+            // destroy
+            notification_popups.unparent();
+            notification_popups = null;
+        }
+
+        queue_resize();
     }
 
     public override void dispose() {
         side_panel.unparent();
         side_panel = null;
+
+        if (notification_popups != null) {
+            notification_popups.unparent();
+            notification_popups = null;
+        }
+
         base.dispose();
     }
 }
@@ -228,16 +274,13 @@ class RightPopupWindow : Astal.Window {
     }
 
     public RightPopupWindow(Gdk.Monitor monitor) {
-        Object(gdkmonitor: monitor);
-    }
-
-    construct {
+        gdkmonitor = monitor;
         layer = OVERLAY;
         @namespace = "side-panel";
         anchor = TOP | RIGHT | BOTTOM;
         default_width = 8;
 
-        content = new RightPopupContent();
+        content = new RightPopupContent(monitor);
         set_child(content);
     }
 }
