@@ -6,6 +6,12 @@ class NotificationProxy : Object {
     public AstalNotifd.Notification notification;
     public NotificationLayout layout;
 
+    public uint id {
+        get {
+            return notification.id;
+        }
+    }
+
     public NotificationProxy(AstalNotifd.Notification notification) {
         layout = MESSAGE;
         this.notification = notification;
@@ -15,6 +21,8 @@ class NotificationProxy : Object {
 // All visual notification changes are be steered by the service object's logical state.
 // With multiple stored notification lists, this makes it way simpler.
 // TODO: consider manipulating internal maps using default signal handlers? this would work if the default handlers can cancel
+// TODO: read the notification spec again and ensure all the required properties are handled
+// I can think of "transient" right now, but there may be more
 class NotificationService : Object {
     private static NotificationService instance = null;
     public static NotificationService get_default() {
@@ -71,9 +79,11 @@ class NotificationService : Object {
         }
     }
 
-    /** Transfer a notification from popups to storage. */
+    /** Transfer a notification from popups to storage, if the notification allows it. */
     public void transfer(NotificationProxy proxy) {
-        var id = proxy.notification.id;
+        // TODO: handle transient hint
+
+        var id = proxy.id;
         if (!popup_notifs.has_key(id)) {
             warning("Attempted to transfer notification %u to storage, but it wasn't a popup", id);
             return;
@@ -96,6 +106,7 @@ class NotificationService : Object {
      */
     public signal bool popup_set(NotificationProxy proxy);
     public signal void popup_remove(NotificationProxy proxy);
-    public signal void stored_set(NotificationProxy proxy);
+    /** Similarly */
+    public signal bool stored_set(NotificationProxy proxy);
     public signal void stored_remove(NotificationProxy proxy);
 }

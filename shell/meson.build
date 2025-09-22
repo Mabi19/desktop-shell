@@ -57,6 +57,7 @@ shell_src = files(
     'service/sound.vala',
     'service/time.vala',
     'service/workspace.vala',
+    'side-panel/notification-widgets.vala',
     'side-panel/precise-clock.vala',
     'side-panel/side-panel.vala',
     'utils/color.vala',
