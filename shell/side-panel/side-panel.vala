@@ -78,6 +78,9 @@ class RightPopupContent : Gtk.Widget {
         if (monitor == MabiShell.instance.primary_monitor) {
             change_active_monitor(true);
         }
+        MabiShell.instance.notify["primary-monitor"].connect(() => {
+            change_active_monitor(monitor == MabiShell.instance.primary_monitor);
+        });
     }
 
     public void set_side_panel_state(bool visible) {
