@@ -1,6 +1,50 @@
+// A notification consists of several parts:
+// 1. header (time label only in storage)
+// 2. separator
+// 3. content area (always a grid with the same elements, but how they're attached depends on selected layout)
+// 4. actions (only if they exist)
+// 5. timeout progress bar (unless in storage)
+
+enum NotificationWidgetType {
+    POPUPS,
+    STORAGE,
+}
+
+class NotificationHeader : Gtk.Box {
+    private NotificationProxy proxy;
+
+    public NotificationHeader(NotificationProxy proxy) {
+        this.proxy = proxy;
+
+        orientation = Gtk.Orientation.HORIZONTAL;
+        spacing = 8;
+        add_css_class("header");
+
+        // TODO: icon logic
+        append(new Gtk.Image.from_icon_name("dialog-information-symbolic"));
+
+        var app_name = new Gtk.Label(proxy.notification.app_name);
+        app_name.halign = Gtk.Align.START;
+        app_name.hexpand = true;
+        append(app_name);
+
+        // TODO: only show this if in storage
+        var timestamp = new Gtk.Label("21:37");
+        append(timestamp);
+
+        var close_button = new Gtk.Button.from_icon_name("window-close-symbolic");
+        close_button.add_css_class("close-button");
+        close_button.clicked.connect(this.handle_closed_click);
+        append(close_button);
+    }
+
+    private void handle_closed_click() {
+        proxy.notification.dismiss();
+    }
+}
+
 class NotificationWidget : Gtk.Widget {
     private Gtk.Widget child;
-    private Gtk.Builder builder;
 
     private NotificationProxy _proxy;
     public NotificationProxy proxy {
@@ -9,13 +53,97 @@ class NotificationWidget : Gtk.Widget {
         }
         set {
             _proxy = value;
-            print("setting proxy");
+
+            if (child != null) {
+                child.unparent();
+            }
+            child = build_widgets();
+            child.set_parent(this);
         }
     }
 
+    public NotificationWidgetType widget_type { get; construct; }
+
+    public NotificationWidget(NotificationProxy proxy, NotificationWidgetType type) {
+        Object(widget_type: type, proxy: proxy);
+    }
+
+    static construct {
+        set_css_name("notification");
+    }
+
     construct {
-        child = new Gtk.Button.with_label("test button");
-        child.set_parent(this);
+        print("notification widget type: %s\n", widget_type.to_string());
+    }
+
+    private Gtk.Label make_content_label(string text) {
+        // trim whitespace and replace \n's with unicode line separators
+        // (pango treats \n as a paragraph break)
+        var label_text = text.strip().replace("\n", "\u2028");
+        var label = new Gtk.Label(label_text);
+        label.wrap = true;
+        label.wrap_mode = Pango.WrapMode.WORD_CHAR;
+        label.ellipsize = Pango.EllipsizeMode.MIDDLE;
+        label.xalign = 0;
+        return label;
+    }
+
+    private Gtk.Widget build_widgets() {
+        var result = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+        result.overflow = Gtk.Overflow.HIDDEN;
+        result.add_css_class("notification");
+        switch (widget_type) {
+        case POPUPS:
+            result.add_css_class("popup");
+            break;
+        case STORAGE:
+            result.add_css_class("stored");
+            break;
+        }
+
+        result.append(new NotificationHeader(proxy));
+        var separator = new Gtk.Separator(Gtk.Orientation.HORIZONTAL);
+        separator.add_css_class("header-separator");
+        result.append(separator);
+
+        // TODO: content area
+
+        var content = new Gtk.Grid();
+        content.add_css_class("content");
+        var summary = make_content_label(proxy.notification.summary);
+        summary.add_css_class("title");
+        summary.lines = 2;
+        content.attach(summary, 0, 0);
+        // TODO: handle markup / parse markdown / whatever
+        var body = make_content_label(proxy.notification.body);
+        body.add_css_class("description");
+        body.lines = 4;
+        content.attach(body, 0, 1);
+        result.append(content);
+
+        var button_box = new Adw.WrapBox();
+        button_box.child_spacing = 8;
+        button_box.line_spacing = 8;
+        button_box.justify = Adw.JustifyMode.FILL;
+        button_box.visible = false;
+        button_box.add_css_class("actions");
+        // TODO: handle action-icons
+        foreach (var action in proxy.notification.actions) {
+            if (action.id == "default") {
+                continue;
+            }
+
+            var button = new Gtk.Button.with_label(action.label);
+            button_box.append(button);
+            button_box.visible = true;
+        }
+        result.append(button_box);
+
+        var timeout_progress_bar = new Gtk.ProgressBar();
+        timeout_progress_bar.fraction = 0.5;
+        result.append(timeout_progress_bar);
+
+        return result;
     }
 
     public override void dispose() {

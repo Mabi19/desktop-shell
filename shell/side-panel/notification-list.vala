@@ -1,22 +1,17 @@
-enum NotificationListType {
-    POPUPS,
-    STORAGE,
-}
-
 /**
  * A box which makes widgets out of NotificationService messages.
  */
 class NotificationList : Gtk.Box {
     private NotificationService service;
-    private NotificationListType type;
-    private Gee.HashMap<uint, Gtk.Widget> widgets;
+    private NotificationWidgetType type;
+    private Gee.HashMap<uint, NotificationWidget> widgets;
 
-    public NotificationList(NotificationListType type) {
+    public NotificationList(NotificationWidgetType type) {
         orientation = VERTICAL;
 
         this.type = type;
         service = NotificationService.get_default();
-        widgets = new Gee.HashMap<uint, Gtk.Widget>();
+        widgets = new Gee.HashMap<uint, NotificationWidget>();
 
         if (type == POPUPS) {
             service.popup_set.connect(this.handle_set);
@@ -34,18 +29,13 @@ class NotificationList : Gtk.Box {
     }
 
     private bool handle_set(NotificationProxy proxy) {
-        // TODO: replace this with the actual notification widgets
-        // TODO: replace the target widget's content instead of recreating it
-
         if (widgets.has_key(proxy.id)) {
-            // replace
-            var new_widget = new Gtk.Button.with_label(proxy.notification.summary);
-            var old_widget = widgets.get(proxy.id);
-            widgets.set(proxy.id, new_widget);
-            insert_child_after(new_widget, old_widget);
+            // replace content
+            var widget = widgets.get(proxy.id);
+            widget.proxy = proxy;
         } else {
             // new
-            var widget = new Gtk.Button.with_label(proxy.notification.summary);
+            var widget = new NotificationWidget(proxy, type);
             widgets.set(proxy.id, widget);
             this.append(widget);
         }

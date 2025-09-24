@@ -208,7 +208,8 @@ class RightPopupContent : Gtk.Widget {
             anim_x_offset = SIDE_PANEL_SIZE * ease_out_cubic(side_panel_anim_progress);
             break;
         case HIDDEN:
-            return;
+            anim_x_offset = SIDE_PANEL_SIZE;
+            break;
         }
 
         float notification_popup_offset = 0.0f;
@@ -219,9 +220,11 @@ class RightPopupContent : Gtk.Widget {
             notification_popup_offset = NOTIFICATION_POPUP_SIZE;
         }
 
-        side_panel.allocate(SIDE_PANEL_SIZE, height, -1, new Gsk.Transform().translate(Graphene.Point() {
-            x = anim_x_offset + notification_popup_offset, y = 0
-        }));
+        if (side_panel_state != HIDDEN) {
+            side_panel.allocate(SIDE_PANEL_SIZE, height, -1, new Gsk.Transform().translate(Graphene.Point() {
+                x = anim_x_offset + notification_popup_offset, y = 0
+            }));
+        }
     }
 
     private void change_active_monitor(bool is_active) {
