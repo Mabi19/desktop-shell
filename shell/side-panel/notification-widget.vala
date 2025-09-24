@@ -13,7 +13,7 @@ enum NotificationWidgetType {
 class NotificationHeader : Gtk.Box {
     private NotificationProxy proxy;
 
-    public NotificationHeader(NotificationProxy proxy) {
+    public NotificationHeader(NotificationProxy proxy, NotificationWidgetType type) {
         this.proxy = proxy;
 
         orientation = Gtk.Orientation.HORIZONTAL;
@@ -28,9 +28,11 @@ class NotificationHeader : Gtk.Box {
         app_name.hexpand = true;
         append(app_name);
 
-        // TODO: only show this if in storage
-        var timestamp = new Gtk.Label("21:37");
-        append(timestamp);
+        if (type == STORAGE) {
+            // TODO: actually track sent timestamp
+            var timestamp = new Gtk.Label("21:37");
+            append(timestamp);
+        }
 
         var close_button = new Gtk.Button.from_icon_name("window-close-symbolic");
         close_button.add_css_class("close-button");
@@ -101,12 +103,10 @@ class NotificationWidget : Gtk.Widget {
             break;
         }
 
-        result.append(new NotificationHeader(proxy));
+        result.append(new NotificationHeader(proxy, widget_type));
         var separator = new Gtk.Separator(Gtk.Orientation.HORIZONTAL);
         separator.add_css_class("header-separator");
         result.append(separator);
-
-        // TODO: content area
 
         var content = new Gtk.Grid();
         content.add_css_class("content");
