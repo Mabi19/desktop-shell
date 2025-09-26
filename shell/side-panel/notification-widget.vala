@@ -13,6 +13,12 @@ enum NotificationWidgetType {
 class NotificationHeader : Gtk.Box {
     private NotificationProxy proxy;
 
+    private static Gtk.IconTheme icon_theme;
+
+    static construct {
+        icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+    }
+
     public NotificationHeader(NotificationProxy proxy, NotificationWidgetType type) {
         this.proxy = proxy;
 
@@ -20,8 +26,21 @@ class NotificationHeader : Gtk.Box {
         spacing = 8;
         add_css_class("header");
 
-        // TODO: icon logic
-        append(new Gtk.Image.from_icon_name("dialog-information-symbolic"));
+        Gtk.Image icon;
+        if (proxy.notification.app_icon.length > 0) {
+            var app_icon = proxy.notification.app_icon;
+            if (app_icon.has_prefix("file://")) {
+                var path = app_icon[7 :];
+                icon = new Gtk.Image.from_file(path);
+            } else {
+                icon = new Gtk.Image.from_icon_name(app_icon);
+            }
+        } else if (proxy.notification.desktop_entry.length > 0 && icon_theme.has_icon(proxy.notification.desktop_entry)) {
+            icon = new Gtk.Image.from_icon_name(proxy.notification.desktop_entry);
+        } else {
+            icon = new Gtk.Image.from_icon_name("dialog-information-symbolic");
+        }
+        append(icon);
 
         var app_name = new Gtk.Label(proxy.notification.app_name);
         app_name.halign = Gtk.Align.START;
