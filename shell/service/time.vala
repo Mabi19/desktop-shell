@@ -8,11 +8,13 @@ class TimeService : Object {
         return instance;
     }
 
+    private Config config;
     public string time_short { get; private set; }
     public string time_long { get; private set; }
 
     public TimeService() {
         assert_null(instance);
+        config = MabiShell.config;
         // This object is never destroyed, so this timeout never needs to be disconnected.
         Timeout.add(1000, this.update, Priority.DEFAULT);
         this.update();
@@ -20,13 +22,12 @@ class TimeService : Object {
 
     private bool update() {
         var now = new DateTime.now();
-        // TODO: hook this up to config
-        var new_time_short = now.format("%H:%M");
+        var new_time_short = now.format(config.time_format_long);
         if (time_short != new_time_short) {
             time_short = new_time_short;
         }
 
-        time_long = now.format("%c");
+        time_long = now.format(config.time_format_short);
         return Source.CONTINUE;
     }
 }

@@ -14,6 +14,8 @@ class Config : Object {
     public Color theme_inactive { get; set; }
     public Color theme_active { get; set; }
     public BarStyle bar_style { get; set; }
+    public string time_format_short { get; set; }
+    public string time_format_long { get; set; }
 
     private File config_file;
     private FileMonitor file_monitor;
@@ -52,12 +54,28 @@ class Config : Object {
             l = 0.52f, a = 0.1106f, b = -0.139f, alpha = 1.0f
         }.recompute_rgba();
         bar_style = BarStyle.FLOATING;
+        time_format_short = "%H:%M";
+        time_format_long = "%c";
     }
 
     private void read_string_or_null(Json.Object obj, string key, string target) {
         var member = obj.get_member(key);
         if (member == null || member.is_null()) {
             set(target, null);
+            return;
+        }
+
+        if (member.get_value_type() != Type.STRING) {
+            warning("Config: key '%s' has wrong type (should be string)", key);
+            return;
+        }
+
+        set(target, member.get_string());
+    }
+
+    private void read_string(Json.Object obj, string key, string target) {
+        var member = obj.get_member(key);
+        if (member == null) {
             return;
         }
 
@@ -148,6 +166,8 @@ class Config : Object {
         read_color(obj, "theme_inactive", "theme-inactive");
         read_color(obj, "theme_active", "theme-active");
         read_bar_style(obj);
+        read_string(obj, "time_format_short", "time-format-short");
+        read_string(obj, "time_format_long", "time-format-long");
     }
 
     private void load_from_file(bool is_reload) {
