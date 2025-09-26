@@ -5,6 +5,7 @@ enum NotificationLayout {
 class NotificationProxy : Object {
     public AstalNotifd.Notification notification;
     public NotificationLayout layout;
+    public string timestamp;
 
     public uint id {
         get {
@@ -15,6 +16,7 @@ class NotificationProxy : Object {
     public NotificationProxy(AstalNotifd.Notification notification) {
         layout = MESSAGE;
         this.notification = notification;
+        timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
     }
 }
 

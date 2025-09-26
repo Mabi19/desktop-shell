@@ -29,8 +29,7 @@ class NotificationHeader : Gtk.Box {
         append(app_name);
 
         if (type == STORAGE) {
-            // TODO: actually track sent timestamp
-            var timestamp = new Gtk.Label("21:37");
+            var timestamp = new Gtk.Label(proxy.timestamp);
             append(timestamp);
         }
 
