@@ -3,13 +3,17 @@
  */
 class NotificationList : Gtk.Box {
     private NotificationService service;
-    private NotificationWidgetType type;
     private Gee.HashMap<uint, NotificationWidget> widgets;
 
+    public NotificationWidgetType type { get; construct; }
+
     public NotificationList(NotificationWidgetType type) {
+        Object(type: type);
+    }
+
+    construct {
         orientation = VERTICAL;
 
-        this.type = type;
         service = NotificationService.get_default();
         widgets = new Gee.HashMap<uint, NotificationWidget>();
 
