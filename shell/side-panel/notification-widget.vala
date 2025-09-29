@@ -27,16 +27,17 @@ class NotificationHeader : Gtk.Box {
         add_css_class("header");
 
         Gtk.Image icon;
-        if (proxy.notification.app_icon.length > 0) {
-            var app_icon = proxy.notification.app_icon;
+        var app_icon = proxy.notification.app_icon;
+        var desktop_entry = proxy.notification.desktop_entry;
+        if (app_icon.length > 0) {
             if (app_icon.has_prefix("file://")) {
                 var path = app_icon[7 :];
                 icon = new Gtk.Image.from_file(path);
             } else {
                 icon = new Gtk.Image.from_icon_name(app_icon);
             }
-        } else if (proxy.notification.desktop_entry.length > 0 && icon_theme.has_icon(proxy.notification.desktop_entry)) {
-            icon = new Gtk.Image.from_icon_name(proxy.notification.desktop_entry);
+        } else if (desktop_entry != null && desktop_entry.length > 0 && icon_theme.has_icon(desktop_entry)) {
+            icon = new Gtk.Image.from_icon_name(desktop_entry);
         } else {
             icon = new Gtk.Image.from_icon_name("dialog-information-symbolic");
         }
@@ -74,6 +75,15 @@ class NotificationWidget : Gtk.Widget {
         set {
             _proxy = value;
 
+            // (re) start transfer timeout
+            // TODO: do not if critical urgency
+            if (widget_type == POPUPS) {
+                timeout_start = get_monotonic_time();
+                if (timeout_tick_id == 0) {
+                    timeout_tick_id = add_tick_callback(this.handle_tick);
+                }
+            }
+
             if (child != null) {
                 child.unparent();
             }
@@ -81,8 +91,11 @@ class NotificationWidget : Gtk.Widget {
             child.set_parent(this);
         }
     }
-
     public NotificationWidgetType widget_type { get; construct; }
+
+    private uint timeout_tick_id;
+    private int64 timeout_start;
+    public double timeout_fraction { get; set; default = 0; }
 
     public NotificationWidget(NotificationProxy proxy, NotificationWidgetType type) {
         Object(widget_type: type, proxy: proxy);
@@ -94,6 +107,29 @@ class NotificationWidget : Gtk.Widget {
 
     construct {
         print("notification widget type: %s\n", widget_type.to_string());
+    }
+
+    private bool handle_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock) {
+        bool can_pause = false;
+        double expire_timeout = proxy.notification.expire_timeout;
+        if (expire_timeout <= 0) {
+            expire_timeout = 5000.0;
+            // if there is a set timeout, honor it exactly
+            can_pause = true;
+        }
+        // TODO: actually pausing the timeout
+
+        var now = frame_clock.get_frame_time();
+        var elapsed = now - timeout_start;
+        var progress = (double)elapsed / 1000.0 / expire_timeout;
+        timeout_fraction = progress;
+        if (progress >= 1.0) {
+            timeout_tick_id = 0;
+            NotificationService.get_default().transfer(proxy);
+            return Source.REMOVE;
+        }
+
+        return Source.CONTINUE;
     }
 
     private Gtk.Label make_content_label(string text) {
@@ -157,9 +193,11 @@ class NotificationWidget : Gtk.Widget {
         }
         result.append(button_box);
 
-        var timeout_progress_bar = new Gtk.ProgressBar();
-        timeout_progress_bar.fraction = 0.5;
-        result.append(timeout_progress_bar);
+        if (widget_type == POPUPS) {
+            var timeout_progress_bar = new Gtk.ProgressBar();
+            bind_property("timeout-fraction", timeout_progress_bar, "fraction", BindingFlags.DEFAULT);
+            result.append(timeout_progress_bar);
+        }
 
         return result;
     }

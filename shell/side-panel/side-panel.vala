@@ -21,6 +21,7 @@ class SidePanel : Gtk.Box {
     static construct {
         set_css_name("side-panel");
         typeof(PreciseClock).ensure();
+        typeof(NotificationList).ensure();
     }
 
     construct {

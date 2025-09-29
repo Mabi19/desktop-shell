@@ -5,10 +5,10 @@ class NotificationList : Gtk.Box {
     private NotificationService service;
     private Gee.HashMap<uint, NotificationWidget> widgets;
 
-    public NotificationWidgetType type { get; construct; }
+    public NotificationWidgetType widget_type { get; construct; }
 
     public NotificationList(NotificationWidgetType type) {
-        Object(type: type);
+        Object(widget_type: type);
     }
 
     construct {
@@ -17,7 +17,7 @@ class NotificationList : Gtk.Box {
         service = NotificationService.get_default();
         widgets = new Gee.HashMap<uint, NotificationWidget>();
 
-        if (type == POPUPS) {
+        if (widget_type == POPUPS) {
             service.popup_set.connect(this.handle_set);
             service.popup_remove.connect(this.handle_remove);
         } else {
@@ -39,7 +39,7 @@ class NotificationList : Gtk.Box {
             widget.proxy = proxy;
         } else {
             // new
-            var widget = new NotificationWidget(proxy, type);
+            var widget = new NotificationWidget(proxy, widget_type);
             widgets.set(proxy.id, widget);
             this.append(widget);
         }

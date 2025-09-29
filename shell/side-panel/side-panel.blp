@@ -9,4 +9,13 @@ template $SidePanel: Gtk.Box {
     }
 
     Calendar calendar {}
+
+    ScrolledWindow {
+        vexpand: true;
+
+        $NotificationList {
+            widget_type: storage;
+            spacing: 8;
+        }
+    }
 }
