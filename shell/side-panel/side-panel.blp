@@ -8,7 +8,11 @@ template $SidePanel: Gtk.Box {
         active: bind template.active;
     }
 
-    Calendar calendar {}
+    Calendar calendar {
+        styles [
+            "calendar",
+        ]
+    }
 
     ScrolledWindow {
         vexpand: true;
