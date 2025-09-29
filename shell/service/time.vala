@@ -22,12 +22,12 @@ class TimeService : Object {
 
     private bool update() {
         var now = new DateTime.now();
-        var new_time_short = now.format(config.time_format_long);
+        var new_time_short = now.format(config.time_format_short);
         if (time_short != new_time_short) {
             time_short = new_time_short;
         }
 
-        time_long = now.format(config.time_format_short);
+        time_long = now.format(config.time_format_long);
         return Source.CONTINUE;
     }
 }
