@@ -228,9 +228,11 @@ class RightPopupContent : Gtk.Widget {
             notification_popups.measure(VERTICAL, NOTIFICATION_POPUP_SIZE, out dummy, out popups_height, out dummy, out dummy);
             popups_height = int.min(popups_height, height);
             print("popups_height: %d\n", popups_height);
-            input_region.union_rectangle(Cairo.RectangleInt() {
-                x = (int)anim_x_offset, y = 0, width = NOTIFICATION_POPUP_SIZE, height = popups_height
-            });
+            if (popups_height > 0) {
+                input_region.union_rectangle(Cairo.RectangleInt() {
+                    x = (int)anim_x_offset, y = 0, width = NOTIFICATION_POPUP_SIZE, height = popups_height
+                });
+            }
         }
 
         if (side_panel_state != HIDDEN) {
