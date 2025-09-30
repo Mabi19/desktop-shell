@@ -61,6 +61,7 @@ class RightPopupContent : Gtk.Widget {
     private float side_panel_anim_progress;
     private int64 last_frame_time;
     private uint anim_tick_id;
+    private Cairo.Region? last_input_region;
 
     public RightPopupContent(Gdk.Monitor monitor) {
         this.monitor = monitor;
@@ -73,8 +74,8 @@ class RightPopupContent : Gtk.Widget {
         side_panel_anim_progress = 0.0f;
         last_frame_time = 0;
         anim_tick_id = 0;
+        last_input_region = null;
 
-        // TODO: listen to primary_monitor for changes
         assert_nonnull(monitor);
         if (monitor == MabiShell.instance.primary_monitor) {
             change_active_monitor(true);
@@ -213,18 +214,45 @@ class RightPopupContent : Gtk.Widget {
             break;
         }
 
+        var input_region = new Cairo.Region();
+
         float notification_popup_offset = 0.0f;
         if (notification_popups != null) {
             notification_popups.allocate(NOTIFICATION_POPUP_SIZE, height, -1, new Gsk.Transform().translate(Graphene.Point() {
                 x = anim_x_offset, y = 0
             }));
             notification_popup_offset = NOTIFICATION_POPUP_SIZE;
+
+            int popups_height;
+            int dummy;
+            notification_popups.measure(VERTICAL, NOTIFICATION_POPUP_SIZE, out dummy, out popups_height, out dummy, out dummy);
+            popups_height = int.min(popups_height, height);
+            print("popups_height: %d\n", popups_height);
+            input_region.union_rectangle(Cairo.RectangleInt() {
+                x = (int)anim_x_offset, y = 0, width = NOTIFICATION_POPUP_SIZE, height = popups_height
+            });
         }
 
         if (side_panel_state != HIDDEN) {
             side_panel.allocate(SIDE_PANEL_SIZE, height, -1, new Gsk.Transform().translate(Graphene.Point() {
                 x = anim_x_offset + notification_popup_offset, y = 0
             }));
+
+            input_region.union_rectangle(Cairo.RectangleInt() {
+                x = (int)(anim_x_offset + notification_popup_offset), y = 0, width = SIDE_PANEL_SIZE, height = height
+            });
+        }
+
+        if (!input_region.equal(last_input_region)) {
+            var native = get_native();
+            if (native != null) {
+                var surface = native.get_surface();
+                if (surface != null) {
+                    print("applying input region\n");
+                    surface.set_input_region(input_region);
+                    last_input_region = input_region;
+                }
+            }
         }
     }
 
