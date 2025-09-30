@@ -179,6 +179,7 @@ class NotificationWidget : Gtk.Widget {
         button_box.child_spacing = 8;
         button_box.line_spacing = 8;
         button_box.justify = Adw.JustifyMode.FILL;
+        button_box.justify_last_line = true;
         button_box.visible = false;
         button_box.add_css_class("actions");
         // TODO: handle action-icons
