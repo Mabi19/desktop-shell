@@ -26,10 +26,6 @@ class NotificationList : Gtk.Box {
             service.stored_set.connect(this.handle_set);
             service.stored_remove.connect(this.handle_remove);
         }
-
-        var test_button = new Gtk.Button.with_label("test button");
-        test_button.clicked.connect(() => print("test button\n"));
-        append(test_button);
     }
 
     private bool handle_set(NotificationProxy proxy) {
