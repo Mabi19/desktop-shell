@@ -84,6 +84,7 @@ class NotificationService : Object {
     /** Transfer a notification from popups to storage, if the notification allows it. */
     public void transfer(NotificationProxy proxy) {
         // TODO: handle transient hint
+        // TODO: dismiss if set timeout
 
         var id = proxy.id;
         if (!popup_notifs.has_key(id)) {

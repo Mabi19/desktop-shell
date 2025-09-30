@@ -138,7 +138,7 @@ class RightPopupContent : Gtk.Widget {
             }
 
             side_panel_state = new_state;
-            print("state change: %s\n", new_state.to_string());
+            debug("state change: %s\n", new_state.to_string());
             queue_allocate();
         }
     }
@@ -227,7 +227,6 @@ class RightPopupContent : Gtk.Widget {
             int dummy;
             notification_popups.measure(VERTICAL, NOTIFICATION_POPUP_SIZE, out dummy, out popups_height, out dummy, out dummy);
             popups_height = int.min(popups_height, height);
-            print("popups_height: %d\n", popups_height);
             if (popups_height > 0) {
                 input_region.union_rectangle(Cairo.RectangleInt() {
                     x = (int)anim_x_offset, y = 0, width = NOTIFICATION_POPUP_SIZE, height = popups_height
@@ -250,7 +249,7 @@ class RightPopupContent : Gtk.Widget {
             if (native != null) {
                 var surface = native.get_surface();
                 if (surface != null) {
-                    print("applying input region\n");
+                    debug("applying input region\n");
                     surface.set_input_region(input_region);
                     last_input_region = input_region;
                 }
@@ -313,7 +312,7 @@ class RightPopupWindow : Astal.Window {
         get { return _side_panel_shown; }
         set {
             _side_panel_shown = value;
-            print("side panel toggled! new state: %b\n", value);
+            debug("side panel toggled! new state: %b\n", value);
             content.set_side_panel_state(value);
         }
     }
