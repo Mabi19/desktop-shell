@@ -132,6 +132,13 @@ class NotificationWidget : Gtk.Widget {
         return Source.CONTINUE;
     }
 
+    private void invoke_action(string action_id) {
+        proxy.notification.invoke(action_id);
+        if (!proxy.notification.resident) {
+            proxy.notification.dismiss();
+        }
+    }
+
     private Gtk.Label make_content_label(string text) {
         // trim whitespace and replace \n's with unicode line separators
         // (pango treats \n as a paragraph break)
@@ -185,12 +192,19 @@ class NotificationWidget : Gtk.Widget {
         // TODO: handle action-icons
         foreach (var action in proxy.notification.actions) {
             if (action.id == "default") {
-                continue;
+                var controller = new Gtk.GestureClick();
+                controller.released.connect(() => {
+                    invoke_action("default");
+                });
+                result.add_controller(controller);
+            } else {
+                var button = new Gtk.Button.with_label(action.label);
+                button.clicked.connect(() => {
+                    invoke_action(action.id);
+                });
+                button_box.append(button);
+                button_box.visible = true;
             }
-
-            var button = new Gtk.Button.with_label(action.label);
-            button_box.append(button);
-            button_box.visible = true;
         }
         result.append(button_box);
 
