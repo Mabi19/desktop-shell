@@ -228,6 +228,18 @@ class RightPopupContent : Gtk.Widget {
         }
     }
 
+    public override void snapshot(Gtk.Snapshot snapshot) {
+        if (notification_popups != null) {
+            snapshot_child(notification_popups, snapshot);
+        }
+        snapshot_child(side_panel, snapshot);
+        // fake render node to prevent GTK bug with completely empty windows
+        var transparent = Gdk.RGBA() {
+            red = 0.0f, green = 0.0f, blue = 0.0f, alpha = 0.0f
+        };
+        snapshot.append_color(transparent, Graphene.Rect.zero());
+    }
+
     private void change_active_monitor(bool is_active) {
         var old_state = notification_popups != null;
         if (old_state == is_active) {
