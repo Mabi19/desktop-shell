@@ -2,21 +2,34 @@ enum NotificationLayout {
     MESSAGE,
 }
 
+/**
+ * A proxy object for an AstalNotifd notification.
+ * It tracks its own copies of most notification properties, so that they can be modified by rules.
+ */
 class NotificationProxy : Object {
     public AstalNotifd.Notification notification;
     public NotificationLayout layout;
     public string timestamp;
 
-    public uint id {
-        get {
-            return notification.id;
-        }
-    }
+    public uint id;
+    public int expire_timeout;
+    public bool transient;
+    public AstalNotifd.Urgency urgency;
+    public string? sound_file;
+    public string? sound_name;
+    public bool suppress_sound;
 
     public NotificationProxy(AstalNotifd.Notification notification) {
         layout = MESSAGE;
         this.notification = notification;
         timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
+        this.id = notification.id;
+        this.expire_timeout = notification.expire_timeout;
+        this.transient = notification.transient;
+        this.urgency = notification.urgency;
+        this.sound_file = notification.sound_file;
+        this.sound_name = notification.sound_name;
+        this.suppress_sound = notification.suppress_sound;
     }
 }
 
@@ -38,6 +51,7 @@ class NotificationService : Object {
     private AstalNotifd.Notifd notifd;
     private Gee.HashMap<uint, NotificationProxy> popup_notifs;
     private Gee.HashMap<uint, NotificationProxy> stored_notifs;
+    private SoundService sound_service;
 
     public NotificationService() {
         assert_null(instance);
@@ -46,6 +60,8 @@ class NotificationService : Object {
 
         popup_notifs = new Gee.HashMap<uint, NotificationProxy>();
         stored_notifs = new Gee.HashMap<uint, NotificationProxy>();
+
+        sound_service = SoundService.get_default();
 
         notifd.notified.connect(this.handle_notified);
         notifd.resolved.connect(this.handle_resolved);
@@ -59,6 +75,10 @@ class NotificationService : Object {
         stored_notifs.unset(id, out stale_stored);
         if (stale_stored != null) {
             stored_remove(stale_stored);
+        }
+
+        if (!popup_notifs.has_key(id)) {
+            play_sound_for(proxy);
         }
 
         popup_notifs.set(id, proxy);
@@ -81,21 +101,40 @@ class NotificationService : Object {
         }
     }
 
+    private void play_sound_for(NotificationProxy proxy) {
+        if (proxy.suppress_sound) {
+            return;
+        }
+
+        // Prefer sound_name, then sound_file, then fallback to "message"
+        if (proxy.sound_name != null && proxy.sound_name.strip() != "") {
+            sound_service.play_deduped(proxy.sound_name, GSound.Attribute.EVENT_ID);
+        } else if (proxy.sound_file != null && proxy.sound_file.strip() != "") {
+            sound_service.play_deduped(proxy.sound_file, GSound.Attribute.MEDIA_FILENAME);
+        } else {
+            sound_service.play_deduped("message", GSound.Attribute.EVENT_ID);
+        }
+    }
+
     /** Transfer a notification from popups to storage, if the notification allows it. */
     public void transfer(NotificationProxy proxy) {
-        // TODO: handle transient hint
-        // TODO: dismiss if set timeout
-
         var id = proxy.id;
         if (!popup_notifs.has_key(id)) {
             warning("Attempted to transfer notification %u to storage, but it wasn't a popup", id);
             return;
         }
 
-        popup_notifs.unset(id);
-        popup_remove(proxy);
-        stored_notifs.set(id, proxy);
-        stored_set(proxy);
+        // transient notifications are explicitly specified to not get stored.
+        // to honor set expire timeouts, the notification needs to be closed once that's up
+        if (proxy.transient || proxy.expire_timeout > 0) {
+            // TODO: expire instead once that lands in libastal
+            proxy.notification.dismiss();
+        } else {
+            popup_notifs.unset(id);
+            popup_remove(proxy);
+            stored_notifs.set(id, proxy);
+            stored_set(proxy);
+        }
     }
 
     /**
@@ -104,7 +143,7 @@ class NotificationService : Object {
      */
     public signal bool popup_set(NotificationProxy proxy);
     public signal void popup_remove(NotificationProxy proxy);
-    /** Similarly */
+    /** This signal returns bool so that the same handler can be used as for popup_set. */
     public signal bool stored_set(NotificationProxy proxy);
     public signal void stored_remove(NotificationProxy proxy);
 }

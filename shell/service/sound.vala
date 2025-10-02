@@ -23,22 +23,22 @@ class SoundService : Object {
         }
     }
 
-    public void play_deduped(string sound_id) {
+    public void play_deduped(string sound, string attribute = GSound.Attribute.EVENT_ID) {
         if (context == null) {
             return;
         }
-        if (sound_id in currently_playing) {
+        if (sound in currently_playing) {
             return;
         }
 
-        currently_playing.add(sound_id);
+        currently_playing.add(sound);
         context.play_full.begin(null, (obj, res) => {
             try {
                 context.play_full.end(res);
             } catch (Error e) {
                 warning("Couldn't play sound: %s", e.message);
             }
-            currently_playing.remove(sound_id);
-        }, GSound.Attribute.EVENT_ID, sound_id);
+            currently_playing.remove(sound);
+        }, attribute, sound);
     }
 }
