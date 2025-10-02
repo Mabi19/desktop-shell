@@ -16,6 +16,7 @@ class Config : Object {
     public BarStyle bar_style { get; set; }
     public string time_format_short { get; set; }
     public string time_format_long { get; set; }
+    public bool notification_debug_menu { get; set; }
 
     private File config_file;
     private FileMonitor file_monitor;
@@ -56,6 +57,7 @@ class Config : Object {
         bar_style = BarStyle.FLOATING;
         time_format_short = "%H:%M";
         time_format_long = "%c";
+        notification_debug_menu = false;
     }
 
     private void read_string_or_null(Json.Object obj, string key, string target) {
@@ -168,6 +170,7 @@ class Config : Object {
         read_bar_style(obj);
         read_string(obj, "time_format_short", "time-format-short");
         read_string(obj, "time_format_long", "time-format-long");
+        read_bool(obj, "notification_debug_menu", "notification-debug-menu");
     }
 
     private void load_from_file(bool is_reload) {

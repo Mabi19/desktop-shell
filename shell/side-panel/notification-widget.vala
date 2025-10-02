@@ -53,6 +53,22 @@ class NotificationHeader : Gtk.Box {
             append(timestamp);
         }
 
+        if (MabiShell.config.notification_debug_menu) {
+            var debug_button = new Gtk.MenuButton();
+            debug_button.set_child(new Gtk.Image.from_icon_name("open-menu-symbolic"));
+            debug_button.add_css_class("flat");
+            debug_button.add_css_class("debug-button");
+            ActionEntry action_entries[] = {};
+            var action_group = new SimpleActionGroup();
+            action_group.add_action_entries(action_entries, this);
+            debug_button.insert_action_group("notification", action_group);
+            var menu_model = new Menu();
+            menu_model.insert(0, "Copy as JSON", "copy-json");
+            debug_button.set_menu_model(menu_model);
+
+            append(debug_button);
+        }
+
         var close_button = new Gtk.Button.from_icon_name("window-close-symbolic");
         close_button.add_css_class("close-button");
         close_button.clicked.connect(this.handle_closed_click);
