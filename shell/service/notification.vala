@@ -15,6 +15,7 @@ class NotificationProxy : Object {
     public int expire_timeout;
     public bool transient;
     public AstalNotifd.Urgency urgency;
+    public bool action_icons;
     public string? sound_file;
     public string? sound_name;
     public bool suppress_sound;
@@ -23,13 +24,14 @@ class NotificationProxy : Object {
         layout = MESSAGE;
         this.notification = notification;
         timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
-        this.id = notification.id;
-        this.expire_timeout = notification.expire_timeout;
-        this.transient = notification.transient;
-        this.urgency = notification.urgency;
-        this.sound_file = notification.sound_file;
-        this.sound_name = notification.sound_name;
-        this.suppress_sound = notification.suppress_sound;
+        id = notification.id;
+        expire_timeout = notification.expire_timeout;
+        transient = notification.transient;
+        urgency = notification.urgency;
+        action_icons = notification.action_icons;
+        sound_file = notification.sound_file;
+        sound_name = notification.sound_name;
+        suppress_sound = notification.suppress_sound;
     }
 }
 
@@ -37,7 +39,6 @@ class NotificationProxy : Object {
 // With multiple stored notification lists, this makes it way simpler.
 // TODO: consider manipulating internal maps using default signal handlers? this would work if the default handlers can cancel
 // TODO: read the notification spec again and ensure all the required properties are handled
-// I can think of "transient" right now, but there may be more
 class NotificationService : Object {
     private static NotificationService instance = null;
     public static NotificationService get_default() {

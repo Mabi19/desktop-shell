@@ -111,7 +111,7 @@ class NotificationWidget : Gtk.Widget {
 
     private bool handle_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock) {
         bool can_pause = false;
-        double expire_timeout = proxy.notification.expire_timeout;
+        double expire_timeout = proxy.expire_timeout;
         if (expire_timeout <= 0) {
             expire_timeout = 5000.0;
             // if there is a set timeout, honor it exactly
@@ -189,7 +189,6 @@ class NotificationWidget : Gtk.Widget {
         button_box.justify_last_line = true;
         button_box.visible = false;
         button_box.add_css_class("actions");
-        // TODO: handle action-icons
         foreach (var action in proxy.notification.actions) {
             if (action.id == "default") {
                 var controller = new Gtk.GestureClick();
@@ -198,7 +197,15 @@ class NotificationWidget : Gtk.Widget {
                 });
                 result.add_controller(controller);
             } else {
-                var button = new Gtk.Button.with_label(action.label);
+                var button = new Gtk.Button();
+                Gtk.Widget button_content;
+                if (proxy.action_icons) {
+                    button_content = new Gtk.Image.from_icon_name(action.id);
+                } else {
+                    button_content = new Gtk.Label(action.label);
+                }
+                button.set_child(button_content);
+
                 button.clicked.connect(() => {
                     invoke_action(action.id);
                 });
