@@ -2,6 +2,12 @@
     background-color: var(--window-bg-color);
     border-radius: 10px;
 
+    --outer-padding: 8px;
+    &.critical {
+        border: 2px solid var(--accent-red);
+        --outer-padding: 6px;
+    }
+
     &.popup {
         margin-top: 12px;
         margin-right: 8px;
@@ -12,7 +18,7 @@
     }
 
     .header, .content {
-        padding: 8px;
+        padding: 8px var(--outer-padding);
     }
 
     .title {
@@ -21,11 +27,11 @@
         }
 
     .actions {
-        padding: 0 8px 8px 8px;
+        padding: 0 var(--outer-padding) var(--outer-padding) var(--outer-padding);
     }
 
     .debug-button > button {
-        padding: 0 4px;
+        padding: 0 var(--outer-padding);
     }
 
     .close-button {
@@ -34,7 +40,7 @@
     }
 
     .header-separator {
-        margin: 0px 8px;
+        margin: 0px var(--outer-padding);
     }
 
     progressbar trough {

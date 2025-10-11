@@ -92,11 +92,16 @@ class NotificationWidget : Gtk.Widget {
             _proxy = value;
 
             // (re) start transfer timeout
-            // TODO: do not if critical urgency
-            if (widget_type == POPUPS) {
+            if (widget_type == POPUPS && (value.urgency != CRITICAL || value.expire_timeout > 0)) {
                 timeout_start = get_monotonic_time();
                 if (timeout_tick_id == 0) {
                     timeout_tick_id = add_tick_callback(this.handle_tick);
+                }
+            } else {
+                // if a notification becomes critical, stop its transfer timeout
+                if (timeout_tick_id != 0) {
+                    remove_tick_callback(timeout_tick_id);
+                    timeout_tick_id = 0;
                 }
             }
 
@@ -119,10 +124,6 @@ class NotificationWidget : Gtk.Widget {
 
     static construct {
         set_css_name("notification");
-    }
-
-    construct {
-        print("notification widget type: %s\n", widget_type.to_string());
     }
 
     private bool handle_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock) {
@@ -179,6 +180,9 @@ class NotificationWidget : Gtk.Widget {
             result.add_css_class("stored");
             break;
         }
+        if (proxy.urgency == CRITICAL) {
+            result.add_css_class("critical");
+        }
 
         result.append(new NotificationHeader(proxy, widget_type));
         var separator = new Gtk.Separator(Gtk.Orientation.HORIZONTAL);
@@ -231,7 +235,12 @@ class NotificationWidget : Gtk.Widget {
         }
         result.append(button_box);
 
-        if (widget_type == POPUPS) {
+        var dismiss_gesture = new Gtk.GestureClick();
+        dismiss_gesture.button = Gdk.BUTTON_SECONDARY;
+        dismiss_gesture.released.connect(proxy.notification.dismiss);
+        result.add_controller(dismiss_gesture);
+
+        if (widget_type == POPUPS && proxy.urgency != CRITICAL) {
             var timeout_progress_bar = new Gtk.ProgressBar();
             bind_property("timeout-fraction", timeout_progress_bar, "fraction", BindingFlags.DEFAULT);
             result.append(timeout_progress_bar);
@@ -262,7 +271,6 @@ class NotificationWidget : Gtk.Widget {
         }
 
         child.measure(orientation, for_size, out minimum, out natural, out minimum_baseline, out natural_baseline);
-        print("notif measure: orient %s, for_size %d, min %d, nat %d\n", orientation.to_string(), for_size, minimum, natural);
         minimum_baseline = -1;
         natural_baseline = -1;
     }
