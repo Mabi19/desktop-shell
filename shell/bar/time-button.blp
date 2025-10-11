@@ -17,5 +17,10 @@ template $TimeButton: Gtk.Button {
         Image {
             icon-name: "fa-bell-symbolic";
         }
+
+        Label {
+            visible: bind template.notifications as <$NotificationService>.stored_count as <uint>;
+            label: bind template.notifications as <$NotificationService>.stored_count as <uint>;
+        }
     }
 }

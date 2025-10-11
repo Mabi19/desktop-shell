@@ -1,6 +1,7 @@
 [GtkTemplate(ui = "/land/mabi/shell/ui/bar/time-button.ui")]
 class TimeButton : Gtk.Button {
     internal TimeService service { get; private set; }
+    internal NotificationService notifications { get; private set; }
     public Gdk.Monitor gdkmonitor { get; set; }
 
     static construct {
@@ -9,6 +10,7 @@ class TimeButton : Gtk.Button {
 
     construct {
         service = TimeService.get_default();
+        notifications = NotificationService.get_default();
     }
 
     public override void clicked() {

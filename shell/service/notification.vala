@@ -54,6 +54,8 @@ class NotificationService : Object {
     private Gee.HashMap<uint, NotificationProxy> stored_notifs;
     private SoundService sound_service;
 
+    public uint stored_count { get; private set; default = 0; }
+
     public NotificationService() {
         assert_null(instance);
         notifd = AstalNotifd.get_default();
@@ -76,6 +78,7 @@ class NotificationService : Object {
         stored_notifs.unset(id, out stale_stored);
         if (stale_stored != null) {
             stored_remove(stale_stored);
+            stored_count = stored_notifs.size;
         }
 
         if (!popup_notifs.has_key(id)) {
@@ -99,6 +102,7 @@ class NotificationService : Object {
         stored_notifs.unset(id, out removed_stored);
         if (removed_stored != null) {
             stored_remove(removed_stored);
+            stored_count = stored_notifs.size;
         }
     }
 
@@ -135,6 +139,7 @@ class NotificationService : Object {
             popup_remove(proxy);
             stored_notifs.set(id, proxy);
             stored_set(proxy);
+            stored_count = stored_notifs.size;
         }
     }
 

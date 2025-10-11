@@ -28,7 +28,6 @@ class WorkspaceService : Object {
         if (workspace.id < 0) {
             return;
         }
-        print("insert_workspace %p\n", workspace);
         workspaces.insert_sorted(workspace, (a, b) => {
             return ((Workspace)a).id - ((Workspace)b).id;
         });
