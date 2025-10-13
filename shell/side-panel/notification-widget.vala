@@ -93,7 +93,8 @@ class NotificationWidget : Gtk.Widget {
 
             // (re) start transfer timeout
             if (widget_type == POPUPS && (value.urgency != CRITICAL || value.expire_timeout > 0)) {
-                timeout_start = get_monotonic_time();
+                last_tick_time = get_monotonic_time();
+                timeout_elapsed = 0;
                 if (timeout_tick_id == 0) {
                     timeout_tick_id = add_tick_callback(this.handle_tick);
                 }
@@ -115,8 +116,10 @@ class NotificationWidget : Gtk.Widget {
     public NotificationWidgetType widget_type { get; construct; }
 
     private uint timeout_tick_id;
-    private int64 timeout_start;
+    private int64 last_tick_time;
+    private int64 timeout_elapsed;
     public double timeout_fraction { get; set; default = 0; }
+    private bool is_hovered;
 
     public NotificationWidget(NotificationProxy proxy, NotificationWidgetType type) {
         Object(widget_type: type, proxy: proxy);
@@ -134,11 +137,17 @@ class NotificationWidget : Gtk.Widget {
             // if there is a set timeout, honor it exactly
             can_pause = true;
         }
-        // TODO: actually pausing the timeout
 
         var now = frame_clock.get_frame_time();
-        var elapsed = now - timeout_start;
-        var progress = (double)elapsed / 1000.0 / expire_timeout;
+        var since_last_tick = now - last_tick_time;
+        last_tick_time = now;
+
+        if (can_pause && is_hovered) {
+            return Source.CONTINUE;
+        }
+
+        timeout_elapsed += since_last_tick;
+        var progress = (double)timeout_elapsed / 1000.0 / expire_timeout;
         timeout_fraction = progress;
         if (progress >= 1.0) {
             timeout_tick_id = 0;
@@ -235,10 +244,22 @@ class NotificationWidget : Gtk.Widget {
         }
         result.append(button_box);
 
-        var dismiss_gesture = new Gtk.GestureClick();
-        dismiss_gesture.button = Gdk.BUTTON_SECONDARY;
-        dismiss_gesture.released.connect(proxy.notification.dismiss);
-        result.add_controller(dismiss_gesture);
+        var dismiss_controller = new Gtk.GestureClick();
+        dismiss_controller.button = Gdk.BUTTON_SECONDARY;
+        dismiss_controller.released.connect(proxy.notification.dismiss);
+        result.add_controller(dismiss_controller);
+
+        if (widget_type == POPUPS) {
+            var hover_controller = new Gtk.EventControllerMotion();
+            hover_controller.enter.connect(() => {
+                is_hovered = true;
+            });
+            hover_controller.leave.connect(() => {
+                is_hovered = false;
+            });
+            result.add_controller(hover_controller);
+        }
+
 
         if (widget_type == POPUPS && proxy.urgency != CRITICAL) {
             var timeout_progress_bar = new Gtk.ProgressBar();
