@@ -4,7 +4,7 @@ class PowerButton : Adw.Bin {
         ActionEntry powermenu_entries[] = {
             {"suspend", () => this.exec_systemctl("suspend")},
             {"hibernate", () => this.exec_systemctl("hibernate")},
-            {"shutdown", () => this.exec_systemctl("shutdown")},
+            {"shutdown", () => this.exec_systemctl("poweroff")},
             {"reboot", () => this.exec_systemctl("reboot")},
         };
         var action_group = new SimpleActionGroup();
