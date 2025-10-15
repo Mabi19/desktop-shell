@@ -1,7 +1,5 @@
 // TODO
 // Open Audio Mixer button
-// scroll on audio button to change volume
-// volume change sounds
 
 class VolumeSlider : Gtk.Scale {
     public AstalWp.Endpoint device { get; set; }
