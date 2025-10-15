@@ -17,7 +17,10 @@ class VolumeSlider : Gtk.Scale {
         value_changed.connect(() => {
             if (device != null && adjustment != null && (device.volume - adjustment.value).abs() > 0.001) {
                 device.volume = adjustment.value;
-                SoundService.get_default().play_deduped("audio-volume-change");
+
+                if (device.media_class == AstalWp.MediaClass.AUDIO_SINK) {
+                    SoundService.get_default().play_deduped("audio-volume-change");
+                }
             }
         });
     }
