@@ -14,13 +14,20 @@ template $TimeButton: Gtk.Button {
             orientation: vertical;
         }
 
-        Image {
-            icon-name: "fa-bell-symbolic";
-        }
+        Box {
+            Image {
+                icon-name: "fa-bell-symbolic";
+            }
 
-        Label {
-            visible: bind template.notifications as <$NotificationService>.stored_count as <uint>;
-            label: bind template.notifications as <$NotificationService>.stored_count as <uint>;
+            Revealer {
+                reveal-child: bind template.notifications as <$NotificationService>.stored_count as <uint>;
+                transition-type: swing_right;
+
+                Label {
+                    margin-start: 4;
+                    label: bind template.notifications as <$NotificationService>.stored_count as <uint>;
+                }
+            }
         }
     }
 }

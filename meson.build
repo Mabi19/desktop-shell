@@ -1,5 +1,9 @@
 project('mabi-shell', 'vala', default_options: ['warning_level=3'], version: '0.1')
 
+prefix = get_option('prefix')
+pkgdatadir = prefix / get_option('datadir') / meson.project_name()
+bindir = prefix / get_option('bindir')
+
 gtk4_layer_shell_dep = dependency('gtk4-layer-shell-0')
 gtk4_dep = dependency('gtk4')
 astal4_dep = dependency('astal-4-4.0')
@@ -14,3 +18,6 @@ gsound_dep = dependency('gsound')
 json_glib_dep = dependency('json-glib-1.0')
 
 subdir('shell')
+
+install_data(files('hyprland.conf'), install_dir: pkgdatadir)
+install_data(files('mabictl.sh'), rename: 'mabictl', install_dir: bindir)

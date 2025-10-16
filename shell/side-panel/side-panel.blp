@@ -14,6 +14,30 @@ template $SidePanel: Gtk.Box {
         ]
     }
 
+    Box {
+        spacing: 8;
+
+        Label {
+            label: "Notifications";
+            xalign: 0;
+            hexpand: true;
+
+            styles [
+                "heading",
+            ]
+        }
+
+        ToggleButton {
+            icon-name: "streamline-sleep-symbolic";
+            tooltip-text: "Do not disturb";
+        }
+
+        Button {
+            label: "Clear";
+            clicked => $clear_notification_center();
+        }
+    }
+
     ScrolledWindow {
         vexpand: true;
 

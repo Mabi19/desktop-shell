@@ -27,6 +27,11 @@ class SidePanel : Gtk.Box {
     construct {
         _active = false;
     }
+
+    [GtkCallback]
+    public void clear_notification_center() {
+        NotificationService.get_default().clear_stored();
+    }
 }
 
 // Potentially useful resources for making this widget:

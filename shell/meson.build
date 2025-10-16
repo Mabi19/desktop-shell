@@ -96,4 +96,5 @@ executable(
     ],
     c_args: ['-w'],
     link_args: ['-lm'],
+    install: true,
 )

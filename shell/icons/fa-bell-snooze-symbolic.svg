@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 448 512"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="fa-bell-snooze-alt-symbolic.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect6"
+       is_visible="false"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1"
+       radius="8"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect5"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1 @ F,0,0,1,0,8,0,1"
+       radius="8"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect4"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1 @ F,0,0,1,0,32,0,1"
+       radius="32"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="fillet_chamfer"
+       id="path-effect3"
+       is_visible="true"
+       lpeversion="1"
+       nodesatellites_param="F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1 @ F,0,0,1,0,16,0,1"
+       radius="16"
+       unit="px"
+       method="auto"
+       mode="F"
+       chamfer_steps="1"
+       flexible="false"
+       use_knot_distance="true"
+       apply_no_radius="true"
+       apply_with_radius="true"
+       only_selected="false"
+       hide_knots="false" />
+    <inkscape:path-effect
+       effect="offset"
+       id="path-effect2"
+       is_visible="true"
+       lpeversion="1.3"
+       linejoin_type="round"
+       unit="px"
+       offset="48"
+       miter_limit="4"
+       attempt_force_join="false"
+       update_on_knot_move="true" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="1"
+     inkscape:cx="-139.5"
+     inkscape:cy="215.5"
+     inkscape:window-width="2532"
+     inkscape:window-height="1370"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1" />
+  <!-- Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+  <path
+     id="path1"
+     style="display:inline"
+     d="m 224,0 c -3.46195,0 -6.79381,0.54799733 -9.91406,1.5605469 3.91828,-0.81466169 7.93194,-1.32118281 12.00976,-1.49414065 C 225.40285,0.0218087 224.70431,0 224,0 Z M 153.63961,64.6987 C 98.82863,88.935197 64,144.08356 64,208 v 18.80078 c 0,47 -17.3,92.39961 -48.5,127.59961 l -7.4003906,8.29883 c -8.40000003,9.4 -10.3988282,22.90039 -5.2988282,34.40039 C 7.9007813,408.59961 19.4,416 32,416 h 384 c 12.6,0 23.99922,-7.40039 29.19922,-18.90039 5.2,-11.5 3.10117,-25.00039 -5.29883,-34.40039 L 432.5,354.40039 c -2.59365,-2.92617 -4.22088,-11.09126 -7.49023,-8.98437 -18.3974,11.85597 -38.30642,22.54344 -61.19922,19.32617 H 228.86328 c -44.29571,0 -80,-35.70429 -80,-80 -2.6e-4,-1.31872 0.0538,-2.6369 0.16211,-3.95117 2.22367,-26.92684 13.32577,-52.31455 31.53125,-72.21875 l 0.0254,-0.0312 48.41602,-60.24024 c 25.94468,-32.28092 -73.60547,-37.60685 -73.60547,-79.749999 10e-6,-1.763124 0.70764,-5.14946 -0.85199,-4.327168 z M 160,448 c 0,17 6.69922,33.30078 18.69922,45.30078 C 190.69922,505.30078 207,512 224,512 c 17,0 33.30078,-6.69922 45.30078,-18.69922 C 281.30078,481.30078 288,465 288,448 h -64 z"
+     sodipodi:nodetypes="sccscssccssssccscsccccssscssscccs" />
+  <g
+     id="g2"
+     transform="translate(-35.98436,32.056054)">
+    <path
+       d="m 419.98434,284.68652 h -171.136 a 16,16 45 0 1 -16,-16 l 0,-19.84 a 45.4469,45.4469 109.39509 0 1 10.02352,-28.47113 L 354.92082,80.96565 a 7.6676025,7.6676025 64.395087 0 0 -5.97648,-12.471127 h -93.568 a 16,16 45 0 1 -16,-16 v -19.84 a 16,16 135 0 1 16,-16 h 161.536 a 16,16 45 0 1 16,16 l 0,19.84 A 45.344249,45.344249 109.43571 0 1 422.87115,80.951425 L 310.47353,220.38962 a 7.6536594,7.6536594 64.435706 0 0 5.95881,12.4569 h 103.552 a 16,16 45 0 1 16,16 l 0,19.84 a 16,16 135 0 1 -16,16 z"
+       id="text1"
+       style="font-weight:bold;font-size:384px;-inkscape-font-specification:'sans-serif Bold';display:inline;stroke-width:48;stroke-linecap:round"
+       aria-label="Z"
+       inkscape:path-effect="#path-effect3"
+       inkscape:original-d="m 435.98434,284.68652 h -203.136 v -51.84 l 132.096,-164.351997 h -125.568 v -51.84 h 193.536 v 51.84 l -132.48,164.351997 h 135.552 z"
+       transform="translate(15.999675,-7.9915373)" />
+  </g>
+</svg>

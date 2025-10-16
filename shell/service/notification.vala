@@ -143,6 +143,14 @@ class NotificationService : Object {
         }
     }
 
+    /** Dismiss all stored notifications. */
+    public void clear_stored() {
+        var to_dismiss = stored_notifs.values.to_array();
+        foreach (var proxy in to_dismiss) {
+            proxy.notification.dismiss();
+        }
+    }
+
     /**
      * Handlers for this signal should always return true, so that any notifications lost due to lack of popups widget at that moment are tracked.
      * Conceptually this should use the `true_handled` accumulator, but there's no way to specify signal accumulators in Vala.

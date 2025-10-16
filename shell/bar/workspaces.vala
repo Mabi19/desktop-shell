@@ -112,9 +112,11 @@ class WorkspaceBox : Gtk.Box {
     private bool try_get_hyprmonitor() {
         var result = service.hyprland.get_monitor_by_name(gdkmonitor.get_connector());
         if (result != null) {
+            print("try_get_hyprmonitor succeeded\n");
             hyprmonitor = result;
             return true;
         } else {
+            print("try_get_hyprmonitor failed\n");
             return false;
         }
     }
