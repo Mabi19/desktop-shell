@@ -200,12 +200,12 @@ class NotificationWidget : Gtk.Widget {
 
         var content = new Gtk.Grid();
         content.add_css_class("content");
-        var summary = make_content_label(proxy.notification.summary);
+        var summary = make_content_label(proxy.summary);
         summary.add_css_class("title");
         summary.lines = 2;
         content.attach(summary, 0, 0);
         // TODO: handle markup / parse markdown / whatever
-        var body = make_content_label(proxy.notification.body);
+        var body = make_content_label(proxy.body);
         body.add_css_class("description");
         body.lines = 4;
         content.attach(body, 0, 1);

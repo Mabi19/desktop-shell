@@ -54,6 +54,7 @@ shell_src = files(
     'bar/tray.vala',
     'bar/workspaces.vala',
     'service/notification.vala',
+    'service/notification/markup.vala',
     'service/sound.vala',
     'service/time.vala',
     'service/workspace.vala',

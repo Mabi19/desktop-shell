@@ -12,6 +12,8 @@ class NotificationProxy : Object {
     public string timestamp;
 
     public uint id;
+    public string summary;
+    public string body;
     public int expire_timeout;
     public bool transient;
     public AstalNotifd.Urgency urgency;
@@ -25,6 +27,8 @@ class NotificationProxy : Object {
         this.notification = notification;
         timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
         id = notification.id;
+        summary = notification.summary;
+        body = notification.body;
         expire_timeout = notification.expire_timeout;
         transient = notification.transient;
         urgency = notification.urgency;
@@ -32,6 +36,8 @@ class NotificationProxy : Object {
         sound_file = notification.sound_file;
         sound_name = notification.sound_name;
         suppress_sound = notification.suppress_sound;
+
+        NotificationMarkup.parse(body);
     }
 }
 
