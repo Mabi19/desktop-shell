@@ -22,6 +22,8 @@ class NotificationProxy : Object {
     public string? sound_name;
     public bool suppress_sound;
 
+    public NotificationFormatting.FormattedText formatted_body;
+
     public NotificationProxy(AstalNotifd.Notification notification) {
         layout = MESSAGE;
         this.notification = notification;
@@ -37,7 +39,7 @@ class NotificationProxy : Object {
         sound_name = notification.sound_name;
         suppress_sound = notification.suppress_sound;
 
-        NotificationMarkup.parse(body);
+        formatted_body = NotificationFormatting.parse(body);
     }
 }
 

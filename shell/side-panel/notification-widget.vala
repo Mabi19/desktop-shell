@@ -204,8 +204,8 @@ class NotificationWidget : Gtk.Widget {
         summary.add_css_class("title");
         summary.lines = 2;
         content.attach(summary, 0, 0);
-        // TODO: handle markup / parse markdown / whatever
-        var body = make_content_label(proxy.body);
+        var body = make_content_label(proxy.formatted_body.text);
+        body.set_attributes(proxy.formatted_body.attributes);
         body.add_css_class("description");
         body.lines = 4;
         content.attach(body, 0, 1);
