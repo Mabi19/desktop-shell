@@ -51,6 +51,9 @@ class AudioButton : Adw.Bin {
     public AstalWp.Endpoint speaker { get; construct; }
     public AstalWp.Endpoint microphone { get; construct; }
 
+    [GtkChild]
+    unowned Gtk.Popover popover;
+
     static construct {
         typeof(VolumeSlider).ensure();
     }
@@ -112,5 +115,15 @@ class AudioButton : Adw.Bin {
         speaker.volume = (speaker.volume - dy * 0.05).clamp(0, 1);
         SoundService.get_default().play_deduped("audio-volume-change");
         return true;
+    }
+
+    [GtkCallback]
+    void open_audio_mixer() {
+        try {
+            Process.spawn_command_line_async(MabiShell.config.audio_mixer_command);
+            popover.popdown();
+        } catch (SpawnError e) {
+            warning("Couldn't spawn audio mixer process: %s\n", e.message);
+        }
     }
 }

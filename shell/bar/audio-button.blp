@@ -11,7 +11,7 @@ template $AudioButton: Adw.Bin {
             scroll => $handle_scroll();
         }
 
-        popover: Popover {
+        popover: Popover popover {
             name: "audio-quick-menu";
 
             Box {
@@ -89,6 +89,11 @@ template $AudioButton: Adw.Bin {
                         width-chars: 5;
                         xalign: 0;
                     }
+                }
+
+                Button {
+                    label: "Open Audio Mixer";
+                    clicked => $open_audio_mixer();
                 }
             }
         };

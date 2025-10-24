@@ -17,6 +17,7 @@ class Config : Object {
     public string time_format_short { get; set; }
     public string time_format_long { get; set; }
     public bool notification_debug_menu { get; set; }
+    public string audio_mixer_command { get; set; }
 
     private File config_file;
     private FileMonitor file_monitor;
@@ -58,6 +59,7 @@ class Config : Object {
         time_format_short = "%H:%M";
         time_format_long = "%c";
         notification_debug_menu = false;
+        audio_mixer_command = "pavucontrol";
     }
 
     private void read_string_or_null(Json.Object obj, string key, string target) {
@@ -171,6 +173,7 @@ class Config : Object {
         read_string(obj, "time_format_short", "time-format-short");
         read_string(obj, "time_format_long", "time-format-long");
         read_bool(obj, "notification_debug_menu", "notification-debug-menu");
+        read_string(obj, "audio_mixer_command", "audio-mixer-command");
     }
 
     private void load_from_file(bool is_reload) {
