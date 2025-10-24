@@ -1,6 +1,3 @@
-// TODO
-// Open Audio Mixer button
-
 class VolumeSlider : Gtk.Scale {
     public AstalWp.Endpoint device { get; set; }
     private Binding bind_mute;
