@@ -81,9 +81,7 @@ class WorkspaceBox : Gtk.Box {
         widgets = new Gee.ArrayList<WorkspaceButton>();
 
         match_monitors();
-        notify["gdkmonitor"].connect(() => {
-            match_monitors();
-        });
+        notify["gdkmonitor"].connect(match_monitors);
     }
 
     private void match_monitors() {
@@ -102,6 +100,7 @@ class WorkspaceBox : Gtk.Box {
                 if (try_get_hyprmonitor()) {
                     service.hyprland.disconnect(monitor_match_conn_id);
                     monitor_match_conn_id = 0;
+                    init_workspaces();
                 }
             });
         } else {
@@ -122,6 +121,11 @@ class WorkspaceBox : Gtk.Box {
     }
 
     private void init_workspaces() {
+        foreach (var widget in widgets) {
+            remove(widget);
+        }
+        widgets.clear();
+
         Workspace? workspace = null;
         int i = 0;
         while ((workspace = (Workspace?)service.workspaces.get_item(i)) != null) {

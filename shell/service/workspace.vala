@@ -25,7 +25,8 @@ class WorkspaceService : Object {
     }
 
     private void insert_workspace(Workspace workspace) {
-        if (workspace.id < 0) {
+        // <= 0 to workaround https://github.com/Aylur/astal/issues/416
+        if (workspace.id <= 0) {
             return;
         }
         workspaces.insert_sorted(workspace, (a, b) => {
