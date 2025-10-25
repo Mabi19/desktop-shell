@@ -76,6 +76,8 @@ internal void literalize_top_of_stack(Gee.ArrayList<FormattingNode> stack) {
 }
 
 FormattedText parse(string markup) {
+    assert_nonnull(markup);
+
     var tokens = new Gee.ArrayList<Token>();
     int i = 0;
     int buffer_start = 0;
