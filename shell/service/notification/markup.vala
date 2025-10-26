@@ -7,6 +7,7 @@ interface Token : Object {
 class TextToken : Token, Object {
     private string data;
     public TextToken(string data) {
+        assert_nonnull(data);
         this.data = data;
     }
 
@@ -76,8 +77,6 @@ internal void literalize_top_of_stack(Gee.ArrayList<FormattingNode> stack) {
 }
 
 FormattedText parse(string markup) {
-    assert_nonnull(markup);
-
     var tokens = new Gee.ArrayList<Token>();
     int i = 0;
     int buffer_start = 0;
@@ -107,7 +106,7 @@ FormattedText parse(string markup) {
                 tag_end++;
             }
 
-            if (tag_end > markup.length) {
+            if (tag_end >= markup.length) {
                 tokens.add(new TextToken(markup[i:]));
             } else {
                 var tag = markup[i:tag_end + 1];
