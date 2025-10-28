@@ -12,6 +12,7 @@
     <gresource prefix="/land/mabi/shell/ui">
         <file>bar/audio-button.ui</file>
         <file>bar/bar.ui</file>
+        <file>bar/battery.ui</file>
         <file>bar/power-button.ui</file>
         <file>bar/time-button.ui</file>
         <file>bar/tray-item.ui</file>

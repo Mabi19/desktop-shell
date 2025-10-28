@@ -19,6 +19,7 @@ compiled_styles = custom_target(
 blueprint_src = files(
     'bar/audio-button.blp',
     'bar/bar.blp',
+    'bar/battery.blp',
     'bar/power-button.blp',
     'bar/time-button.blp',
     'bar/tray-item.blp',
@@ -49,6 +50,7 @@ resource = gnome.compile_resources(
 shell_src = files(
     'bar/audio.vala',
     'bar/bar.vala',
+    'bar/battery.vala',
     'bar/power-button.vala',
     'bar/time-button.vala',
     'bar/tray.vala',
@@ -64,6 +66,7 @@ shell_src = files(
     'side-panel/precise-clock.vala',
     'side-panel/side-panel.vala',
     'utils/color.vala',
+    'widgets/level-bin.vala',
     'app.vala',
     'config.vala',
 )
@@ -86,6 +89,7 @@ executable(
         gtk4_layer_shell_dep,
         astal4_dep,
         astalio_dep,
+        astal_battery_dep,
         astal_hyprland_dep,
         astal_notifd_dep,
         astal_tray_dep,

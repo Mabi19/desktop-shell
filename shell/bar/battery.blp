@@ -1,0 +1,22 @@
+using Gtk 4.0;
+using AstalBattery 0.1;
+
+template $BatteryIndicator: $LevelBin {
+    level: bind template.device as <AstalBattery.Device>.percentage;
+
+    Box {
+        styles [
+            "usage-badge",
+        ]
+
+        spacing: 4;
+
+        Image {
+            icon-name: bind template.device as <AstalBattery.Device>.battery-icon-name;
+        }
+
+        Label {
+            label: bind $format_percentage(template.device as <AstalBattery.Device>.state, template.device as <AstalBattery.Device>.percentage) as <string>;
+        }
+    }
+}

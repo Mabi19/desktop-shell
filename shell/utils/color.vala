@@ -98,4 +98,13 @@ struct Color {
         };
         return this;
     }
+
+    public static Color lerp(Color a, Color b, float factor) {
+        return Color() {
+            l = a.l * (1 - factor) + b.l * factor,
+            a = a.a * (1 - factor) + b.a * factor,
+            b = a.b * (1 - factor) + b.b * factor,
+            alpha = a.alpha * (1 - factor) + b.alpha * factor,
+        }.recompute_rgba();
+    }
 }
