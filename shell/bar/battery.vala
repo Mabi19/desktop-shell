@@ -8,6 +8,8 @@ class BatteryIndicator : LevelBin {
 
     construct {
         device = AstalBattery.get_default();
+        device.bind_property("is-present", this, "visible", BindingFlags.SYNC_CREATE, null, null);
+
         device.notify["energy-rate"].connect(update_tooltip);
         device.notify["state"].connect(update_tooltip);
         update_tooltip();
