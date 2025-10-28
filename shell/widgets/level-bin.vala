@@ -15,7 +15,6 @@ class LevelBin : Adw.Bin {
                 // trigger animation
                 animation.value_from = display_level;
                 animation.value_to = value;
-                print("[%p] setting up animation: from = %f, to = %f\n", this, animation.value_from, animation.value_to);
                 animation.play();
             }
             _level = value;
@@ -24,7 +23,6 @@ class LevelBin : Adw.Bin {
     private Adw.TimedAnimation animation;
 
     private void animation_tick(double value) {
-        print("[%p] tick with %f\n", this, value);
         display_level = value;
         queue_draw();
     }
