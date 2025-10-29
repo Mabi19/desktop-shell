@@ -66,6 +66,7 @@ shell_src = files(
     'side-panel/precise-clock.vala',
     'side-panel/side-panel.vala',
     'utils/color.vala',
+    'utils/easing.vala',
     'widgets/level-bin.vala',
     'app.vala',
     'config.vala',

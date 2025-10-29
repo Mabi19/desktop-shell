@@ -127,8 +127,7 @@ class RightPopupContent : Gtk.Widget {
             if (new_state == ANIMATING_IN || new_state == ANIMATING_OUT) {
                 if (side_panel_state == ANIMATING_IN || side_panel_state == ANIMATING_OUT) {
                     // direction switch: set the time to when the other direction would be here
-                    // This formula took a surprisingly high amount of effort to figure out.
-                    side_panel_anim_progress = 1.0f - Math.cbrtf(Math.powf(side_panel_anim_progress - 1.0f, 3.0f) + 1.0f);
+                    side_panel_anim_progress = Easing.ease_out_cubic_invert(side_panel_anim_progress);
                 } else {
                     // start new
                     side_panel_anim_progress = 0.0f;
@@ -178,11 +177,6 @@ class RightPopupContent : Gtk.Widget {
         }
     }
 
-    private static float ease_out_cubic(float x) {
-        var m = 1.0f - x;
-        return 1.0f - m * m * m;
-    }
-
     public override void measure(Gtk.Orientation orientation, int for_size, out int minimum, out int natural, out int minimum_baseline, out int natural_baseline) {
         if (orientation == VERTICAL) {
             // Computing height.
@@ -209,10 +203,10 @@ class RightPopupContent : Gtk.Widget {
             anim_x_offset = 0.0f;
             break;
         case ANIMATING_IN:
-            anim_x_offset = SIDE_PANEL_SIZE * (1.0f - ease_out_cubic(side_panel_anim_progress));
+            anim_x_offset = SIDE_PANEL_SIZE * (1.0f - Easing.ease_out_cubic(side_panel_anim_progress));
             break;
         case ANIMATING_OUT:
-            anim_x_offset = SIDE_PANEL_SIZE * ease_out_cubic(side_panel_anim_progress);
+            anim_x_offset = SIDE_PANEL_SIZE * Easing.ease_out_cubic(side_panel_anim_progress);
             break;
         case HIDDEN:
             anim_x_offset = SIDE_PANEL_SIZE;
