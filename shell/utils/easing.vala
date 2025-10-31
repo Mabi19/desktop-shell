@@ -13,4 +13,8 @@ float ease_out_cubic(float t) {
 float ease_out_cubic_invert(float t) {
     return 1.0f - Math.cbrtf(Math.powf(t - 1.0f, 3.0f) + 1.0f);
 }
+
+float ease_in_out_quad(float t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.powf(-2 * t + 2, 2) / 2;
+}
 }

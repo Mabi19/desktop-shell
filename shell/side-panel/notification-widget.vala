@@ -10,6 +10,17 @@ enum NotificationWidgetType {
     STORAGE,
 }
 
+enum NotificationWidgetAnimationState {
+    // Not animating.
+    IDLE,
+    // The content's X position depends on the timer. (-> IDLE)
+    SLIDE_IN,
+    // The content's X position (-> COLLAPSE)
+    SLIDE_OUT,
+    // The height allocated to the widget shrinks to 0. (-> remove widget)
+    COLLAPSE,
+}
+
 class NotificationHeader : Gtk.Box {
     private NotificationProxy proxy;
 
@@ -81,6 +92,8 @@ class NotificationHeader : Gtk.Box {
 }
 
 class NotificationWidget : Gtk.Widget {
+    const float ANIMATION_DURATION = 0.35f;
+
     private Gtk.Widget child;
 
     private NotificationProxy _proxy;
@@ -96,7 +109,7 @@ class NotificationWidget : Gtk.Widget {
                 last_tick_time = get_monotonic_time();
                 timeout_elapsed = 0;
                 if (timeout_tick_id == 0) {
-                    timeout_tick_id = add_tick_callback(this.handle_tick);
+                    timeout_tick_id = add_tick_callback(this.handle_timeout_tick);
                 }
             } else {
                 // if a notification becomes critical, stop its transfer timeout
@@ -115,11 +128,20 @@ class NotificationWidget : Gtk.Widget {
     }
     public NotificationWidgetType widget_type { get; construct; }
 
+    // Timeout tracking state.
     private uint timeout_tick_id;
     private int64 last_tick_time;
     private int64 timeout_elapsed;
     public double timeout_fraction { get; set; default = 0; }
     private bool is_hovered;
+
+    // Animation tracking state.
+    // Some of this is duplicated from the timeout state for simplicity.
+    private NotificationWidgetAnimationState animation_state = IDLE;
+    private uint animation_tick_id;
+    private int64 last_animation_tick_time;
+    private float animation_time_elapsed;
+
 
     public NotificationWidget(NotificationProxy proxy, NotificationWidgetType type) {
         Object(widget_type: type, proxy: proxy);
@@ -129,7 +151,13 @@ class NotificationWidget : Gtk.Widget {
         set_css_name("notification");
     }
 
-    private bool handle_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock) {
+    construct {
+        if (widget_type == POPUPS) {
+            change_animation_state(SLIDE_IN);
+        }
+    }
+
+    private bool handle_timeout_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock) {
         bool can_pause = false;
         double expire_timeout = proxy.expire_timeout;
         if (expire_timeout <= 0) {
@@ -277,6 +305,85 @@ class NotificationWidget : Gtk.Widget {
         }
     }
 
+    private void change_animation_state(NotificationWidgetAnimationState new_state) {
+        if (animation_state == new_state) {
+            return;
+        }
+
+        if (new_state == IDLE) {
+            animation_tick_id = 0;
+        } else {
+            last_animation_tick_time = get_monotonic_time();
+
+            // If a notification wants to start sliding out while it's still sliding in,
+            // we can at least make the transition smooth.
+            if (animation_state == SLIDE_IN && new_state == SLIDE_OUT) {
+                animation_time_elapsed = ANIMATION_DURATION * Easing.ease_out_cubic_invert(animation_time_elapsed / ANIMATION_DURATION);
+            } else {
+                animation_time_elapsed = 0;
+            }
+
+            if (animation_tick_id == 0) {
+                animation_tick_id = add_tick_callback(handle_animation_tick);
+            }
+        }
+        animation_state = new_state;
+        queue_resize();
+    }
+
+    private bool handle_animation_tick(Gtk.Widget widget, Gdk.FrameClock frame_clock) {
+        if (animation_state == IDLE) {
+            animation_tick_id = 0;
+            return Source.REMOVE;
+        }
+
+        var now = frame_clock.get_frame_time();
+        var since_last_tick = (float)(now - last_animation_tick_time) / 1000000.0f;
+        last_animation_tick_time = now;
+
+        animation_time_elapsed = float.min(animation_time_elapsed + since_last_tick, ANIMATION_DURATION);
+        // only collapsing requires new measure calls
+        if (animation_state == COLLAPSE) {
+            queue_resize();
+        } else {
+            queue_allocate();
+        }
+        if (animation_time_elapsed >= ANIMATION_DURATION) {
+            switch (animation_state) {
+            case SLIDE_IN:
+                change_animation_state(IDLE);
+                return Source.REMOVE;
+            case SLIDE_OUT:
+                if (get_next_sibling() != null) {
+                    change_animation_state(COLLAPSE);
+                    return Source.CONTINUE;
+                } else {
+                    // no need to do the collapsing, since there's no next widget
+                    finish_remove();
+                    animation_tick_id = 0;
+                    return Source.REMOVE;
+                }
+            case COLLAPSE:
+                // stay in this state until the widget's removed
+                finish_remove();
+                animation_tick_id = 0;
+                return Source.REMOVE;
+            default:
+                assert_not_reached();
+            }
+        }
+
+        return Source.CONTINUE;
+    }
+
+    public void begin_remove() {
+        if (widget_type == POPUPS) {
+            change_animation_state(SLIDE_OUT);
+        } else {
+            finish_remove();
+        }
+    }
+    public signal void finish_remove();
 
     public override Gtk.SizeRequestMode get_request_mode() {
         return Gtk.SizeRequestMode.HEIGHT_FOR_WIDTH;
@@ -291,12 +398,50 @@ class NotificationWidget : Gtk.Widget {
             return;
         }
 
-        child.measure(orientation, for_size, out minimum, out natural, out minimum_baseline, out natural_baseline);
+        int child_min, child_nat;
+        child.measure(orientation, for_size, out child_min, out child_nat, out minimum_baseline, out natural_baseline);
+        if (orientation == VERTICAL && animation_state == COLLAPSE) {
+            var height_mult = 1 - Easing.ease_in_out_quad(animation_time_elapsed / ANIMATION_DURATION);
+            child_min = (int)(child_min * height_mult);
+            child_nat = (int)(child_nat * height_mult);
+        }
+        minimum = child_min;
+        natural = child_nat;
         minimum_baseline = -1;
         natural_baseline = -1;
     }
 
     public override void size_allocate(int width, int height, int baseline) {
-        child.allocate(width, height, baseline, null);
+        int child_min, child_nat, child_min_base, child_nat_base;
+        child.measure(Gtk.Orientation.VERTICAL, width, out child_min, out child_nat, out child_min_base, out child_nat_base);
+
+        Gsk.Transform? transform = null;
+        var anim_progress = animation_time_elapsed / ANIMATION_DURATION;
+        switch (animation_state) {
+        case IDLE:
+            transform = null;
+            break;
+        case SLIDE_IN:
+            transform = new Gsk.Transform().translate(Graphene.Point() {
+                x = (1.0f - Easing.ease_out_cubic(anim_progress)) * width,
+                y = 0,
+            });
+            break;
+        case SLIDE_OUT:
+            transform = new Gsk.Transform().translate(Graphene.Point() {
+                x = Easing.ease_out_cubic(anim_progress) * width,
+                y = 0,
+            });
+            break;
+        case COLLAPSE:
+            // TODO: don't allocate the child at all
+            transform = new Gsk.Transform().translate(Graphene.Point() {
+                x = width,
+                y = 0,
+            });
+            break;
+        }
+
+        child.allocate(width, int.max(height, child_min), baseline, transform);
     }
 }

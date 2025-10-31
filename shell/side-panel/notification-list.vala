@@ -36,6 +36,7 @@ class NotificationList : Gtk.Box {
         } else {
             // new
             var widget = new NotificationWidget(proxy, widget_type);
+            widget.finish_remove.connect(this.handle_widget_finish_remove);
             widgets.set(proxy.id, widget);
             this.append(widget);
         }
@@ -44,10 +45,18 @@ class NotificationList : Gtk.Box {
     }
 
     private void handle_remove(NotificationProxy proxy) {
-        Gtk.Widget widget = null;
-        widgets.unset(proxy.id, out widget);
+        var widget = widgets.get(proxy.id);
         if (widget == null) {
             warning("Tried to remove widget for notification %u, but it doesn't exist!", proxy.id);
+            return;
+        }
+        widget.begin_remove();
+    }
+
+    private void handle_widget_finish_remove(NotificationWidget widget) {
+        if (!widgets.unset(widget.proxy.id)) {
+            warning("Tried to destroy widget for notification %u, but it doesn't exist!", widget.proxy.id);
+            return;
         }
         remove(widget);
     }
