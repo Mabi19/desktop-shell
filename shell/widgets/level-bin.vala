@@ -35,7 +35,7 @@ class LevelBin : Adw.Bin {
         animation = new Adw.TimedAnimation(
             this,
             0, 0,
-            2000,
+            200,
             new Adw.CallbackAnimationTarget(this.animation_tick)
         );
         animation.easing = Adw.Easing.EASE_IN_OUT;
