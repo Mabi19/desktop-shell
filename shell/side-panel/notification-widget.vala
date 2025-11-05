@@ -91,6 +91,49 @@ class NotificationHeader : Gtk.Box {
     }
 }
 
+class NotificationImage : Gtk.Widget {
+    private Gtk.Picture picture;
+
+    static construct {
+        set_css_name("notification-image");
+    }
+
+    public NotificationImage(Gdk.Texture texture, NotificationLayout layout) {
+        overflow = HIDDEN;
+        switch (layout) {
+        case MESSAGE:
+            add_css_class("layout-message");
+            break;
+        }
+        picture = new Gtk.Picture();
+        picture.set_paintable(texture);
+        picture.content_fit = CONTAIN;
+        picture.set_parent(this);
+    }
+
+    public override Gtk.SizeRequestMode get_request_mode() {
+        return Gtk.SizeRequestMode.CONSTANT_SIZE;
+    }
+
+    public override void measure(Gtk.Orientation orientation, int for_size, out int minimum, out int natural, out int minimum_baseline, out int natural_baseline) {
+        int min, nat, min_base, nat_base;
+        picture.measure(orientation, for_size, out min, out nat, out min_base, out nat_base);
+        minimum = int.min(min, 96);
+        natural = int.min(nat, 96);
+        minimum_baseline = -1;
+        natural_baseline = -1;
+    }
+
+    public override void size_allocate(int width, int height, int baseline) {
+        picture.allocate(width, height, baseline, null);
+    }
+
+    public override void dispose() {
+        picture.unparent();
+        picture = null;
+    }
+}
+
 class NotificationWidget : Gtk.Widget {
     const float ANIMATION_DURATION = 0.35f;
 
@@ -231,12 +274,22 @@ class NotificationWidget : Gtk.Widget {
         var summary = make_content_label(proxy.summary);
         summary.add_css_class("title");
         summary.lines = 2;
-        content.attach(summary, 0, 0);
         var body = make_content_label(proxy.formatted_body.text);
         body.set_attributes(proxy.formatted_body.attributes);
         body.add_css_class("description");
         body.lines = 4;
-        content.attach(body, 0, 1);
+        var image = proxy.image != null ? new NotificationImage(proxy.image, proxy.layout) : null;
+
+        if (image == null) {
+            // only one imageless layout
+            content.attach(summary, 0, 0);
+            content.attach(body, 0, 1);
+        } else {
+            // TODO: properly handle layouts
+            content.attach(image, 0, 0, 1, 2);
+            content.attach(summary, 1, 0);
+            content.attach(body, 1, 1);
+        }
         result.append(content);
 
         var button_box = new Adw.WrapBox();

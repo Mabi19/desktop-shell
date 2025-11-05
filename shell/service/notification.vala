@@ -14,6 +14,7 @@ class NotificationProxy : Object {
     public uint id;
     public string summary;
     public string body;
+    public Gdk.Texture? image;
     public int expire_timeout;
     public bool transient;
     public AstalNotifd.Urgency urgency;
@@ -40,6 +41,25 @@ class NotificationProxy : Object {
         suppress_sound = notification.suppress_sound;
 
         formatted_body = NotificationFormatting.parse(body);
+
+        // TODO: A custom notifd implementation would allow for loading these directly
+        // from image-data hints (right now astal-notifd just shoves those on disk)
+        // TODO: cache the last few images
+        // TODO: make this async
+        if (notification.image.length > 0) {
+            print("loading image at path %s\n", notification.image);
+            var file = File.new_for_path(notification.image);
+            var loader = new Gly.Loader(file);
+            try {
+                var image = loader.load();
+                var frame = image.next_frame();
+                this.image = GlyGtk4.frame_get_texture(frame);
+            } catch (Error e) {
+                warning("Error loading notification image: %s", e.message);
+            }
+        } else {
+            image = null;
+        }
     }
 }
 
