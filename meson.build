@@ -15,6 +15,8 @@ astal_tray_dep = dependency('astal-tray-0.1')
 astal_wp_dep = dependency('astal-wireplumber-0.1')
 adw_dep = dependency('libadwaita-1')
 gee_dep = dependency('gee-0.8')
+glycin_dep = dependency('glycin-2')
+glycin_gtk4_dep = dependency('glycin-gtk4-2')
 gsound_dep = dependency('gsound')
 json_glib_dep = dependency('json-glib-1.0')
 

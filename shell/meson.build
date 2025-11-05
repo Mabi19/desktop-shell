@@ -97,6 +97,8 @@ executable(
         astal_wp_dep,
         adw_dep,
         gee_dep,
+        glycin_dep,
+        glycin_gtk4_dep,
         gsound_dep,
         json_glib_dep,
         style_dep,
