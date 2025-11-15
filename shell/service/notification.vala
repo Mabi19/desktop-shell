@@ -80,7 +80,7 @@ class NotificationService : Object {
 
     private AstalNotifd.Notifd notifd;
     private Gee.HashMap<uint, NotificationProxy> popup_notifs;
-    private Gee.HashMap<uint, NotificationProxy> stored_notifs;
+    public Gee.TreeMap<uint, NotificationProxy> stored_notifs;
     private SoundService sound_service;
 
     public uint stored_count { get; private set; default = 0; }
@@ -91,7 +91,7 @@ class NotificationService : Object {
         notifd.ignore_timeout = true;
 
         popup_notifs = new Gee.HashMap<uint, NotificationProxy>();
-        stored_notifs = new Gee.HashMap<uint, NotificationProxy>();
+        stored_notifs = new Gee.TreeMap<uint, NotificationProxy>();
 
         sound_service = SoundService.get_default();
 

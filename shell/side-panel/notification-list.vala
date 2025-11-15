@@ -21,8 +21,9 @@ class NotificationList : Gtk.Box {
             service.popup_set.connect(this.handle_set);
             service.popup_remove.connect(this.handle_remove);
         } else {
-            // TODO: Also ask the notification service for the current list of notifications.
-            // This means the service may need an OrderedMap for storage.
+            foreach (var notif in service.stored_notifs.values) {
+                handle_set(notif);
+            }
             service.stored_set.connect(this.handle_set);
             service.stored_remove.connect(this.handle_remove);
         }
@@ -38,7 +39,11 @@ class NotificationList : Gtk.Box {
             var widget = new NotificationWidget(proxy, widget_type);
             widget.finish_remove.connect(this.handle_widget_finish_remove);
             widgets.set(proxy.id, widget);
-            this.append(widget);
+            if (widget_type == POPUPS) {
+                this.append(widget);
+            } else {
+                this.prepend(widget);
+            }
         }
 
         return true;
