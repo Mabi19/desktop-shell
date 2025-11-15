@@ -38,8 +38,8 @@ class NotificationHeader : Gtk.Box {
         add_css_class("header");
 
         Gtk.Image icon;
-        var app_icon = proxy.notification.app_icon;
-        var desktop_entry = proxy.notification.desktop_entry;
+        var app_icon = proxy.app_icon;
+        var desktop_entry = proxy.desktop_entry;
         if (app_icon.length > 0) {
             if (app_icon.has_prefix("file://")) {
                 var path = app_icon[7 :];
@@ -54,7 +54,7 @@ class NotificationHeader : Gtk.Box {
         }
         append(icon);
 
-        var app_name = new Gtk.Label(proxy.notification.app_name);
+        var app_name = new Gtk.Label(proxy.app_name);
         app_name.halign = Gtk.Align.START;
         app_name.hexpand = true;
         append(app_name);
@@ -69,12 +69,14 @@ class NotificationHeader : Gtk.Box {
             debug_button.set_child(new Gtk.Image.from_icon_name("open-menu-symbolic"));
             debug_button.add_css_class("flat");
             debug_button.add_css_class("debug-button");
-            ActionEntry action_entries[] = {};
+            ActionEntry action_entries[] = {
+                { "copy-json", () => this.copy_json() }
+            };
             var action_group = new SimpleActionGroup();
             action_group.add_action_entries(action_entries, this);
             debug_button.insert_action_group("notification", action_group);
             var menu_model = new Menu();
-            menu_model.insert(0, "Copy as JSON", "copy-json");
+            menu_model.insert(0, "Copy as JSON", "notification.copy-json");
             debug_button.set_menu_model(menu_model);
 
             append(debug_button);
@@ -88,6 +90,15 @@ class NotificationHeader : Gtk.Box {
 
     private void handle_closed_click() {
         proxy.notification.dismiss();
+    }
+
+    private void copy_json() {
+        var gen = new Json.Generator();
+        gen.pretty = true;
+        gen.indent = 4;
+        gen.set_root(proxy.to_json());
+        var json_str = gen.to_data(null);
+        MabiShell.display.get_clipboard().set_text(json_str);
     }
 }
 
@@ -257,7 +268,7 @@ class NotificationWidget : Gtk.Widget {
 
     private void invoke_action(string action_id) {
         proxy.notification.invoke(action_id);
-        if (!proxy.notification.resident) {
+        if (!proxy.resident) {
             proxy.notification.dismiss();
         }
     }

@@ -16,8 +16,13 @@ class NotificationProxy : Object {
     public string summary;
     public string body;
     public Gdk.Texture? image;
+    public string category;
+    public string app_name;
+    public string app_icon;
+    public string desktop_entry;
     public int expire_timeout;
     public bool transient;
+    public bool resident;
     public AstalNotifd.Urgency urgency;
     public bool action_icons;
     public string? sound_file;
@@ -33,8 +38,13 @@ class NotificationProxy : Object {
         id = notification.id;
         summary = notification.summary;
         body = notification.body;
+        category = notification.category;
+        app_name = notification.app_name;
+        app_icon = notification.app_icon;
+        desktop_entry = notification.desktop_entry;
         expire_timeout = notification.expire_timeout;
         transient = notification.transient;
+        resident = notification.resident;
         urgency = notification.urgency;
         action_icons = notification.action_icons;
         sound_file = notification.sound_file;
@@ -61,6 +71,29 @@ class NotificationProxy : Object {
         } else {
             image = null;
         }
+    }
+
+    public Json.Node to_json() {
+        return new Json.Builder()
+               .begin_object()
+               .set_member_name("id").add_int_value(id)
+               .set_member_name("timestamp").add_string_value(timestamp)
+               .set_member_name("summary").add_string_value(summary)
+               .set_member_name("body").add_string_value(body)
+               .set_member_name("category").add_string_value(category)
+               .set_member_name("app_name").add_string_value(app_name)
+               .set_member_name("app_icon").add_string_value(app_icon)
+               .set_member_name("desktop_entry").add_string_value(desktop_entry)
+               .set_member_name("expire_timeout").add_int_value(expire_timeout)
+               .set_member_name("transient").add_boolean_value(transient)
+               .set_member_name("resident").add_boolean_value(resident)
+               .set_member_name("urgency").add_int_value(urgency)
+               .set_member_name("action_icons").add_boolean_value(action_icons)
+               .set_member_name("sound_file").add_string_value(sound_file)
+               .set_member_name("sound_name").add_string_value(sound_name)
+               .set_member_name("suppress_sound").add_boolean_value(suppress_sound)
+               .end_object()
+               .get_root();
     }
 }
 
