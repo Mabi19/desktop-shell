@@ -93,14 +93,20 @@ class NotificationHeader : Gtk.Box {
 
 class NotificationImage : Gtk.Widget {
     private Gtk.Picture picture;
+    private NotificationLayout layout;
 
     static construct {
         set_css_name("notification-image");
     }
 
     public NotificationImage(Gdk.Texture texture, NotificationLayout layout) {
-        overflow = HIDDEN;
+        hexpand = false;
+        vexpand = false;
+        this.layout = layout;
         switch (layout) {
+        case DEFAULT:
+            add_css_class("layout-default");
+            break;
         case MESSAGE:
             add_css_class("layout-message");
             break;
@@ -117,15 +123,35 @@ class NotificationImage : Gtk.Widget {
 
     public override void measure(Gtk.Orientation orientation, int for_size, out int minimum, out int natural, out int minimum_baseline, out int natural_baseline) {
         int min, nat, min_base, nat_base;
-        picture.measure(orientation, for_size, out min, out nat, out min_base, out nat_base);
-        minimum = int.min(min, 96);
-        natural = int.min(nat, 96);
+        switch (layout) {
+        case DEFAULT:
+            picture.measure(orientation, 80, out min, out nat, out min_base, out nat_base);
+            natural = int.min(nat, 80);
+            break;
+        case MESSAGE:
+            natural = 24;
+            break;
+        default:
+            assert_not_reached();
+        }
+
+        minimum = natural;
         minimum_baseline = -1;
         natural_baseline = -1;
     }
 
     public override void size_allocate(int width, int height, int baseline) {
-        picture.allocate(width, height, baseline, null);
+        int min, nat_width, nat_height, min_base, nat_base;
+        picture.measure(HORIZONTAL, height, out min, out nat_width, out min_base, out nat_base);
+        picture.measure(VERTICAL, width, out min, out nat_height, out min_base, out nat_base);
+
+        int image_width = int.min(width, nat_width);
+        int image_height = int.min(height, nat_height);
+        var transform = new Gsk.Transform().translate(Graphene.Point() {
+            x = (width - image_width) / 2,
+            y = (height - image_height) / 2,
+        });
+        picture.allocate(image_width, image_height, baseline, transform);
     }
 
     public override void dispose() {
@@ -271,6 +297,8 @@ class NotificationWidget : Gtk.Widget {
 
         var content = new Gtk.Grid();
         content.add_css_class("content");
+        content.column_spacing = 8;
+        content.row_spacing = 4;
         var summary = make_content_label(proxy.summary);
         summary.add_css_class("title");
         summary.lines = 2;
@@ -285,10 +313,24 @@ class NotificationWidget : Gtk.Widget {
             content.attach(summary, 0, 0);
             content.attach(body, 0, 1);
         } else {
-            // TODO: properly handle layouts
-            content.attach(image, 0, 0, 1, 2);
-            content.attach(summary, 1, 0);
-            content.attach(body, 1, 1);
+            switch (proxy.layout) {
+            case DEFAULT:
+                content.attach(image, 0, 0, 1, 2);
+                content.attach(summary, 1, 0);
+                body.vexpand = true;
+                body.yalign = 0;
+                content.attach(body, 1, 1);
+                break;
+            case MESSAGE:
+                content.attach(image, 0, 0);
+                summary.hexpand = true;
+                content.attach(summary, 1, 0);
+                content.attach(body, 0, 1, 2, 1);
+                break;
+            default:
+                assert_not_reached();
+            }
+
         }
         result.append(content);
 

@@ -1,4 +1,5 @@
 enum NotificationLayout {
+    DEFAULT,
     MESSAGE,
 }
 
@@ -26,7 +27,7 @@ class NotificationProxy : Object {
     public NotificationFormatting.FormattedText formatted_body;
 
     public NotificationProxy(AstalNotifd.Notification notification) {
-        layout = MESSAGE;
+        layout = DEFAULT;
         this.notification = notification;
         timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
         id = notification.id;
@@ -161,7 +162,7 @@ class NotificationService : Object {
         // to honor set expire timeouts, the notification needs to be closed once that's up
         if (proxy.transient || proxy.expire_timeout > 0) {
             // TODO: expire instead once that lands in libastal
-            proxy.notification.dismiss();
+            proxy.notification.expire();
         } else {
             popup_notifs.unset(id);
             popup_remove(proxy);

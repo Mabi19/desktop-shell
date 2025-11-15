@@ -43,6 +43,18 @@
         margin: 0px var(--outer-padding);
     }
 
+    notification-image.layout-default {
+        picture {
+            border-radius: 8px;
+        }
+    }
+
+    notification-image.layout-message {
+        picture {
+            border-radius: 50%;
+        }
+    }
+
     progressbar trough {
         border-radius: 0;
     }
