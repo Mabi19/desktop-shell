@@ -26,4 +26,9 @@ class PreciseClock : Gtk.Box {
         time_long = service.time_long;
         _active = false;
     }
+
+    public override void dispose() {
+        dispose_template(typeof(PreciseClock));
+        base.dispose();
+    }
 }

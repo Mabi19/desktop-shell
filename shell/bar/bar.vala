@@ -23,6 +23,11 @@ class Bar : Astal.Window {
         config.notify["bar-style"].connect(this.update_style);
     }
 
+    public override void dispose() {
+        dispose_template(typeof(Bar));
+        base.dispose();
+    }
+
     private void update_style() {
         if (config.bar_style == BarStyle.FLOATING) {
             this.add_css_class("floating");

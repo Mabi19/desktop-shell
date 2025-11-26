@@ -15,6 +15,11 @@ class TrayItem : Adw.Bin {
         });
     }
 
+    public override void dispose() {
+        base.dispose();
+        dispose_template(typeof(TrayItem));
+    }
+
     [GtkCallback]
     public bool handle_event(Gdk.Event event) {
         if (event.get_surface() != get_native().get_surface()) {

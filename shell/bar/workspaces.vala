@@ -29,6 +29,11 @@ class WorkspaceButton : Adw.Bin {
         add_controller(drag_source);
     }
 
+    public override void dispose() {
+        dispose_template(typeof(WorkspaceButton));
+        base.dispose();
+    }
+
     private void update_active() {
         var is_active = monitor.active_workspace.id == workspace.id;
         if (is_active) {

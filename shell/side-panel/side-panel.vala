@@ -28,6 +28,11 @@ class SidePanel : Gtk.Box {
         _active = false;
     }
 
+    public override void dispose() {
+        dispose_template(typeof(SidePanel));
+        base.dispose();
+    }
+
     [GtkCallback]
     public void clear_notification_center() {
         NotificationService.get_default().clear_stored();
@@ -82,12 +87,8 @@ class RightPopupContent : Gtk.Widget {
         last_input_region = null;
 
         assert_nonnull(monitor);
-        if (monitor == MabiShell.instance.primary_monitor) {
-            change_active_monitor(true);
-        }
-        MabiShell.instance.notify["primary-monitor"].connect(() => {
-            change_active_monitor(monitor == MabiShell.instance.primary_monitor);
-        });
+        update_active_monitor();
+        MabiShell.instance.notify["primary-monitor"].connect(update_active_monitor);
     }
 
     public void set_side_panel_state(bool visible) {
@@ -268,7 +269,9 @@ class RightPopupContent : Gtk.Widget {
         snapshot.append_color(transparent, Graphene.Rect.zero());
     }
 
-    private void change_active_monitor(bool is_active) {
+    private void update_active_monitor() {
+        bool is_active = monitor == MabiShell.instance.primary_monitor;
+
         var old_state = notification_popups != null;
         if (old_state == is_active) {
             return;

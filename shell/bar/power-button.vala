@@ -13,6 +13,11 @@ class PowerButton : Adw.Bin {
         this.insert_action_group("powermenu", action_group);
     }
 
+    public override void dispose() {
+        dispose_template(typeof(PowerButton));
+        base.dispose();
+    }
+
     private void exec_systemctl(string command) {
         try {
             Pid pid;

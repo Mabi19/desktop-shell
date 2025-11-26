@@ -67,6 +67,7 @@ shell_src = files(
     'side-panel/side-panel.vala',
     'utils/color.vala',
     'utils/easing.vala',
+    'utils/texture-cache.vala',
     'widgets/level-bin.vala',
     'app.vala',
     'config.vala',

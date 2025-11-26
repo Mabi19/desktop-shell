@@ -61,6 +61,11 @@ class AudioButton : Adw.Bin {
         microphone = service.get_default_microphone();
     }
 
+    public override void dispose() {
+        dispose_template(typeof(AudioButton));
+        base.dispose();
+    }
+
     public override void snapshot(Gtk.Snapshot snapshot) {
         var full_bounds = Graphene.Rect() {
             origin = { 0, 0 },

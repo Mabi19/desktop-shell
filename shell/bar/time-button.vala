@@ -13,6 +13,11 @@ class TimeButton : Gtk.Button {
         notifications = NotificationService.get_default();
     }
 
+    public override void dispose() {
+        dispose_template(typeof(TimeButton));
+        base.dispose();
+    }
+
     public override void clicked() {
         var windows = MabiShell.instance.windows.get(gdkmonitor);
         var target_window = windows.first_match((win) => win is RightPopupWindow);

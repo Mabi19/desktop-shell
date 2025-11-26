@@ -32,12 +32,15 @@ class LevelBin : Adw.Bin {
     }
 
     construct {
+        // TODO: Rework this to not use Adw.TimedAnimation.
+        // The TimedAnimation has a strong reference on this,
+        // creating a cycle. Whoops
         animation = new Adw.TimedAnimation(
             this,
             0, 0,
             200,
             new Adw.CallbackAnimationTarget(this.animation_tick)
-        );
+            );
         animation.easing = Adw.Easing.EASE_IN_OUT;
     }
 
@@ -49,7 +52,7 @@ class LevelBin : Adw.Bin {
         var clip_bounds = Gsk.RoundedRect().init_from_rect(
             full_bounds,
             full_bounds.get_height() / 2
-        );
+            );
 
         snapshot.push_rounded_clip(clip_bounds);
         // TODO: queue redraws when the theme colors change
@@ -58,7 +61,7 @@ class LevelBin : Adw.Bin {
             MabiShell.config.theme_inactive,
             MabiShell.config.theme_active,
             factor
-        );
+            );
         snapshot.append_color(color.rgba, full_bounds);
         snapshot.pop();
 

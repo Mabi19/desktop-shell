@@ -123,6 +123,16 @@ class MabiShell : Adw.Application {
         this.hold();
     }
 
+    public override void shutdown() {
+        foreach (var win_list in windows.values) {
+            foreach (var window in win_list) {
+                window.destroy();
+            }
+        }
+        windows.clear();
+        base.shutdown();
+    }
+
     public override bool dbus_register(DBusConnection conn, string object_path) {
         try {
             if (!base.dbus_register(conn, object_path)) {
@@ -149,6 +159,9 @@ class MabiShell : Adw.Application {
     internal string handle_dispatch(string[] args) {
         foreach (var arg in args) {
             print("arg: %s\n", arg);
+        }
+        if (args.length > 0 && args[0] == "quit") {
+            this.release();
         }
         return "ok";
     }
