@@ -18,6 +18,7 @@ class Config : Object {
     public string time_format_long { get; set; }
     public bool notification_debug_menu { get; set; }
     public string audio_mixer_command { get; set; }
+    public Gee.ArrayList<NotificationRule> notification_rules { get; set; }
 
     private File config_file;
     private FileMonitor file_monitor;
@@ -60,6 +61,19 @@ class Config : Object {
         time_format_long = "%c";
         notification_debug_menu = false;
         audio_mixer_command = "pavucontrol";
+        notification_rules = new Gee.ArrayList<NotificationRule>(null);
+
+        var default_vesktop_cond = new NotificationRule.Condition();
+        var default_vesktop_effect = new NotificationRule.Effect();
+        try {
+            default_vesktop_cond.app_name = new Regex("^vesktop$");
+        } catch (RegexError e) {
+            error("Broken regex found while constructing default notification rules");
+        }
+        default_vesktop_effect.app_name = "Vesktop";
+        default_vesktop_effect.layout = MESSAGE;
+        var default_vesktop_rule = new NotificationRule(default_vesktop_cond, default_vesktop_effect);
+        notification_rules.add(default_vesktop_rule);
     }
 
     private void read_string_or_null(Json.Object obj, string key, string target) {
@@ -157,6 +171,34 @@ class Config : Object {
         }
     }
 
+    private void read_notification_rules(Json.Object obj) {
+        var member = obj.get_member("notification_rules");
+        if (member == null) {
+            return;
+        }
+
+        if (member.get_node_type() != Json.NodeType.ARRAY) {
+            warning("Config: Key 'notification_rules' has wrong type (should be array)");
+            return;
+        }
+
+        var rule_array = member.get_array();
+        var count = rule_array.get_length();
+        for (int i = 0; i < count; i++) {
+            var rule_node = rule_array.get_element(i);
+            if (rule_node.get_node_type() != Json.NodeType.OBJECT) {
+                warning("Config: invalid notification rule #%d (should be object)", i);
+                continue;
+
+            }
+            var rule_object = rule_node.get_object();
+            var rule = NotificationRule.from_json(rule_object);
+            if (rule != null) {
+                notification_rules.add(rule);
+            }
+        }
+    }
+
     private void read_root_node(Json.Node node) throws Error {
         if (node.get_node_type() != Json.NodeType.OBJECT) {
             throw new ConfigError.INVALID_STRUCTURE("Root must be object");
@@ -173,6 +215,7 @@ class Config : Object {
         read_string(obj, "time_format_short", "time-format-short");
         read_string(obj, "time_format_long", "time-format-long");
         read_bool(obj, "notification_debug_menu", "notification-debug-menu");
+        read_notification_rules(obj);
         read_string(obj, "audio_mixer_command", "audio-mixer-command");
     }
 

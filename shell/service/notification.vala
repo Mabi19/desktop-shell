@@ -67,6 +67,11 @@ class NotificationProxy : Object {
         } else {
             image = null;
         }
+
+        debug("evaluating rules for notification %u", id);
+        foreach (var rule in MabiShell.config.notification_rules) {
+            rule.evaluate(this);
+        }
     }
 
     public Json.Node to_json() {
