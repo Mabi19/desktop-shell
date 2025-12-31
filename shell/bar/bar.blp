@@ -17,13 +17,8 @@ template $Bar: Astal.Window {
 
     CenterBox {
         [start]
-        Button {
-            styles [
-                "usage-badge",
-            ]
-
-            label: "Inspect";
-            clicked => $open_inspector();
+        Box {
+            $CpuIndicator {}
         }
 
         [center]

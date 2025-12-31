@@ -8,42 +8,48 @@ class LevelBin : Adw.Bin {
 
         set {
             if ((value - display_level).abs() < 0.02) {
-                animation.reset();
+                anim_running = false;
                 display_level = value;
                 queue_draw();
             } else {
                 // trigger animation
-                animation.value_from = display_level;
-                animation.value_to = value;
-                animation.play();
+                anim_from = display_level;
+                anim_start_time = get_monotonic_time();
+
+                if (!anim_running) {
+                    add_tick_callback(this.animation_tick);
+                    anim_running = true;
+                }
             }
             _level = value;
         }
     }
-    private Adw.TimedAnimation animation;
 
-    private void animation_tick(double value) {
-        display_level = value;
-        queue_draw();
+    private bool anim_running = false;
+    private int64 anim_start_time;
+    private double anim_from;
+    private bool animation_tick(Gtk.Widget widget, Gdk.FrameClock clock) {
+        if (!anim_running) {
+            return Source.REMOVE;
+        }
+        var now = clock.get_frame_time();
+        var elapsed = now - anim_start_time;
+        var progress = elapsed / 200000.0f;
+        if (progress >= 1.0) {
+            display_level = level;
+            queue_draw();
+            anim_running = false;
+            return Source.REMOVE;
+        } else {
+            display_level = anim_from + Easing.ease_in_out_quad(progress) * (level - anim_from);
+            queue_draw();
+            return Source.CONTINUE;
+        }
     }
 
     static construct {
         set_css_name("levelbin");
     }
-
-    construct {
-        // TODO: Rework this to not use Adw.TimedAnimation.
-        // The TimedAnimation has a strong reference on this,
-        // creating a cycle. Whoops
-        animation = new Adw.TimedAnimation(
-            this,
-            0, 0,
-            200,
-            new Adw.CallbackAnimationTarget(this.animation_tick)
-            );
-        animation.easing = Adw.Easing.EASE_IN_OUT;
-    }
-
     public override void snapshot(Gtk.Snapshot snapshot) {
         var full_bounds = Graphene.Rect() {
             origin = { 0, 0 },

@@ -4,6 +4,7 @@ class Bar : Astal.Window {
     internal int outer_margin { get; private set; }
 
     static construct {
+        typeof(CpuIndicator).ensure();
         typeof(WorkspaceBox).ensure();
         typeof(PowerButton).ensure();
         typeof(TimeButton).ensure();
@@ -36,10 +37,5 @@ class Bar : Astal.Window {
             this.remove_css_class("floating");
             outer_margin = 0;
         }
-    }
-
-    [GtkCallback]
-    void open_inspector() {
-        Gtk.Window.set_interactive_debugging(true);
     }
 }

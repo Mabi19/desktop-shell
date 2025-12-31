@@ -16,7 +16,7 @@ template $BatteryIndicator: $LevelBin {
         }
 
         Label {
-            label: bind $format_percentage(template.device as <AstalBattery.Device>.state, template.device as <AstalBattery.Device>.percentage) as <string>;
+            label: bind $format_percentage(template.device as <AstalBattery.Device>.percentage) as <string>;
         }
     }
 }

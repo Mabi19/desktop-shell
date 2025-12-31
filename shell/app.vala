@@ -119,7 +119,6 @@ class MabiShell : Adw.Application {
         });
 
         // I'm not sure why this is required.
-        // TODO: when a .quit() is implemented, call release()
         this.hold();
     }
 
@@ -160,10 +159,21 @@ class MabiShell : Adw.Application {
         foreach (var arg in args) {
             print("arg: %s\n", arg);
         }
-        if (args.length > 0 && args[0] == "quit") {
-            this.release();
+        if (args.length > 0) {
+            switch (args[0]) {
+            case "quit":
+                this.release();
+                return "ok";
+            case "inspect":
+                Gtk.Window.set_interactive_debugging(true);
+                return "ok";
+                default:
+                return "unknown command";
+            }
+
+        } else {
+            return "command required";
         }
-        return "ok";
     }
 }
 

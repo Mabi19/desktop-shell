@@ -1,0 +1,21 @@
+using Gtk 4.0;
+
+template $CpuIndicator: $LevelBin {
+    level: bind template.service as <$SystemUsageService>.cpu;
+
+    Box {
+        styles [
+            "usage-badge",
+        ]
+
+        spacing: 4;
+
+        Image {
+            icon-name: "fa-microchip-symbolic";
+        }
+
+        Label {
+            label: bind $format_percentage(template.service as <$SystemUsageService>.cpu) as <string>;
+        }
+    }
+}
