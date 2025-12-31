@@ -8,7 +8,7 @@ function join_by {
 }
 
 function unquote {
-    # best way to unquote a string
+    # best way to unquote a string, apparently
     python -c 'import sys; print(eval(sys.argv[1]))' "$1"
 }
 
@@ -20,10 +20,21 @@ function dispatch {
     echo "$result"
 }
 
+function print_help {
+    echo "usage: mabictl <command> [args...]"
+    echo ""
+    echo "commands:"
+    echo "    dispatch - send an IPC call to mabi-shell"
+    echo "    help     - show this information"
+    echo "note: unknown commands are interpreted as dispatch calls"
+}
+
 case $1 in
+    "")
+        print_help
+        ;;
     "help")
-        # TODO
-        echo "This is the help text"
+        print_help
         ;;
     "dispatch")
         shift 1;
