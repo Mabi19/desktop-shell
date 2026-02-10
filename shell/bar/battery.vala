@@ -7,7 +7,6 @@ class BatteryIndicator : LevelBin {
     }
 
     construct {
-        print("constructing BatteryIndicator\n");
         device = AstalBattery.get_default();
         device.bind_property("is-present", this, "visible", BindingFlags.SYNC_CREATE, null, null);
 
