@@ -1,18 +1,12 @@
-enum NotificationLayout {
-    DEFAULT,
-    MESSAGE,
-}
-
 /**
- * A proxy object for an AstalNotifd notification.
- * It tracks its own copies of most notification properties, so that they can be modified by rules.
+ * A notification received from the D-Bus notification interface.
+ * All properties are mutable so that notification rules can modify them.
  */
-class NotificationProxy : Object {
-    public AstalNotifd.Notification notification;
+class Notification : Object {
+    public uint32 id;
     public NotificationLayout layout;
     public string timestamp;
 
-    public uint id;
     public string summary;
     public string body;
     public Gdk.Texture? image;
@@ -20,58 +14,184 @@ class NotificationProxy : Object {
     public string app_name;
     public string app_icon;
     public string desktop_entry;
-    public int expire_timeout;
+    public int32 expire_timeout;
     public bool transient;
     public bool resident;
-    public AstalNotifd.Urgency urgency;
+    public NotificationUrgency urgency;
     public bool action_icons;
     public string? sound_file;
     public string? sound_name;
     public bool suppress_sound;
 
+    public Gee.List<NotificationAction> actions;
     public NotificationFormatting.FormattedText formatted_body;
 
     static TextureCache image_cache = new TextureCache();
 
-    public NotificationProxy(AstalNotifd.Notification notification) {
-        layout = DEFAULT;
-        this.notification = notification;
-        timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
-        id = notification.id;
-        summary = notification.summary;
-        body = notification.body;
-        category = notification.category;
-        app_name = notification.app_name;
-        app_icon = notification.app_icon;
-        desktop_entry = notification.desktop_entry;
-        expire_timeout = notification.expire_timeout;
-        transient = notification.transient;
-        resident = notification.resident;
-        urgency = notification.urgency;
-        action_icons = notification.action_icons;
-        sound_file = notification.sound_file;
-        sound_name = notification.sound_name;
-        suppress_sound = notification.suppress_sound;
+    /**
+     * Construct a Notification directly from the D-Bus Notify method parameters.
+     */
+    public Notification.from_dbus(
+        uint32 id,
+        string app_name,
+        string app_icon,
+        string summary,
+        string body,
+        string[] action_list,
+        HashTable<string, Variant> hints,
+        int32 expire_timeout
+        ) {
+        this.id = id;
+        this.layout = DEFAULT;
+        this.timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
+        this.summary = summary;
+        this.body = body;
+        this.app_name = app_name;
+        this.app_icon = app_icon;
+        this.expire_timeout = expire_timeout;
 
-        formatted_body = NotificationFormatting.parse(body);
+        // Parse hints
+        this.category = get_hint_string(hints, "category") ?? "";
+        this.desktop_entry = get_hint_string(hints, "desktop-entry") ?? "";
+        this.action_icons = get_hint_bool(hints, "action-icons");
+        this.transient = get_hint_bool(hints, "transient");
+        this.resident = get_hint_bool(hints, "resident");
+        this.suppress_sound = get_hint_bool(hints, "suppress-sound");
+        this.sound_file = get_hint_string(hints, "sound-file");
+        this.sound_name = get_hint_string(hints, "sound-name");
 
-        // TODO: A custom notifd implementation would allow for loading these directly
-        // from image-data hints (right now astal-notifd just shoves those on disk)
-        if (notification.image.length > 0) {
-            var file = File.new_for_path(notification.image);
-            try {
-                image = image_cache.load_file(file);
-            } catch (Error e) {
-                warning("Error loading notification image: %s", e.message);
-            }
+        var urgency_byte = get_hint_byte(hints, "urgency");
+        if (urgency_byte >= 0 && urgency_byte <= 2) {
+            this.urgency = (NotificationUrgency)urgency_byte;
         } else {
-            image = null;
+            this.urgency = NotificationUrgency.NORMAL;
         }
+
+        // Parse actions: list of pairs [id, label, id, label, ...]
+        this.actions = new Gee.ArrayList<NotificationAction>();
+        for (int i = 0; i + 1 < action_list.length; i += 2) {
+            this.actions.add(new NotificationAction(action_list[i], action_list[i + 1]));
+        }
+
+        this.formatted_body = NotificationFormatting.parse(body);
+
+        this.image = load_image_from_hints(hints);
 
         debug("evaluating rules for notification %u", id);
         foreach (var rule in MabiShell.config.notification_rules) {
             rule.evaluate(this);
         }
+    }
+
+    /**
+     * Load an image from notification hints, following the spec's priority order:
+     * 1. image-data / image_data / icon_data (raw pixel data)
+     * 2. image-path / image_path (file path or URI)
+     */
+    private static Gdk.Texture? load_image_from_hints(HashTable<string, Variant> hints) {
+        // Try raw image data hints (current, deprecated, and legacy names)
+        string[] image_data_keys = { "image-data", "image_data", "icon_data" };
+        foreach (var key in image_data_keys) {
+            var data_variant = hints.lookup(key);
+            if (data_variant != null) {
+                var texture = decode_image_data(data_variant);
+                if (texture != null) {
+                    return texture;
+                }
+            }
+        }
+
+        // Try image path hints
+        string[] image_path_keys = { "image-path", "image_path" };
+        foreach (var key in image_path_keys) {
+            var path_str = get_hint_string(hints, key);
+            if (path_str != null && path_str.length > 0) {
+                return load_image_from_path(path_str);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Decode raw pixel data from the image-data hint.
+     * The variant type is (iiibiiay): width, height, rowstride, has_alpha, bits_per_sample, channels, data.
+     */
+    private static Gdk.Texture? decode_image_data(Variant variant) {
+        if (!variant.is_of_type(new VariantType("(iiibiiay)"))) {
+            warning("image-data hint has unexpected type: %s", variant.get_type_string());
+            return null;
+        }
+
+        int width = variant.get_child_value(0).get_int32();
+        int height = variant.get_child_value(1).get_int32();
+        int rowstride = variant.get_child_value(2).get_int32();
+        bool has_alpha = variant.get_child_value(3).get_boolean();
+        int bits_per_sample = variant.get_child_value(4).get_int32();
+        int channels = variant.get_child_value(5).get_int32();
+        Variant data_variant = variant.get_child_value(6);
+
+        if (width <= 0 || height <= 0 || bits_per_sample != 8) {
+            warning("image-data hint has invalid dimensions or unsupported bit depth: %dx%d, %d bps",
+                    width, height, bits_per_sample);
+            return null;
+        }
+
+        var data = data_variant.get_data_as_bytes();
+        Gdk.MemoryFormat format;
+        if (has_alpha && channels == 4) {
+            format = Gdk.MemoryFormat.R8G8B8A8;
+        } else if (!has_alpha && channels == 3) {
+            format = Gdk.MemoryFormat.R8G8B8;
+        } else {
+            warning("image-data hint has unsupported channel configuration: %d channels, has_alpha=%s",
+                    channels, has_alpha.to_string());
+            return null;
+        }
+
+        return new Gdk.MemoryTexture(width, height, format, data, rowstride);
+    }
+
+    /** Load an image from a file path or file:// URI. */
+    private static Gdk.Texture? load_image_from_path(string path) {
+        string file_path;
+        if (path.has_prefix("file://")) {
+            file_path = path[7 :];
+        } else {
+            file_path = path;
+        }
+
+        try {
+            return image_cache.load_file(File.new_for_path(file_path));
+        } catch (Error e) {
+            warning("Error loading notification image from %s: %s", file_path, e.message);
+            return null;
+        }
+    }
+
+    private static string? get_hint_string(HashTable<string, Variant> hints, string key) {
+        var v = hints.lookup(key);
+        if (v != null && v.is_of_type(VariantType.STRING)) {
+            return v.get_string();
+        }
+        return null;
+    }
+
+    private static bool get_hint_bool(HashTable<string, Variant> hints, string key) {
+        var v = hints.lookup(key);
+        if (v != null && v.is_of_type(VariantType.BOOLEAN)) {
+            return v.get_boolean();
+        }
+        return false;
+    }
+
+    /** Returns -1 if the hint is not present or not a byte. */
+    private static int get_hint_byte(HashTable<string, Variant> hints, string key) {
+        var v = hints.lookup(key);
+        if (v != null && v.is_of_type(VariantType.BYTE)) {
+            return v.get_byte();
+        }
+        return -1;
     }
 
     public Json.Node to_json() {
@@ -98,10 +218,10 @@ class NotificationProxy : Object {
     }
 }
 
-// All visual notification changes are be steered by the service object's logical state.
-// With multiple stored notification lists, this makes it way simpler.
-// TODO: consider manipulating internal maps using default signal handlers? this would work if the default handlers can cancel
-// TODO: read the notification spec again and ensure all the required properties are handled
+/**
+ * Central notification service that manages popup and stored notification state.
+ * All visual notification changes are steered by this service object's logical state.
+ */
 class NotificationService : Object {
     private static NotificationService instance = null;
     public static NotificationService get_default() {
@@ -112,32 +232,33 @@ class NotificationService : Object {
         return instance;
     }
 
-    private AstalNotifd.Notifd notifd;
-    private Gee.HashMap<uint, NotificationProxy> popup_notifs;
-    public Gee.TreeMap<uint, NotificationProxy> stored_notifs;
+    private NotificationDaemon daemon;
+    private Gee.HashMap<uint, Notification> popup_notifs;
+    public Gee.TreeMap<uint, Notification> stored_notifs;
     private SoundService sound_service;
 
     public uint stored_count { get; private set; default = 0; }
 
     public NotificationService() {
         assert_null(instance);
-        notifd = AstalNotifd.get_default();
-        notifd.ignore_timeout = true;
+        daemon = new NotificationDaemon();
 
-        popup_notifs = new Gee.HashMap<uint, NotificationProxy>();
-        stored_notifs = new Gee.TreeMap<uint, NotificationProxy>();
+        popup_notifs = new Gee.HashMap<uint, Notification>();
+        stored_notifs = new Gee.TreeMap<uint, Notification>();
 
         sound_service = SoundService.get_default();
 
-        notifd.notified.connect(this.handle_notified);
-        notifd.resolved.connect(this.handle_resolved);
+        daemon.notified.connect(this.handle_notified);
+        daemon.resolved.connect(this.handle_resolved);
+
+        daemon.register();
     }
 
-    private void handle_notified(uint id) {
-        var proxy = new NotificationProxy(notifd.get_notification(id));
+    private void handle_notified(Notification notification) {
+        var id = notification.id;
 
-        // if this notification is currently stored, remove it.
-        NotificationProxy? stale_stored = null;
+        // If this notification is currently stored, remove it.
+        Notification? stale_stored = null;
         stored_notifs.unset(id, out stale_stored);
         if (stale_stored != null) {
             stored_remove(stale_stored);
@@ -145,23 +266,23 @@ class NotificationService : Object {
         }
 
         if (!popup_notifs.has_key(id)) {
-            play_sound_for(proxy);
+            play_sound_for(notification);
         }
 
-        popup_notifs.set(id, proxy);
-        if (!popup_set(proxy)) {
+        popup_notifs.set(id, notification);
+        if (!popup_set(notification)) {
             warning("Notification with ID %u wasn't handled!", id);
         }
     }
 
-    private void handle_resolved(uint id, AstalNotifd.ClosedReason reason) {
-        NotificationProxy? removed_popup = null;
+    private void handle_resolved(uint32 id, NotificationClosedReason reason) {
+        Notification? removed_popup = null;
         popup_notifs.unset(id, out removed_popup);
         if (removed_popup != null) {
             popup_remove(removed_popup);
         }
 
-        NotificationProxy? removed_stored = null;
+        Notification? removed_stored = null;
         stored_notifs.unset(id, out removed_stored);
         if (removed_stored != null) {
             stored_remove(removed_stored);
@@ -169,58 +290,77 @@ class NotificationService : Object {
         }
     }
 
-    private void play_sound_for(NotificationProxy proxy) {
-        if (proxy.suppress_sound) {
+    private void play_sound_for(Notification notification) {
+        if (notification.suppress_sound) {
             return;
         }
 
         // Prefer sound_name, then sound_file, then fallback to "message"
-        if (proxy.sound_name != null && proxy.sound_name.strip() != "") {
-            sound_service.play_deduped(proxy.sound_name, GSound.Attribute.EVENT_ID);
-        } else if (proxy.sound_file != null && proxy.sound_file.strip() != "") {
-            sound_service.play_deduped(proxy.sound_file, GSound.Attribute.MEDIA_FILENAME);
+        if (notification.sound_name != null && notification.sound_name.strip() != "") {
+            sound_service.play_deduped(notification.sound_name, GSound.Attribute.EVENT_ID);
+        } else if (notification.sound_file != null && notification.sound_file.strip() != "") {
+            sound_service.play_deduped(notification.sound_file, GSound.Attribute.MEDIA_FILENAME);
         } else {
             sound_service.play_deduped("message", GSound.Attribute.EVENT_ID);
         }
     }
 
     /** Transfer a notification from popups to storage, if the notification allows it. */
-    public void transfer(NotificationProxy proxy) {
-        var id = proxy.id;
+    public void transfer(Notification notification) {
+        var id = notification.id;
         if (!popup_notifs.has_key(id)) {
             warning("Attempted to transfer notification %u to storage, but it wasn't a popup", id);
             return;
         }
 
-        // transient notifications are explicitly specified to not get stored.
-        // to honor set expire timeouts, the notification needs to be closed once that's up
-        if (proxy.transient || proxy.expire_timeout > 0) {
-            // TODO: expire instead once that lands in libastal
-            proxy.notification.expire();
+        // Transient notifications are explicitly specified to not get stored.
+        // To honor set expire timeouts, the notification needs to be closed once that's up.
+        if (notification.transient || notification.expire_timeout > 0) {
+            daemon.expire(id);
         } else {
             popup_notifs.unset(id);
-            popup_remove(proxy);
-            stored_notifs.set(id, proxy);
-            stored_set(proxy);
+            popup_remove(notification);
+            stored_notifs.set(id, notification);
+            stored_set(notification);
             stored_count = stored_notifs.size;
+        }
+    }
+
+    /** Dismiss a notification by ID (user-initiated close). */
+    public void dismiss(uint32 id) {
+        daemon.dismiss(id);
+    }
+
+    /** Invoke an action on a notification. */
+    public void invoke_action(uint32 id, string action_key) {
+        daemon.invoke(id, action_key);
+
+        var notification = popup_notifs.get(id);
+        if (notification == null) {
+            notification = stored_notifs.get(id);
+        }
+        if (notification != null && !notification.resident) {
+            daemon.dismiss(id);
         }
     }
 
     /** Dismiss all stored notifications. */
     public void clear_stored() {
         var to_dismiss = stored_notifs.values.to_array();
-        foreach (var proxy in to_dismiss) {
-            proxy.notification.dismiss();
+        foreach (var notification in to_dismiss) {
+            daemon.dismiss(notification.id);
         }
     }
 
     /**
-     * Handlers for this signal should always return true, so that any notifications lost due to lack of popups widget at that moment are tracked.
-     * Conceptually this should use the `true_handled` accumulator, but there's no way to specify signal accumulators in Vala.
+     * Handlers for this signal should always return true, so that any notifications lost
+     * due to lack of popups widget at that moment are tracked.
+     * Conceptually this should use the `true_handled` accumulator, but there's no way to
+     * specify signal accumulators in Vala.
      */
-    public signal bool popup_set(NotificationProxy proxy);
-    public signal void popup_remove(NotificationProxy proxy);
+    public signal bool popup_set(Notification notification);
+    public signal void popup_remove(Notification notification);
     /** This signal returns bool so that the same handler can be used as for popup_set. */
-    public signal bool stored_set(NotificationProxy proxy);
-    public signal void stored_remove(NotificationProxy proxy);
+    public signal bool stored_set(Notification notification);
+    public signal void stored_remove(Notification notification);
 }

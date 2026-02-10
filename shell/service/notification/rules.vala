@@ -5,9 +5,9 @@ class NotificationRule : Object {
         public Regex? category;
         public Regex? app_name;
         public Regex? desktop_entry;
-        public AstalNotifd.Urgency? urgency;
+        public NotificationUrgency? urgency;
 
-        public bool matches(NotificationProxy proxy) {
+        public bool matches(Notification proxy) {
             if (summary != null && !summary.match(proxy.summary)) {
                 return false;
             }
@@ -108,13 +108,13 @@ class NotificationRule : Object {
                     var urgency_str = obj.get_string_member("urgency");
                     switch (urgency_str) {
                     case "low":
-                        condition.urgency = AstalNotifd.Urgency.LOW;
+                        condition.urgency = NotificationUrgency.LOW;
                         break;
                     case "normal":
-                        condition.urgency = AstalNotifd.Urgency.NORMAL;
+                        condition.urgency = NotificationUrgency.NORMAL;
                         break;
                     case "critical":
-                        condition.urgency = AstalNotifd.Urgency.CRITICAL;
+                        condition.urgency = NotificationUrgency.CRITICAL;
                         break;
                         default:
                         warning("Config: invalid notification rule (urgency should be \"low\" | \"normal\" | \"critical\")");
@@ -136,11 +136,10 @@ class NotificationRule : Object {
         public string? app_name;
         public bool? transient;
         public bool? resident;
-        public AstalNotifd.Urgency? urgency;
-        public bool? action_icons;
+        public NotificationUrgency? urgency;        public bool? action_icons;
         public bool? suppress_sound;
 
-        public void apply(NotificationProxy proxy) {
+        public void apply(Notification proxy) {
             if (layout != null) {
                 proxy.layout = layout;
             }
@@ -232,13 +231,13 @@ class NotificationRule : Object {
                     var urgency_str = obj.get_string_member("urgency");
                     switch (urgency_str) {
                     case "low":
-                        effect.urgency = AstalNotifd.Urgency.LOW;
+                        effect.urgency = NotificationUrgency.LOW;
                         break;
                     case "normal":
-                        effect.urgency = AstalNotifd.Urgency.NORMAL;
+                        effect.urgency = NotificationUrgency.NORMAL;
                         break;
                     case "critical":
-                        effect.urgency = AstalNotifd.Urgency.CRITICAL;
+                        effect.urgency = NotificationUrgency.CRITICAL;
                         break;
                     default:
                         warning("Config: invalid notification rule (urgency should be \"low\" | \"normal\" | \"critical\")");
@@ -279,7 +278,7 @@ class NotificationRule : Object {
         Object(condition: condition, effect: effect);
     }
 
-    public void evaluate(NotificationProxy proxy) {
+    public void evaluate(Notification proxy) {
         if (condition == null || condition.matches(proxy)) {
             debug("rule applies!");
             effect.apply(proxy);

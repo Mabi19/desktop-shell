@@ -22,7 +22,7 @@ enum NotificationWidgetAnimationState {
 }
 
 class NotificationHeader : Gtk.Box {
-    private NotificationProxy proxy;
+    private Notification proxy;
 
     private static Gtk.IconTheme icon_theme;
 
@@ -30,7 +30,7 @@ class NotificationHeader : Gtk.Box {
         icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
     }
 
-    public NotificationHeader(NotificationProxy proxy, NotificationWidgetType type) {
+    public NotificationHeader(Notification proxy, NotificationWidgetType type) {
         this.proxy = proxy;
 
         orientation = Gtk.Orientation.HORIZONTAL;
@@ -89,7 +89,7 @@ class NotificationHeader : Gtk.Box {
     }
 
     private void handle_closed_click() {
-        proxy.notification.dismiss();
+        NotificationService.get_default().dismiss(proxy.id);
     }
 
     private void copy_json() {
@@ -176,8 +176,8 @@ class NotificationWidget : Gtk.Widget {
 
     private Gtk.Widget child;
 
-    private NotificationProxy _proxy;
-    public NotificationProxy proxy {
+    private Notification _proxy;
+    public Notification proxy {
         get {
             return _proxy;
         }
@@ -223,7 +223,7 @@ class NotificationWidget : Gtk.Widget {
     private float animation_time_elapsed;
 
 
-    public NotificationWidget(NotificationProxy proxy, NotificationWidgetType type) {
+    public NotificationWidget(Notification proxy, NotificationWidgetType type) {
         Object(widget_type: type, proxy: proxy);
     }
 
@@ -267,10 +267,7 @@ class NotificationWidget : Gtk.Widget {
     }
 
     private void invoke_action(string action_id) {
-        proxy.notification.invoke(action_id);
-        if (!proxy.resident) {
-            proxy.notification.dismiss();
-        }
+        NotificationService.get_default().invoke_action(proxy.id, action_id);
     }
 
     private Gtk.Label make_content_label(string text) {
@@ -352,7 +349,7 @@ class NotificationWidget : Gtk.Widget {
         button_box.justify_last_line = true;
         button_box.visible = false;
         button_box.add_css_class("actions");
-        foreach (var action in proxy.notification.actions) {
+        foreach (var action in proxy.actions) {
             if (action.id == "default") {
                 var controller = new Gtk.GestureClick();
                 controller.released.connect(() => {
@@ -380,7 +377,9 @@ class NotificationWidget : Gtk.Widget {
 
         var dismiss_controller = new Gtk.GestureClick();
         dismiss_controller.button = Gdk.BUTTON_SECONDARY;
-        dismiss_controller.released.connect(proxy.notification.dismiss);
+        dismiss_controller.released.connect(() => {
+            NotificationService.get_default().dismiss(proxy.id);
+        });
         result.add_controller(dismiss_controller);
 
         if (widget_type == POPUPS) {

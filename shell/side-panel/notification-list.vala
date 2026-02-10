@@ -29,7 +29,7 @@ class NotificationList : Gtk.Box {
         }
     }
 
-    private bool handle_set(NotificationProxy proxy) {
+    private bool handle_set(Notification proxy) {
         if (widgets.has_key(proxy.id)) {
             // replace content
             var widget = widgets.get(proxy.id);
@@ -49,7 +49,7 @@ class NotificationList : Gtk.Box {
         return true;
     }
 
-    private void handle_remove(NotificationProxy proxy) {
+    private void handle_remove(Notification proxy) {
         var widget = widgets.get(proxy.id);
         if (widget == null) {
             warning("Tried to remove widget for notification %u, but it doesn't exist!", proxy.id);
