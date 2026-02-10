@@ -197,7 +197,7 @@ this.hold();
 ## Key Dependencies
 - GTK4, Adwaita (libadwaita-1)
 - gtk4-layer-shell (for Wayland layer shell)
-- Astal libraries (astal-4, astal-io, astal-battery, astal-hyprland, astal-notifd, astal-tray, astal-wireplumber)
+- Astal libraries (astal-4, astal-io, astal-battery, astal-hyprland, astal-tray, astal-wireplumber)
 - libgee-0.8 (collections library)
 - glycin & glycin-gtk4 (image loading)
 - json-glib-1.0 (JSON parsing)
@@ -245,3 +245,25 @@ static construct {
 ```
 
 This ensures widget types are registered before template instantiation.
+
+### Multi-monitor awareness
+Widgets like `Bar` and `SidePanel` are instantiated once per monitor. If multiple widget instances need to reflect the same shared state (like the current time), that state must live in a singleton service (like `NotificationService`), and each widget instance should use a property binding. These are simple in Blueprint UI definitions:
+```blp
+Label {
+    label: bind template.service as <$TimeService>.time_short as <string>;
+}
+```
+
+If the state is mutable (e.g. a "Do not Disturb" toggle), a **bidirectional property binding** (`GLib.Object.bind_property` with `BIDIRECTIONAL | SYNC_CREATE`) deals with this cleanly (over a signal handler that writes to the service). This keeps all instances in sync automatically.
+
+```vala
+// Good: bidirectional binding keeps all instances in sync
+var svc = NotificationService.get_default();
+svc.bind_property("dont-disturb", dnd_button, "active",
+    BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+
+// Bad: callback only writes from one instance, doesn't sync others
+dnd_button.toggled.connect(() => {
+    svc.dont_disturb = dnd_button.active;
+});
+```

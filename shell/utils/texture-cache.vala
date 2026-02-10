@@ -1,16 +1,15 @@
-// TODO: cache the last few images
-// TODO: make this async
+// TODO: keep references to the last few images in an array (LRU)
+// so that common images (for example, profile pictures) don't need to be re-parsed all the time
+// TODO: actually cache stuff in a hashmap
+// TODO: also cache memory textures (generate keys by hashing?)
 class TextureCache {
-    // TODO: caching.
-    // Have a map from identifier to weak TextureCache.Ref,
-    // and a small LRU cache which owns its references.
-    // The Ref objects will tell the cache when to remove the weak refs from the map.
     [Compact]
     class CachedTextureMeta {
         public unowned TextureCache cache;
         public string cache_key;
     }
 
+    // TODO: make this async
     public Gdk.Texture load_file(File file) throws Error {
         print("loading image at path %s\n", file.get_path());
         var loader = new Gly.Loader(file);
