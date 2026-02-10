@@ -18,6 +18,9 @@ class SidePanel : Gtk.Box {
     [GtkChild]
     private unowned Gtk.Calendar calendar;
 
+    [GtkChild]
+    private unowned Gtk.ToggleButton dnd_button;
+
     static construct {
         set_css_name("side-panel");
         typeof(PreciseClock).ensure();
@@ -26,6 +29,8 @@ class SidePanel : Gtk.Box {
 
     construct {
         _active = false;
+        var service = NotificationService.get_default();
+        service.bind_property("dont_disturb", dnd_button, "active", BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE, null, null);
     }
 
     public override void dispose() {

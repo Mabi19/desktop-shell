@@ -238,6 +238,7 @@ class NotificationService : Object {
     private SoundService sound_service;
 
     public uint stored_count { get; private set; default = 0; }
+    public bool dont_disturb { get; set; default = false; }
 
     public NotificationService() {
         assert_null(instance);
@@ -263,6 +264,18 @@ class NotificationService : Object {
         if (stale_stored != null) {
             stored_remove(stale_stored);
             stored_count = stored_notifs.size;
+        }
+
+        if (dont_disturb && notification.urgency != CRITICAL) {
+            // In DND mode: store immediately, no popup or sound.
+            // Transient notifications are discarded,
+            // because they can't go in storage by definition.
+            if (!notification.transient) {
+                stored_notifs.set(id, notification);
+                stored_set(notification);
+                stored_count = stored_notifs.size;
+            }
+            return;
         }
 
         if (!popup_notifs.has_key(id)) {
