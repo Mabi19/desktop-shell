@@ -2,11 +2,11 @@
 
 This guide is for coding agents working on **mabi-shell**, a GTK4/Vala desktop shell for Hyprland.
 
-## Build, Run, and Test Commands
+## Build Commands
 
 ### Initial Setup
 ```bash
-# Configure the build (only needed once or after meson.build changes)
+# Configure the build (only needed once)
 meson setup build
 
 # Reconfigure with different options
@@ -22,35 +22,10 @@ meson compile -C build
 rm -rf build
 ```
 
-### Installation
-```bash
-# Install to configured prefix (default: /usr/local)
-meson install -C build
-
-# Install to custom location
-meson install -C build --destdir=/tmp/install
-```
-
-### Running
-```bash
-# Run the compiled binary directly
-./build/mabi-shell
-
-# Run the installed binary
-mabi-shell
-
-# Dispatch commands to running instance
-./mabictl.sh inspect    # Open GTK Inspector
-./mabictl.sh quit       # Quit the application
-```
-
 ### Code Quality
 ```bash
 # Format code using uncrustify
 uncrustify -c uncrustify.cfg --replace shell/**/*.vala
-
-# Check for memory leaks with valgrind
-valgrind --leak-check=full --suppressions=valgrind.supp ./build/mabi-shell
 ```
 
 ## Project Structure
@@ -219,21 +194,6 @@ There is no automated test suite, since GTK apps' UI can't be automatically test
 MabiShell.instance    // The application instance
 MabiShell.config      // Global configuration
 MabiShell.display     // GDK display
-```
-
-### Monitor handling
-```vala
-// Monitors are tracked in windows HashMap
-windows = new Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window>>();
-
-// Monitor invalidation cleanup
-mon.invalidate.connect(() => {
-    Gee.List<Gtk.Window> mon_list;
-    windows.unset(mon, out mon_list);
-    foreach (var window in mon_list) {
-        window.destroy();
-    }
-});
 ```
 
 ### Creating UI with static constructors
