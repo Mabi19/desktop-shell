@@ -7,7 +7,7 @@ template $AudioButton: Adw.Bin {
         name: "audio-button";
 
         EventControllerScroll {
-            flags: vertical | discrete;
+            flags: vertical | discrete | physical_direction;
             scroll => $handle_scroll();
         }
 
