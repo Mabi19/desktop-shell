@@ -25,7 +25,7 @@ rm -rf build
 ### Code Quality
 ```bash
 # Format code using uncrustify
-uncrustify -c uncrustify.cfg --replace shell/**/*.vala
+uncrustify -c uncrustify.cfg --no-backup --replace shell/**/*.vala
 ```
 
 ## Project Structure
