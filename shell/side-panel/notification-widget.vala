@@ -172,7 +172,7 @@ class NotificationImage : Gtk.Widget {
 }
 
 class NotificationWidget : Gtk.Widget {
-    const float ANIMATION_DURATION = 0.75f;
+    const float ANIMATION_DURATION = 0.35f;
 
     private Gtk.Widget child;
 
