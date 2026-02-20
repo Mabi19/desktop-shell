@@ -19,7 +19,6 @@ class TextureCache {
     /** Look up a texture by cache key. Returns null on miss. */
     public Gdk.Texture? lookup(string key) {
         if (cache.has_key(key)) {
-            print("cache hit for %s\n", key);
             var texture = cache[key];
             touch_lru(texture);
             return texture;
@@ -42,7 +41,6 @@ class TextureCache {
             metadata->cache.remove_key(metadata->cache_key);
             delete metadata;
         });
-        print("cache store for %s\n", key);
         cache[key] = texture;
         touch_lru(texture);
         return texture;
@@ -73,7 +71,6 @@ class TextureCache {
         int existing = -1;
         for (int i = 0; i < LRU_SIZE; i++) {
             if (lru[i] == texture) {
-                print("present in lru\n");
                 existing = i;
                 break;
             }
@@ -91,7 +88,6 @@ class TextureCache {
     }
 
     private void remove_key(string key) {
-        print("cache evict for %s\n", key);
         cache.unset(key);
     }
 }
