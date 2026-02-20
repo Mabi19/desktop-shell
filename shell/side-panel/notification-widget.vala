@@ -15,7 +15,7 @@ enum NotificationWidgetAnimationState {
     IDLE,
     // The content's X position depends on the timer. (-> IDLE)
     SLIDE_IN,
-    // The content's X position (-> COLLAPSE)
+    // The content's X position depends on the timer. (-> COLLAPSE)
     SLIDE_OUT,
     // The height allocated to the widget shrinks to 0. (-> remove widget)
     COLLAPSE,
@@ -172,7 +172,7 @@ class NotificationImage : Gtk.Widget {
 }
 
 class NotificationWidget : Gtk.Widget {
-    const float ANIMATION_DURATION = 0.35f;
+    const float ANIMATION_DURATION = 0.75f;
 
     private Gtk.Widget child;
 
@@ -183,6 +183,10 @@ class NotificationWidget : Gtk.Widget {
         }
         set {
             _proxy = value;
+
+            if (animation_state != IDLE) {
+                change_animation_state(SLIDE_IN);
+            }
 
             // (re) start transfer timeout
             if (widget_type == POPUPS && (value.urgency != CRITICAL || value.expire_timeout > 0)) {
@@ -394,7 +398,7 @@ class NotificationWidget : Gtk.Widget {
         }
 
 
-        if (widget_type == POPUPS && proxy.urgency != CRITICAL) {
+        if (widget_type == POPUPS && (proxy.urgency != CRITICAL || proxy.expire_timeout > 0)) {
             var timeout_progress_bar = new Gtk.ProgressBar();
             bind_property("timeout-fraction", timeout_progress_bar, "fraction", BindingFlags.DEFAULT);
             result.append(timeout_progress_bar);
