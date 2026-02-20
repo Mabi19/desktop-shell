@@ -28,4 +28,9 @@ class TimeButton : Gtk.Button {
         var side_panel_window = (RightPopupWindow)target_window;
         side_panel_window.side_panel_shown = !side_panel_window.side_panel_shown;
     }
+
+    [GtkCallback]
+    public string get_bell_icon(bool dont_disturb) {
+        return dont_disturb ? "fa-bell-snooze-symbolic" : "fa-bell-symbolic";
+    }
 }

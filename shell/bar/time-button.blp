@@ -16,7 +16,7 @@ template $TimeButton: Gtk.Button {
 
         Box {
             Image {
-                icon-name: "fa-bell-symbolic";
+                icon-name: bind $get_bell_icon(template.notifications as <$NotificationService>.dont-disturb) as <string>;
             }
 
             Revealer {
