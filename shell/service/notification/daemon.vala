@@ -52,7 +52,7 @@ class NotificationDaemon : Object {
         };
     }
 
-    public new uint32 notify(
+    public async new uint32 notify(
         string app_name,
         uint32 replaces_id,
         string app_icon,
@@ -74,7 +74,7 @@ class NotificationDaemon : Object {
             }
         }
 
-        var notification = new Notification.from_dbus(
+        var notification = yield new Notification.from_dbus_async(
             id, app_name, app_icon, summary, body, actions, hints, expire_timeout
             );
         notified(notification);

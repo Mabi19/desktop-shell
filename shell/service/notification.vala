@@ -31,7 +31,7 @@ class Notification : Object {
     /**
      * Construct a Notification directly from the D-Bus Notify method parameters.
      */
-    public Notification.from_dbus(
+    public async Notification.from_dbus_async(
         uint32 id,
         string app_name,
         string app_icon,
@@ -75,7 +75,7 @@ class Notification : Object {
 
         this.formatted_body = NotificationFormatting.parse(body);
 
-        this.image = load_image_from_hints(hints);
+        this.image = yield load_image_from_hints(hints);
 
         debug("evaluating rules for notification %u", id);
         foreach (var rule in MabiShell.config.notification_rules) {
@@ -88,7 +88,7 @@ class Notification : Object {
      * 1. image-data / image_data / icon_data (raw pixel data)
      * 2. image-path / image_path (file path or URI)
      */
-    private static Gdk.Texture? load_image_from_hints(HashTable<string, Variant> hints) {
+    private static async Gdk.Texture? load_image_from_hints(HashTable<string, Variant> hints) {
         // Try raw image data hints (current, deprecated, and legacy names)
         string[] image_data_keys = { "image-data", "image_data", "icon_data" };
         foreach (var key in image_data_keys) {
@@ -106,7 +106,7 @@ class Notification : Object {
         foreach (var key in image_path_keys) {
             var path_str = get_hint_string(hints, key);
             if (path_str != null && path_str.length > 0) {
-                return load_image_from_path(path_str);
+                return yield load_image_from_path(path_str);
             }
         }
 
@@ -153,7 +153,7 @@ class Notification : Object {
     }
 
     /** Load an image from a file path or file:// URI. */
-    private static Gdk.Texture? load_image_from_path(string path) {
+    private static async Gdk.Texture? load_image_from_path(string path) {
         string file_path;
         if (path.has_prefix("file://")) {
             file_path = path[7 :];
@@ -162,7 +162,7 @@ class Notification : Object {
         }
 
         try {
-            return image_cache.load_file(File.new_for_path(file_path));
+            return yield image_cache.load_file(File.new_for_path(file_path));
         } catch (Error e) {
             warning("Error loading notification image from %s: %s", file_path, e.message);
             return null;

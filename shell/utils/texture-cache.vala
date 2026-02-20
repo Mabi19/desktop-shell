@@ -9,12 +9,11 @@ class TextureCache {
         public string cache_key;
     }
 
-    // TODO: make this async
-    public Gdk.Texture load_file(File file) throws Error {
+    public async Gdk.Texture load_file(File file) throws Error {
         print("loading image at path %s\n", file.get_path());
         var loader = new Gly.Loader(file);
-        var image = loader.load();
-        var frame = image.next_frame();
+        var image = yield loader.load_async(null);
+        var frame = yield image.next_frame_async(null);
         var texture = GlyGtk4.frame_get_texture(frame);
         CachedTextureMeta* meta = new CachedTextureMeta();
         meta->cache = this;
