@@ -149,7 +149,21 @@ class Notification : Object {
             return null;
         }
 
-        return new Gdk.MemoryTexture(width, height, format, data, rowstride);
+        // Check cache before creating a texture to avoid redundant VRAM allocations.
+        // Mix in image metadata so that identical bytes with different dimensions don't collide.
+        var header = "%dx%d/%d/%d/%d/%s".printf(width, height, rowstride, bits_per_sample, channels,
+                                                has_alpha.to_string());
+        var checksum = new Checksum(ChecksumType.SHA256);
+        checksum.update(header.data, header.data.length);
+        checksum.update(data.get_data(), data.get_size());
+        var key = "data:" + checksum.get_string();
+
+        var cached = image_cache.lookup(key);
+        if (cached != null) {
+            return cached;
+        }
+
+        return image_cache.store(key, new Gdk.MemoryTexture(width, height, format, data, rowstride));
     }
 
     /** Load an image from a file path or file:// URI. */
