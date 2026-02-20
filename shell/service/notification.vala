@@ -233,7 +233,7 @@ class NotificationService : Object {
     }
 
     private NotificationDaemon daemon;
-    private Gee.HashMap<uint, Notification> popup_notifs;
+    public Gee.HashMap<uint, Notification> popup_notifs;
     public Gee.TreeMap<uint, Notification> stored_notifs;
     private SoundService sound_service;
 
@@ -274,6 +274,8 @@ class NotificationService : Object {
                 stored_notifs.set(id, notification);
                 stored_set(notification);
                 stored_count = stored_notifs.size;
+            } else {
+                dismiss(notification.id);
             }
             return;
         }

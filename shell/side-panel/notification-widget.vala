@@ -482,6 +482,11 @@ class NotificationWidget : Gtk.Widget {
     }
 
     public void begin_remove() {
+        if (timeout_tick_id != 0) {
+            remove_tick_callback(timeout_tick_id);
+            timeout_tick_id = 0;
+        }
+
         if (widget_type == POPUPS) {
             change_animation_state(SLIDE_OUT);
         } else {
