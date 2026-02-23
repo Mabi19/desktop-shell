@@ -32,7 +32,7 @@ class Bar : Astal.Window {
     private void update_style() {
         if (config.bar_style == BarStyle.FLOATING) {
             this.add_css_class("floating");
-            outer_margin = 10;
+            outer_margin = 4;
         } else {
             this.remove_css_class("floating");
             outer_margin = 0;

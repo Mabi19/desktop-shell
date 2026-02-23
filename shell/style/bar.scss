@@ -7,23 +7,17 @@
 
 .bar>box {
     background-color: var(--window-bg-color);
-    padding: 4px;
+    padding: 4px 6px;
 }
 
 .bar.floating>box {
-    border-radius: 2em;
-    padding: 4px;
+    border-radius: 10px;
 }
 
 @mixin badge {
     padding: 0 0.5em;
-    border-radius: 1em;
+    border-radius: 6px;
     font-weight: normal;
-}
-
-@mixin circular {
-    padding: 0px 4px;
-    border-radius: 50%;
 }
 
 // This receives its color from the BackgroundBin that wraps it
@@ -47,12 +41,6 @@ button.usage-badge {
 .icon-view-box {
     background-color: var(--view-bg-color);
     border-radius: 1em;
-}
-
-#network-badge {
-    separator {
-        background-color: #ddd;
-    }
 }
 
 // menu buttons include a button inside them
@@ -126,5 +114,6 @@ button.usage-badge {
 }
 
 #power-button button {
-    @include circular;
+    padding: 0px 4px;
+    border-radius: 6px;
 }

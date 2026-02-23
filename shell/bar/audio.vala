@@ -73,7 +73,7 @@ class AudioButton : Adw.Bin {
         };
         var clip_bounds = Gsk.RoundedRect().init_from_rect(
             full_bounds,
-            full_bounds.get_height() / 2
+            6
             );
 
         snapshot.push_rounded_clip(clip_bounds);
