@@ -2,7 +2,7 @@
 
 This guide is for coding agents working on **mabi-shell**, a GTK4/Vala desktop shell for Hyprland.
 
-## Build Commands
+## Commands
 
 ### Initial Setup
 ```bash
@@ -45,26 +45,6 @@ uncrustify -c uncrustify.cfg --no-backup --replace shell/**/*.vala
 
 ## Code Style Guidelines
 
-### General Principles
-- **Indentation**: 4 spaces (no tabs)
-- **Line endings**: Unix (LF)
-- **Classes**: Use PascalCase with proper indentation
-- **Files**: One main class per file, filename matches class name in kebab-case
-
-### Imports
-```blp
-// Standard library imports first
-using Gtk 4.0;
-using Adw 1;
-
-// Third-party library imports
-using AstalHyprland;
-using AstalNotifd;
-
-// Project-specific imports
-using MabiShellStyle;
-```
-
 ### Naming Conventions
 - **Classes**: `PascalCase` (e.g., `WorkspaceButton`, `NotificationRule`)
 - **Functions/Methods**: `snake_case` (e.g., `update_active()`, `handle_click()`)
@@ -73,14 +53,6 @@ using MabiShellStyle;
 - **Private members**: Prefix with underscore or use `private` keyword
 - **Signal handlers**: Prefix with `handle_` (e.g., `handle_scroll()`)
 - **GTK callbacks**: Use `[GtkCallback]` attribute
-
-### Spacing Rules
-- **Operators**: Force spaces around operators (`a + b`, `x = y`)
-- **Parentheses**: No spaces inside (`foo(bar)` not `foo( bar )`)
-- **Function calls**: No space before paren (`foo()` not `foo ()`)
-- **Commas**: Space after comma (`a, b, c`)
-- **Braces**: Space before opening brace (`if (x) {` not `if (x){`)
-- **Control structures**: Space after keyword (`if (`, `for (`, `while (`)
 
 ### Type Annotations and Nullability
 ```vala
@@ -145,29 +117,14 @@ internal signal string handle_dispatch(string[] args);
 label: bind template.speaker as <AstalWp.Endpoint>.description;
 ```
 
-### Comments
-```vala
-// Use doc comments for public APIs
-/**
- * Compute the Oklab representation of a color from its RGBA representation.
- */
-public static Color from_rgba(Gdk.RGBA rgba) { ... }
-
-// Use single-line comments for implementation notes
-// I'm not sure why this is required.
-this.hold();
-```
-
 ### Blueprint Files (.blp)
 - Use 4-space indentation
-- Keep property bindings readable with proper formatting
 - Use `bind` for reactive properties
 - Signal handlers use `=>` syntax: `clicked => $open_audio_mixer();`
 
 ### SCSS/Styling
-- Organize styles by component in `style/` directory
+- Organize styles by category (mostly top-level widgets) in `style/` directory
 - Main stylesheet: `style.scss` imports all others
-- User overrides: `~/.config/mabi-shell/overrides.css` (if exists)
 
 ## Key Dependencies
 - GTK4, Adwaita (libadwaita-1)
