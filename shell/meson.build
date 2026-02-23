@@ -77,18 +77,8 @@ shell_src = files(
     'widgets/level-bin.vala',
     'app.vala',
     'config.vala',
-)
-
-style_lib = static_library(
-    'mabi-shell-style',
     'style.vala',
-    vala_header: 'mabi-shell-style.h',
-    vala_vapi: 'mabi-shell-style-1.0.vapi',
-    dependencies: [gtk4_dep],
-    c_args: ['-w'],
 )
-
-style_dep = declare_dependency(link_with: style_lib, include_directories: include_directories('.'))
 
 executable(
     'mabi-shell',
@@ -105,9 +95,10 @@ executable(
         gee_dep,
         glycin_dep,
         glycin_gtk4_dep,
+        gtk4_dep,
         gsound_dep,
         json_glib_dep,
-        style_dep,
+        style_context_shim_dep,
     ],
     c_args: ['-w'],
     link_args: ['-lm'],

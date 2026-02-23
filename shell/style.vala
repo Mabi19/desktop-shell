@@ -1,7 +1,5 @@
 // This is separated out to avoid deprecation warnings for Gtk.StyleContext.
 
-namespace MabiShellStyle {
-
 public class ShellStyleManager {
     private Gdk.Display display;
     public Gtk.CssProvider main;
@@ -32,20 +30,18 @@ public class ShellStyleManager {
     }
 
     private void use_provider(Gtk.CssProvider provider, uint priority = Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION) {
-        Gtk.StyleContext.add_provider_for_display(display, provider, priority);
+        StyleContextShim.add_provider_for_display(display, provider, priority);
     }
 
     private void init_provider(out Gtk.CssProvider provider) {
         provider = new Gtk.CssProvider();
         provider.parsing_error.connect((section, error) => {
-                critical(
-                    "CSS error: %s (%s:%zu)",
-                    error.message,
-                    section.get_file().get_basename() ?? "<unknown>",
-                    section.get_start_location().lines + 1
-                    );
-            });
+            critical(
+                "CSS error: %s (%s:%zu)",
+                error.message,
+                section.get_file().get_basename() ?? "<unknown>",
+                section.get_start_location().lines + 1
+                );
+        });
     }
-}
-
 }

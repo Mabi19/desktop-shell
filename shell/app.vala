@@ -1,5 +1,3 @@
-using MabiShellStyle;
-
 [DBus(name = "land.mabi.shell.ipc")]
 class ShellIPCService : Object {
     public string dispatch(string[] args) throws DBusError, IOError {
