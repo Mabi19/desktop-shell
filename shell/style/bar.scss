@@ -7,7 +7,7 @@
 
 .bar>box {
     background-color: var(--window-bg-color);
-    padding: 4px 6px;
+    padding: 4px;
 }
 
 .bar.floating>box {
@@ -116,4 +116,13 @@ button.usage-badge {
 #power-button button {
     padding: 0px 4px;
     border-radius: 6px;
+    background-color: #f8f8f828;
+
+    &:hover {
+        background-color: #f8f8f83c;
+    }
+
+    &:active {
+        background-color: #f8f8f864;
+    }
 }
