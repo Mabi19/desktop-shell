@@ -1,0 +1,21 @@
+using Gtk 4.0;
+
+template $MemoryIndicator: $LevelBin {
+    level: bind template.service as <$SystemUsageService>.memory;
+
+    Box {
+        styles [
+            "usage-badge",
+        ]
+
+        spacing: 4;
+
+        Image {
+            icon-name: "fa-memory-symbolic";
+        }
+
+        Label {
+            label: bind $format_percentage(template.service as <$SystemUsageService>.memory) as <string>;
+        }
+    }
+}

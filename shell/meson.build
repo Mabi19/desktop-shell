@@ -21,6 +21,7 @@ blueprint_src = files(
     'bar/bar.blp',
     'bar/battery.blp',
     'bar/cpu-indicator.blp',
+    'bar/memory-indicator.blp',
     'bar/power-button.blp',
     'bar/time-button.blp',
     'bar/tray-item.blp',

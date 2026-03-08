@@ -5,6 +5,7 @@ class Bar : Astal.Window {
 
     static construct {
         typeof(CpuIndicator).ensure();
+        typeof(MemoryIndicator).ensure();
         typeof(WorkspaceBox).ensure();
         typeof(PowerButton).ensure();
         typeof(TimeButton).ensure();

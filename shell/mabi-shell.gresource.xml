@@ -14,6 +14,7 @@
         <file>bar/bar.ui</file>
         <file>bar/battery.ui</file>
         <file>bar/cpu-indicator.ui</file>
+        <file>bar/memory-indicator.ui</file>
         <file>bar/power-button.ui</file>
         <file>bar/time-button.ui</file>
         <file>bar/tray-item.ui</file>
