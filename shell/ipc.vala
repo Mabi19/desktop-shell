@@ -62,6 +62,7 @@ class ShellIPCService : Object {
             } else {
                 return "error: unknown mute value";
             }
+            speaker.mute = new_mute;
         } else {
             double value;
             if (args.length == 2) {
@@ -90,9 +91,15 @@ class ShellIPCService : Object {
             }
             speaker.volume = new_volume;
             SoundService.get_default().play_deduped("audio-volume-change");
-            var icon = compute_volume_icon(new_volume, new_mute);
-            OsdService.get_default().show_value(icon, new_volume, new_mute ? "muted" : null);
         }
+        string icon;
+        if (new_mute) icon = "audio-volume-muted-symbolic";
+        else if (new_volume <= 0.33) icon = "audio-volume-low-symbolic";
+        else if (new_volume <= 0.66) icon = "audio-volume-medium-symbolic";
+        else if (new_volume <= 1.0) icon = "audio-volume-high-symbolic";
+        else icon = "audio-volume-overamplified-symbolic";
+
+        OsdService.get_default().show_value(icon, new_volume, new_mute ? "muted" : null);
         return "ok";
     }
 

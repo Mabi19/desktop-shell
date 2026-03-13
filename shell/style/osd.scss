@@ -8,10 +8,10 @@ osd {
     background-color: rgb(10% 10% 10% / 0.85);
 }
 
-.osd-bar.overfilled > block {
+.osd-bar.overfilled block.filled {
     background: linear-gradient(90deg, var(--theme-active), var(--theme-inactive), var(--theme-active));
 }
 
-osd.muted > .osd-bar > block {
-    background: var(--window-fg-color);
+osd.muted .osd-bar block.filled {
+    background-color: var(--window-fg-color);
 }

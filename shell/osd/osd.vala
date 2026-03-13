@@ -1,11 +1,3 @@
-string compute_volume_icon(double volume, bool mute) {
-    if (mute) return "audio-volume-muted-symbolic";
-    if (volume <= 0.33) return "audio-volume-low-symbolic";
-    if (volume <= 0.66) return "audio-volume-medium-symbolic";
-    if (volume <= 1.0) return "audio-volume-high-symbolic";
-    return "audio-volume-overamplified-symbolic";
-}
-
 class OsdWindow : Astal.Window {
     private Gtk.Image icon;
     private Gtk.Revealer bar_revealer;
