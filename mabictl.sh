@@ -27,6 +27,7 @@ function print_help {
     echo "    dispatch - send an IPC call to mabi-shell"
     echo "    help     - show this information"
     echo "note: unknown commands are interpreted as dispatch calls"
+    echo "use mabictl dispatch help to ask mabi-shell about the available dispatchers"
 }
 
 case $1 in

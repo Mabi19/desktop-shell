@@ -58,6 +58,7 @@ shell_src = files(
     'bar/time-button.vala',
     'bar/tray.vala',
     'bar/workspaces.vala',
+    'osd/osd.vala',
     'service/notification.vala',
     'service/notification/daemon.vala',
     'service/notification/markup.vala',
@@ -78,6 +79,7 @@ shell_src = files(
     'widgets/level-bin.vala',
     'app.vala',
     'config.vala',
+    'ipc.vala',
     'style.vala',
 )
 

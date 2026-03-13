@@ -1,21 +1,17 @@
-.osd-window {
-    background-color: transparent;
+osd {
+    background: none;
 }
 
 .osd-box {
-    padding: 16px;
-    border-radius: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
     background-color: rgb(10% 10% 10% / 0.85);
 }
 
-.osd-icon {
-    margin: 1em 2em;
-}
-
-.osd-bar {
-    min-height: 8px;
-}
-
-.osd-bar.overfilled block {
+.osd-bar.overfilled > block {
     background: linear-gradient(90deg, var(--theme-active), var(--theme-inactive), var(--theme-active));
+}
+
+osd.muted > .osd-bar > block {
+    background: var(--window-fg-color);
 }

@@ -1,13 +1,3 @@
-[DBus(name = "land.mabi.shell.ipc")]
-class ShellIPCService : Object {
-    public string dispatch(string[] args) throws DBusError, IOError {
-        return handle_dispatch(args);
-    }
-
-    internal signal string handle_dispatch(string[] args);
-}
-
-
 class MabiShell : Adw.Application {
     public static MabiShell instance;
     public static Config config;
@@ -102,14 +92,27 @@ class MabiShell : Adw.Application {
             create_windows_for_monitor(mon);
         }
         monitor_model.items_changed.connect((position, removed, added) => {
-            display.sync();
             print("monitor model changed\n");
             for (int i = 0; i < added; i++) {
                 var monitor = (Gdk.Monitor)monitor_model.get_item(position + i);
-                print("new monitor: %s\n", monitor.get_connector());
-                create_windows_for_monitor(monitor);
+                if (monitor.get_connector() != null) {
+                    print("new monitor: %s\n", monitor.get_connector());
+                    recompute_primary_monitor();
+                    create_windows_for_monitor(monitor);
+                } else {
+                    monitor.notify["connector"].connect((pspec, obj) => {
+                        // needs to have a different name to not refer to the one in the parent scope
+                        var mon2 = (Gdk.Monitor)obj;
+                        if (!mon2.is_valid()) {
+                            return;
+                        }
+                        print("new monitor: %s\n", monitor.get_connector());
+                        recompute_primary_monitor();
+                        create_windows_for_monitor(mon2);
+                    });
+                }
             }
-            recompute_primary_monitor();
+
         });
 
         config.notify["primary-monitor-name"].connect(() => {
@@ -137,7 +140,6 @@ class MabiShell : Adw.Application {
             }
 
             ipc_service = new ShellIPCService();
-            ipc_service.handle_dispatch.connect(this.handle_dispatch);
             ipc_register_id = conn.register_object(object_path, ipc_service);
         } catch (Error e) {
             return false;
@@ -151,27 +153,6 @@ class MabiShell : Adw.Application {
             conn.unregister_object(ipc_register_id);
         }
         base.dbus_unregister(conn, object_path);
-    }
-
-    internal string handle_dispatch(string[] args) {
-        foreach (var arg in args) {
-            print("arg: %s\n", arg);
-        }
-        if (args.length > 0) {
-            switch (args[0]) {
-            case "quit":
-                this.release();
-                return "ok";
-            case "inspect":
-                Gtk.Window.set_interactive_debugging(true);
-                return "ok";
-                default:
-                return "unknown command";
-            }
-
-        } else {
-            return "command required";
-        }
     }
 }
 
