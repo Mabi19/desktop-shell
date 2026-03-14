@@ -6,6 +6,7 @@ class MabiShell : Adw.Application {
     private ListModel monitor_model;
     public Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> > windows;
     public Gdk.Monitor? primary_monitor { get; private set; }
+    public AstalHyprlandFocusGrab.GrabContext grab_context;
 
     private ShellStyleManager styles;
     private ShellIPCService? ipc_service = null;
@@ -22,9 +23,11 @@ class MabiShell : Adw.Application {
         var bar = new Bar(mon);
         bar.present();
         list.add(bar);
+        grab_context.add(bar);
         var side_panel = new RightPopupWindow(mon);
         side_panel.present();
         list.add(side_panel);
+        grab_context.add(side_panel);
 
         windows.set(mon, list);
         mon.invalidate.connect(() => {
@@ -63,6 +66,34 @@ class MabiShell : Adw.Application {
         }
     }
 
+    private void hide_side_panel() {
+        foreach (var mon_list in windows.values) {
+            foreach (var window in mon_list) {
+                if (window is RightPopupWindow) {
+                    ((RightPopupWindow)window).side_panel_shown = false;
+                }
+            }
+        }
+    }
+
+    public void toggle_side_panel(Gdk.Monitor gdkmonitor) {
+        var this_mon_list = windows.get(gdkmonitor);
+        var target_window = this_mon_list.first_match((win) => win is RightPopupWindow);
+        if (target_window == null) {
+            warning("Couldn't find side panel window to show");
+            return;
+        }
+        var side_panel_window = (RightPopupWindow)target_window;
+        if (side_panel_window.side_panel_shown) {
+            side_panel_window.side_panel_shown = false;
+            grab_context.active = false;
+        } else {
+            hide_side_panel();
+            side_panel_window.side_panel_shown = true;
+            grab_context.active = true;
+        }
+    }
+
     public override void activate() {
         if (display != null) {
             return;
@@ -80,6 +111,9 @@ class MabiShell : Adw.Application {
 
         monitor_model = display.get_monitors();
         recompute_primary_monitor();
+
+        grab_context = new AstalHyprlandFocusGrab.GrabContext();
+        grab_context.cleared.connect(hide_side_panel);
 
         windows = new Gee.HashMap<Gdk.Monitor, Gee.List<Gtk.Window> >();
         Gdk.Monitor? mon;

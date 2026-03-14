@@ -92,6 +92,7 @@ executable(
         astalio_dep,
         astal_battery_dep,
         astal_hyprland_dep,
+        astal_hyprland_focus_grab_dep,
         astal_tray_dep,
         astal_wp_dep,
         adw_dep,
