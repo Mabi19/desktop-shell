@@ -134,7 +134,7 @@ class MabiShell : Adw.Application {
                     recompute_primary_monitor();
                     create_windows_for_monitor(monitor);
                 } else {
-                    monitor.notify["connector"].connect((pspec, obj) => {
+                    monitor.notify["connector"].connect((obj, pspec) => {
                         // needs to have a different name to not refer to the one in the parent scope
                         var mon2 = (Gdk.Monitor)obj;
                         if (!mon2.is_valid()) {
