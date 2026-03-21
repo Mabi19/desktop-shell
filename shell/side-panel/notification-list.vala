@@ -4,6 +4,7 @@
 class NotificationList : Gtk.Box {
     private NotificationService service;
     private Gee.HashMap<uint, NotificationWidget> widgets;
+    private Adw.StatusPage empty_status_page;
 
     public NotificationWidgetType widget_type { get; construct; }
 
@@ -16,6 +17,17 @@ class NotificationList : Gtk.Box {
 
         service = NotificationService.get_default();
         widgets = new Gee.HashMap<uint, NotificationWidget>();
+
+        if (widget_type == STORAGE) {
+            empty_status_page = new Adw.StatusPage();
+            empty_status_page.hexpand = true;
+            empty_status_page.vexpand = true;
+            empty_status_page.icon_name = "fa-bell-symbolic";
+            empty_status_page.title = "No Notifications";
+            append(empty_status_page);
+        } else {
+            empty_status_page = null;
+        }
 
         if (widget_type == POPUPS) {
             service.popup_set.connect(this.handle_set);
@@ -44,6 +56,9 @@ class NotificationList : Gtk.Box {
             } else {
                 this.prepend(widget);
             }
+            if (empty_status_page != null) {
+                empty_status_page.visible = false;
+            }
         }
 
         return true;
@@ -64,5 +79,8 @@ class NotificationList : Gtk.Box {
             return;
         }
         remove(widget);
+        if (widgets.size == 0 && empty_status_page != null) {
+            empty_status_page.visible = true;
+        }
     }
 }
