@@ -43,30 +43,17 @@ button.usage-badge {
     border-radius: 1em;
 }
 
-// menu buttons include a button inside them
-#audio-button>button {
+#idle-inhibit {
     @include badge;
-    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
-    -gtk-icon-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
-    background-color: transparent;
+    background-color: var(--destructive-bg-color);
 
     &:hover {
-        background-color: rgb(15% 15% 15% / 0.08);
+        background-color: color-mix(in srgb, var(--destructive-bg-color), rgb(15% 15% 15%) 8%);
     }
 
-    &:active,
-    &:checked {
-        background-color: rgb(15% 15% 15% / 0.2);
+    &:active {
+        background-color: color-mix(in srgb, var(--destructive-bg-color), rgb(15% 15% 15%) 20%);
     }
-}
-
-#audio-quick-menu .mute-button {
-    padding: 3px 7px;
-    min-width: 16px;
-}
-
-#workspaces {
-    padding: 2px 12px;
 }
 
 .workspace {
@@ -97,6 +84,32 @@ button.usage-badge {
 .tray-item>button {
     background: transparent;
     padding: 0;
+}
+
+// menu buttons include a button inside them
+#audio-button>button {
+    @include badge;
+    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
+    -gtk-icon-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
+    background-color: transparent;
+
+    &:hover {
+        background-color: rgb(15% 15% 15% / 0.08);
+    }
+
+    &:active,
+    &:checked {
+        background-color: rgb(15% 15% 15% / 0.2);
+    }
+}
+
+#audio-quick-menu .mute-button {
+    padding: 3px 7px;
+    min-width: 16px;
+}
+
+#workspaces {
+    padding: 2px 12px;
 }
 
 #time-and-notifications {

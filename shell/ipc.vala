@@ -22,6 +22,10 @@ class ShellIPCService : Object {
             return handle_brightness(args);
         case "osd":
             return handle_osd(args);
+        case "inhibit-idle":
+            var service = IdleService.get_default();
+            service.inhibit = !service.inhibit;
+            return "ok";
         case "help":
             return handle_help(args);
         default:
@@ -214,12 +218,13 @@ class ShellIPCService : Object {
     private string handle_help(string[] args) {
         if (args.length == 1) {
             return """Available commands:
-    inspect    - launch the GTK inspector
-    quit       - quit mabi-shell gracefully
-    volume     - change volume and trigger OSD
-    brightness - change brightness and trigger OSD
-    osd        - trigger OSD manually
-    help       - show this information; use help <command> for more information about it""";
+    inspect      - launch the GTK inspector
+    quit         - quit mabi-shell gracefully
+    inhibit-idle - toggle the idle inhibitor
+    volume       - change volume and trigger OSD
+    brightness   - change brightness and trigger OSD
+    osd          - trigger OSD manually
+    help         - show this information; use help <command> for more information about it""";
         }
 
         switch (args[1]) {
@@ -227,6 +232,8 @@ class ShellIPCService : Object {
             return "-- inspect --\nLaunch the GTK inspector.";
         case "quit":
             return "-- quit --\nQuit mabi-shell gracefully.";
+        case "inhibit-idle":
+            return "-- inhibit-idle --\nToggle the idle inhibitor.";
         case "volume":
             return """--
 volume <up|down> [amount]
