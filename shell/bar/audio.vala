@@ -47,6 +47,8 @@ class AudioButton : Adw.Bin {
     internal AstalWp.Wp service;
     public AstalWp.Endpoint speaker { get; construct; }
     public AstalWp.Endpoint microphone { get; construct; }
+    private AstalCava.Cava cava;
+    private const int BAR_COUNT = 16;
 
     [GtkChild]
     unowned Gtk.Popover popover;
@@ -59,6 +61,11 @@ class AudioButton : Adw.Bin {
         service = AstalWp.get_default();
         speaker = service.get_default_speaker();
         microphone = service.get_default_microphone();
+        cava = AstalCava.get_default();
+        cava.bars = BAR_COUNT;
+        cava.notify["values"].connect(this.queue_draw);
+        MabiShell.config.notify["theme-inactive"].connect(this.queue_draw);
+        MabiShell.config.notify["theme-active"].connect(this.queue_draw);
     }
 
     public override void dispose() {
@@ -77,15 +84,58 @@ class AudioButton : Adw.Bin {
             );
 
         snapshot.push_rounded_clip(clip_bounds);
-        // TODO: queue redraws when the theme colors change
         snapshot.append_color(MabiShell.config.theme_inactive.rgba, full_bounds);
+        draw_cava(snapshot);
         snapshot.pop();
 
         var child = get_child();
         if (child != null) {
             snapshot_child(child, snapshot);
         }
+    }
 
+    private void draw_cava(Gtk.Snapshot snapshot) {
+        // Based on kotontrion's Catmull-Rom spline implementation:
+        // https://github.com/kotontrion/kompass/blob/2fbab99ec2e4db81166a570c9e953d295544f83c/libkompass/src/cava.vala#L51
+
+        int width = get_width();
+        int height = get_height();
+        var raw_values = cava.get_values();
+        float values[BAR_COUNT];
+        // adjust values to make a nicer graph
+        for (int i = 0; i < BAR_COUNT; i++) {
+            values[i] = (float)Math.pow(raw_values.index(i).clamp(0.0, 1.0), 0.6);
+        }
+        uint bars = values.length;
+        float bar_width = width / (bars - 1.0f);
+
+        var builder = new Gsk.PathBuilder();
+        builder.move_to(0, height * (1.0f - values[0]));
+        for (int i = 0; i <= bars - 2; i++) {
+            Graphene.Point p0, p3;
+            Graphene.Point p1 = { x : i * bar_width, y : height * (1.0f - values[i]) };
+            Graphene.Point p2 = { x : (i + 1) * bar_width, y : height * (1.0f - values[i + 1]) };
+
+            if (i == 0) {
+                p0 = { x : i * bar_width, y : height * (1.0f - values[i]) };
+                p3 = { x : (i + 2) * bar_width, y : height * (1.0f - values[i + 2]) };
+            } else if (i == bars - 2) {
+                p0 = { x : (i - 1) * bar_width, y : height * (1.0f - values[i - 1]) };
+                p3 = { x : (i + 1) * bar_width, y : height * (1.0f - values[i + 1]) };
+            } else {
+                p0 = { x : (i - 1) * bar_width, y : height * (1.0f - values[i - 1]) };
+                p3 = { x : (i + 2) * bar_width, y : height * (1.0f - values[i + 2]) };
+            }
+
+            Graphene.Point c1 = { x : p1.x + (p2.x - p0.x) / 6.0f, y : p1.y + (p2.y - p0.y) / 6.0f };
+            Graphene.Point c2 = { x : p2.x - (p3.x - p1.x) / 6.0f, y : p2.y - (p3.y - p1.y) / 6.0f };
+            builder.cubic_to(c1.x, c1.y, c2.x, c2.y, p2.x, p2.y);
+        }
+
+        builder.line_to(width, height);
+        builder.line_to(0, height);
+        builder.close();
+        snapshot.append_fill(builder.to_path(), Gsk.FillRule.WINDING, MabiShell.config.theme_active.rgba);
     }
 
     [GtkCallback]
