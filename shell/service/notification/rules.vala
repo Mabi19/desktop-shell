@@ -136,7 +136,8 @@ class NotificationRule : Object {
         public string? app_name;
         public bool? transient;
         public bool? resident;
-        public NotificationUrgency? urgency;        public bool? action_icons;
+        public NotificationUrgency? urgency;
+        public bool? action_icons;
         public bool? suppress_sound;
 
         public void apply(Notification proxy) {
