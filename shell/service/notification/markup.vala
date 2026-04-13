@@ -40,6 +40,8 @@ class TagToken : Token, Object {
             return ITALIC;
         case "u":
             return UNDERLINE;
+        case "tt":
+            return MONOSPACE;
         default:
             assert_not_reached();
         }
@@ -171,6 +173,7 @@ FormattedText parse(string markup) {
             case "b":
             case "i":
             case "u":
+            case "tt":
                 // manipulate the formatting stack
                 if (tag.is_opening && tag.is_closing) {
                     // the only self-closing tag that affects content is <img>, which we ignore

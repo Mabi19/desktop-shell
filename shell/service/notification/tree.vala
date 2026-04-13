@@ -5,6 +5,7 @@ enum FormattingNodeType {
     BOLD,
     ITALIC,
     UNDERLINE,
+    MONOSPACE,
 }
 
 struct FormattedText {
@@ -32,6 +33,7 @@ class FormattingNode {
         case BOLD:
         case ITALIC:
         case UNDERLINE:
+        case MONOSPACE:
             if (type != ROOT) {
                 var str = type.to_string();
                 str = str.slice(str.last_index_of_char('_', 0) + 1, str.length);
@@ -72,6 +74,9 @@ class FormattingNode {
                 break;
             case UNDERLINE:
                 attribute = Pango.attr_underline_new(Pango.Underline.SINGLE);
+                break;
+            case MONOSPACE:
+                attribute = Pango.attr_family_new("Monospace");
                 break;
             case ROOT:
                 // a root node does not carry formatting, only its children
