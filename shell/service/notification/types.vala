@@ -16,6 +16,13 @@ enum NotificationLayout {
     MESSAGE,
 }
 
+enum NotificationFormatMethod {
+    /** Standard markup, as in the FDO notification specification, version 1.2. */
+    STANDARD,
+    /** A markdown parser based on commonmark. */
+    MARKDOWN,
+}
+
 class NotificationAction : Object {
     public string id { get; set; }
     public string label { get; set; }

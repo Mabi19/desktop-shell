@@ -132,6 +132,7 @@ class NotificationRule : Object {
 
     public class Effect {
         public NotificationLayout? layout;
+        public NotificationFormatMethod? format_method;
         public string? category;
         public string? app_name;
         public bool? transient;
@@ -143,6 +144,9 @@ class NotificationRule : Object {
         public void apply(Notification proxy) {
             if (layout != null) {
                 proxy.layout = layout;
+            }
+            if (format_method != null) {
+                proxy.format_method = format_method;
             }
             if (category != null) {
                 proxy.category = category;
@@ -189,6 +193,28 @@ class NotificationRule : Object {
                     warning("Config: invalid notification rule (layout should be \"default\" | \"message\"))");
                     return null;
                 }
+            }
+            if (obj.has_member("format_method")) {
+                var node = obj.get_member("format_method");
+                if (node.get_value_type() == Type.STRING) {
+                    var format_method_str = obj.get_string_member("format_method");
+                    switch (format_method_str) {
+                    case "standard":
+                    case "default":
+                        effect.format_method = STANDARD;
+                        break;
+                    case "markdown":
+                        effect.format_method = MARKDOWN;
+                        break;
+                        default:
+                        warning("Config: invalid notification rule (format_method should be \"standard\" | \"markdown\")");
+                        return null;
+                    }
+                } else {
+                    warning("Config: invalid notification rule (format_method should be \"standard\" | \"markdown\")");
+                    return null;
+                }
+
             }
             if (obj.has_member("category")) {
                 var node = obj.get_member("category");

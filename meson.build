@@ -4,6 +4,9 @@ prefix = get_option('prefix')
 pkgdatadir = prefix / get_option('datadir') / meson.project_name()
 bindir = prefix / get_option('bindir')
 
+vapi_dir = meson.current_source_dir() / 'vapi'
+add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
+
 gtk4_layer_shell_dep = dependency('gtk4-layer-shell-0')
 gtk4_dep = dependency('gtk4')
 astal4_dep = dependency('astal-4-4.0')
@@ -19,9 +22,8 @@ glycin_dep = dependency('glycin-2')
 glycin_gtk4_dep = dependency('glycin-gtk4-2')
 gsound_dep = dependency('gsound')
 json_glib_dep = dependency('json-glib-1.0')
+libcmark_dep = dependency('libcmark')
 
-vapi_dir = meson.current_source_dir() / 'vapi'
-add_project_arguments(['--vapidir', vapi_dir], language: 'vala')
 style_context_shim_dep = meson.get_compiler('vala').find_library('style-context-shim', dirs: vapi_dir)
 
 subdir('shell')

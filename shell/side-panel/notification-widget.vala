@@ -275,10 +275,7 @@ class NotificationWidget : Gtk.Widget {
     }
 
     private Gtk.Label make_content_label(string text) {
-        // trim whitespace and replace \n's with unicode line separators
-        // (pango treats \n as a paragraph break)
-        var label_text = text.strip().replace("\n", "\u2028");
-        var label = new Gtk.Label(label_text);
+        var label = new Gtk.Label(text);
         label.wrap = true;
         label.wrap_mode = Pango.WrapMode.WORD_CHAR;
         label.ellipsize = Pango.EllipsizeMode.MIDDLE;

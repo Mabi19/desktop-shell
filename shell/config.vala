@@ -72,6 +72,7 @@ class Config : Object {
         }
         default_vesktop_effect.app_name = "Vesktop";
         default_vesktop_effect.layout = MESSAGE;
+        default_vesktop_effect.format_method = MARKDOWN;
         default_vesktop_effect.suppress_sound = true;
         var default_vesktop_rule = new NotificationRule(default_vesktop_cond, default_vesktop_effect);
         notification_rules.add(default_vesktop_rule);

@@ -24,6 +24,7 @@ class Notification : Object {
     public bool suppress_sound;
 
     public Gee.List<NotificationAction> actions;
+    public NotificationFormatMethod format_method;
     public NotificationFormatting.FormattedText formatted_body;
 
     static TextureCache image_cache = new TextureCache();
@@ -43,6 +44,7 @@ class Notification : Object {
         ) {
         this.id = id;
         this.layout = DEFAULT;
+        this.format_method = STANDARD;
         this.timestamp = new GLib.DateTime.now_local().format(MabiShell.config.time_format_short);
         this.summary = summary;
         this.body = body;
@@ -73,13 +75,43 @@ class Notification : Object {
             this.actions.add(new NotificationAction(action_list[i], action_list[i + 1]));
         }
 
-        this.formatted_body = NotificationFormatting.parse(body);
-
         this.image = yield load_image_from_hints(hints);
+
+        // custom hints
+        var layout_str = get_hint_string(hints, "x-mabi-shell.layout");
+        switch (layout_str) {
+        case "message":
+            this.layout = MESSAGE;
+            break;
+        case "default":
+        default:
+            this.layout = DEFAULT;
+            break;
+        }
+
+        var format_method_str = get_hint_string(hints, "x-mabi-shell.format_method");
+        switch (format_method_str) {
+        case "markdown":
+            this.format_method = MARKDOWN;
+            break;
+        case "standard":
+        default:
+            this.format_method = STANDARD;
+            break;
+        }
 
         debug("evaluating rules for notification %u", id);
         foreach (var rule in MabiShell.config.notification_rules) {
             rule.evaluate(this);
+        }
+
+        switch (format_method) {
+        case STANDARD:
+            this.formatted_body = NotificationFormatting.parse_standard(body);
+            break;
+        case MARKDOWN:
+            this.formatted_body = NotificationFormatting.parse_markdown(body);
+            break;
         }
     }
 
@@ -227,6 +259,8 @@ class Notification : Object {
                .set_member_name("sound_file").add_string_value(sound_file)
                .set_member_name("sound_name").add_string_value(sound_name)
                .set_member_name("suppress_sound").add_boolean_value(suppress_sound)
+               .set_member_name("layout").add_int_value(layout)
+               .set_member_name("format_method").add_int_value(format_method)
                .end_object()
                .get_root();
     }

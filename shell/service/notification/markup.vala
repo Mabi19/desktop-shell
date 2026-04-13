@@ -78,7 +78,11 @@ internal void literalize_top_of_stack(Gee.ArrayList<FormattingNode> stack) {
     popped.children.resize(0);
 }
 
-FormattedText parse(string markup) {
+FormattedText parse_standard(string raw_markup) {
+    // trim whitespace and replace \n's with unicode line separators
+    // (pango treats \n as a paragraph break)
+    var markup = raw_markup.strip().replace("\n", "\u2028");
+
     var tokens = new Gee.ArrayList<Token>();
     int i = 0;
     int buffer_start = 0;
