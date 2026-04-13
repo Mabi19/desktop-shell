@@ -12,7 +12,8 @@ Required things:
 - libgee
 - glycin & glycin-gtk4
 - json-glib
-- GSound
+- gsound
+- cmark
 - Hyprland (0.53+)
 - GNOME System Monitor
 - pavucontrol
@@ -56,7 +57,7 @@ The "color" type accepts #rrggbb\[aa\], rgb\[a\](), hsl\[a\](), and named colors
     "notification_rules": [
         {
             "if": { "app_name": "^vesktop$" },
-            "then": { "app_name": "Vesktop", "layout": "message" }
+            "then": { "app_name": "Vesktop", "layout": "message", "format_method": "markdown", "suppress_sound": true }
         }
     ]
 }
@@ -79,6 +80,7 @@ The condition object can have any subset of these properties
 
 The effect object can have any subset of these properties:
 - layout ("default" | "message")
+- format_method ("standard" | "markdown")
 - category (string)
 - app_name (string)
 - transient (boolean)
@@ -89,5 +91,4 @@ The effect object can have any subset of these properties:
 
 ## Dispatchers
 Some actions may be dispatched to the running instance via the `mabictl` CLI.
-- `inspect`: open the GTK Inspector
-- `quit`: exit
+Run `mabictl dispatch help` to see the available commands.
