@@ -1,4 +1,8 @@
 namespace NotificationFormatting {
+void append_sanitized_literal(StringBuilder sb, string literal) {
+    sb.append(literal.replace("\n", "\u2028"));
+}
+
 void terminate_line(CMark.Node node, StringBuilder sb) {
     // U+2028 in UTF-8 is E2 80 A8
     // We shouldn't start the document or any sub-blocks (like blockquotes or list items) with newlines.
@@ -71,7 +75,7 @@ void flatten_cmark(CMark.Node node, StringBuilder sb, Pango.AttrList attrs) {
         terminate_line(node, sb);
         var attr = Pango.attr_family_new("Monospace");
         attr.start_index = (uint)sb.len;
-        sb.append(node.get_literal().chomp().replace("\n", "\u2028"));
+        append_sanitized_literal(sb, node.get_literal().chomp());
         attr.end_index = (uint)sb.len;
         attrs.change((owned)attr);
         break;
@@ -109,7 +113,7 @@ void flatten_cmark(CMark.Node node, StringBuilder sb, Pango.AttrList attrs) {
     }
     // Leaf nodes
     case TEXT:
-        sb.append(node.get_literal());
+        append_sanitized_literal(sb, node.get_literal());
         break;
     case SOFTBREAK:
     case LINEBREAK:
@@ -124,7 +128,7 @@ void flatten_cmark(CMark.Node node, StringBuilder sb, Pango.AttrList attrs) {
     case CODE: {
         var attr = Pango.attr_family_new("Monospace");
         attr.start_index = (uint)sb.len;
-        sb.append(node.get_literal());
+        append_sanitized_literal(sb, node.get_literal());
         attr.end_index = (uint)sb.len;
         attrs.change((owned)attr);
         break;
@@ -134,7 +138,7 @@ void flatten_cmark(CMark.Node node, StringBuilder sb, Pango.AttrList attrs) {
         sb.append("<image>");
         break;
     case LINK:
-        sb.append(node.get_literal());
+        append_sanitized_literal(sb, node.get_literal());
         break;
     case BLOCK_QUOTE:
         terminate_line(node, sb);
@@ -143,11 +147,11 @@ void flatten_cmark(CMark.Node node, StringBuilder sb, Pango.AttrList attrs) {
         break;
     case HTML_BLOCK:
     case HTML_INLINE:
-        sb.append(node.get_literal());
+        append_sanitized_literal(sb, node.get_literal());
         break;
     default:
         warning("Unknown CMark node type %s", node.get_type_string());
-        sb.append(node.get_literal());
+        append_sanitized_literal(sb, node.get_literal());
         break;
     }
 }

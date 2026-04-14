@@ -107,10 +107,10 @@ class Notification : Object {
 
         switch (format_method) {
         case STANDARD:
-            this.formatted_body = NotificationFormatting.parse_standard(body);
+            this.formatted_body = NotificationFormatting.parse_standard(this.body);
             break;
         case MARKDOWN:
-            this.formatted_body = NotificationFormatting.parse_markdown(body);
+            this.formatted_body = NotificationFormatting.parse_markdown(this.body);
             break;
         }
     }
