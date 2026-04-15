@@ -10,7 +10,7 @@ class SidePanel : Gtk.Box {
         set {
             _active = value;
             if (value) {
-                calendar.select_day(new DateTime.now());
+                calendar.set_date(new DateTime.now());
             }
         }
     }
