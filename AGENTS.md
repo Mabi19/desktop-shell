@@ -28,21 +28,6 @@ rm -rf build
 uncrustify -c uncrustify.cfg --no-backup --replace shell/**/*.vala
 ```
 
-## Project Structure
-
-- `shell/` - Main source code directory
-  - `bar/` - Top bar widgets (workspaces, audio, battery, etc.)
-  - `service/` - Backend services (notifications, sound, system stats)
-  - `side-panel/` - Right popup panel (notifications, clock)
-  - `utils/` - Utility modules (colors, easing, texture cache)
-  - `widgets/` - Reusable widget components
-  - `style/` - SCSS stylesheets
-  - `*.blp` - Blueprint UI definition files
-  - `*.vala` - Vala source files
-- `build/` - Meson build output (generated)
-- `meson.build` - Build configuration
-- `uncrustify.cfg` - Code formatting rules
-
 ## Code Style Guidelines
 
 ### Naming Conventions
@@ -116,7 +101,6 @@ internal signal string handle_dispatch(string[] args);
 // Bind properties in Blueprint files
 label: bind template.speaker as <AstalWp.Endpoint>.description;
 ```
-
 ### Blueprint Files (.blp)
 - Use 4-space indentation
 - Use `bind` for reactive properties
@@ -125,21 +109,6 @@ label: bind template.speaker as <AstalWp.Endpoint>.description;
 ### SCSS/Styling
 - Organize styles by category (mostly top-level widgets) in `style/` directory
 - Main stylesheet: `style.scss` imports all others
-
-## Key Dependencies
-- GTK4, Adwaita (libadwaita-1)
-- gtk4-layer-shell (for Wayland layer shell)
-- Astal libraries (astal-4, astal-io, astal-battery, astal-hyprland, astal-tray, astal-wireplumber)
-- libgee-0.8 (collections library)
-- glycin & glycin-gtk4 (image loading)
-- json-glib-1.0 (JSON parsing)
-- gsound (sound effects)
-
-## Configuration
-- Config location: `~/.config/mabi-shell/config.json`
-- All config is optional; defaults exist for everything
-- Config auto-reloads on file changes (500ms debounce)
-- See README.md for full config schema
 
 ## Testing Notes
 There is no automated test suite, since GTK apps' UI can't be automatically tested, and there isn't much else to test here.
