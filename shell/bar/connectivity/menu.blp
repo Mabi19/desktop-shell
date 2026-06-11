@@ -1,0 +1,122 @@
+using Gtk 4.0;
+using Adw 1;
+using NM 1.0;
+
+template $ConnectivityMenu: Gtk.Popover {
+    Box {
+        orientation: vertical;
+        spacing: 8;
+
+        Box {
+            orientation: horizontal;
+            spacing: 8;
+            visible: bind $is_non_null(template.service as <$NetworkService>.ethernet);
+
+            Label {
+                label: "Ethernet";
+                halign: start;
+
+                styles [
+                    "heading",
+                ]
+            }
+
+            Label {
+                halign: end;
+                hexpand: true;
+                label: bind try {
+                    $format_ethernet_label(
+                        template.service as <$NetworkService>.ethernet as <NM.DeviceEthernet>.state,
+                        template.service as <$NetworkService>.ethernet as <NM.DeviceEthernet>.speed
+                        ),
+                    "Unavailable"
+                };
+            }
+        }
+
+        Box {
+            orientation: horizontal;
+            spacing: 8;
+            visible: bind $is_non_null(template.service as <$NetworkService>.wifi);
+
+            Label {
+                label: "Wi-Fi";
+                halign: start;
+
+                styles [
+                    "heading",
+                ]
+            }
+
+            Switch wifi_switch {
+                halign: end;
+                hexpand: true;
+            }
+        }
+
+        Box {
+            orientation: vertical;
+            spacing: 4;
+            visible: bind $is_non_null(template.service as <$NetworkService>.wifi);
+
+            ListBox active_access_point {
+                selection-mode: none;
+                activate-on-single-click: true;
+                overflow: hidden;
+                row-activated => $handle_active_row_activated();
+
+                styles [
+                    "ap-list",
+                ]
+            }
+
+            Box {
+                orientation: horizontal;
+                hexpand: true;
+                height-request: 16;
+
+                Separator {
+                    orientation: vertical;
+                    hexpand: true;
+                    valign: center;
+                }
+
+                Adw.Spinner {
+                    width-request: 16;
+                    height-request: 16;
+                    visible: bind template.service as <$NetworkService>.is-scanning;
+                }
+
+                Separator {
+                    orientation: vertical;
+                    hexpand: true;
+                    valign: center;
+                }
+            }
+
+            ScrolledWindow {
+                hexpand: true;
+                propagate-natural-width: true;
+                propagate-natural-height: true;
+                max-content-height: 300;
+                vscrollbar-policy: external;
+
+                ListBox access_points {
+                    selection-mode: none;
+                    activate-on-single-click: true;
+                    overflow: hidden;
+                    row-activated => $handle_available_row_activated();
+
+                    styles [
+                        "ap-list",
+                    ]
+                }
+            }
+        }
+
+        Button {
+            label: "Manage Connections...";
+            clicked => $open_connection_manager();
+        }
+    }
+}

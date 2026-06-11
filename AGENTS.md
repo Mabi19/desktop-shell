@@ -88,19 +88,6 @@ class Bar : Astal.Window {
 }
 ```
 
-### Signals and Properties
-```vala
-// Connect to property changes
-config.notify["primary-monitor-name"].connect(() => {
-    recompute_primary_monitor();
-});
-
-// Define internal signals
-internal signal string handle_dispatch(string[] args);
-
-// Bind properties in Blueprint files
-label: bind template.speaker as <AstalWp.Endpoint>.description;
-```
 ### Blueprint Files (.blp)
 - Use 4-space indentation
 - Use `bind` for reactive properties
@@ -110,10 +97,13 @@ label: bind template.speaker as <AstalWp.Endpoint>.description;
 - Organize styles by category (mostly top-level widgets) in `style/` directory
 - Main stylesheet: `style.scss` imports all others
 
-## Testing Notes
-There is no automated test suite, since GTK apps' UI can't be automatically tested, and there isn't much else to test here.
-
 ## Common Patterns
+
+### Looking up library APIs
+Several relatively-unknown libraries (like Astal) are used in this project.
+If you don't know a library, you can usually find its VAPI definitions in `/usr/share/vala/vapi` - these contain the library's symbols in Vala syntax, and their GIR metadata files in `/usr/share/gir` - these are XML-based and a lot more verbose, but they also contain doc comments in addition to the pure documentation. You should have read access to both of these directories.
+
+Some very common libraries, like GTK, have their VAPIs shipped with Vala, in `/usr/share/vala-{vala version}/vapi`.
 
 ### Accessing singletons
 ```vala
@@ -123,6 +113,7 @@ MabiShell.display     // GDK display
 ```
 
 ### Creating UI with static constructors
+Any widgets referenced in a Blueprint file must be registered with the type system in a `static construct` block.
 ```vala
 static construct {
     typeof(CpuIndicator).ensure();

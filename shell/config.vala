@@ -18,6 +18,7 @@ class Config : Object {
     public string time_format_long { get; set; }
     public bool notification_debug_menu { get; set; }
     public string audio_mixer_command { get; set; }
+    public string connection_manager_command { get; set; }
     public Gee.ArrayList<NotificationRule> notification_rules { get; set; }
 
     private File config_file;
@@ -61,6 +62,7 @@ class Config : Object {
         time_format_long = "%c";
         notification_debug_menu = false;
         audio_mixer_command = "pavucontrol";
+        connection_manager_command = "nm-connection-editor";
         notification_rules = new Gee.ArrayList<NotificationRule>(null);
 
         var default_vesktop_cond = new NotificationRule.Condition();
@@ -219,6 +221,7 @@ class Config : Object {
         read_bool(obj, "notification_debug_menu", "notification-debug-menu");
         read_notification_rules(obj);
         read_string(obj, "audio_mixer_command", "audio-mixer-command");
+        read_string(obj, "connection_manager_command", "connection-manager-command");
     }
 
     private void load_from_file(bool is_reload) {

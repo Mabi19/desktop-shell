@@ -38,9 +38,52 @@ button.usage-badge {
     }
 }
 
+
+// menu buttons include a button inside them
+.menubutton-usage-badge > button {
+    @include badge;
+    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
+    -gtk-icon-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
+    background-color: transparent;
+
+    &:hover {
+        background-color: rgb(15% 15% 15% / 0.08);
+    }
+
+    &:active,
+    &:checked {
+        background-color: rgb(15% 15% 15% / 0.2);
+    }
+}
+
 .icon-view-box {
     background-color: var(--view-bg-color);
     border-radius: 1em;
+}
+
+#connectivity {
+    .after-label {
+        margin-left: 4px;
+    }
+
+    .ap-list {
+        border-radius: 8px;
+    }
+
+    ap-entry {
+        min-height: 24px;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    ap-entry.known {
+        padding-right: 0;
+    }
+
+    .ap-settings {
+        padding: 0;
+        border-radius: 6px;
+    }
 }
 
 #idle-inhibit {
@@ -81,35 +124,18 @@ button.usage-badge {
     }
 }
 
-.tray-item>button {
-    background: transparent;
-    padding: 0;
+#workspaces {
+    padding: 2px 12px;
 }
 
-// menu buttons include a button inside them
-#audio-button>button {
-    @include badge;
-    text-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
-    -gtk-icon-shadow: 1px 1px 1px rgb(15% 15% 15% / 0.3);
-    background-color: transparent;
-
-    &:hover {
-        background-color: rgb(15% 15% 15% / 0.08);
-    }
-
-    &:active,
-    &:checked {
-        background-color: rgb(15% 15% 15% / 0.2);
-    }
+.tray-item > button {
+    background: transparent;
+    padding: 0;
 }
 
 #audio-quick-menu .mute-button {
     padding: 3px 7px;
     min-width: 16px;
-}
-
-#workspaces {
-    padding: 2px 12px;
 }
 
 #time-and-notifications {

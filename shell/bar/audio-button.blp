@@ -6,6 +6,10 @@ template $AudioButton: Adw.Bin {
     MenuButton {
         name: "audio-button";
 
+        styles [
+            "menubutton-usage-badge",
+        ]
+
         EventControllerScroll {
             flags: vertical | discrete | physical_direction;
             scroll => $handle_scroll();
@@ -29,7 +33,11 @@ template $AudioButton: Adw.Bin {
                         ]
 
                         Image {
-                            icon-name: bind $get_button_icon(template.speaker as <AstalWp.Endpoint>.mute, "audio-volume-muted-symbolic", "audio-speakers-symbolic") as <string>;
+                            icon-name: bind $get_button_icon(
+                                template.speaker as <AstalWp.Endpoint>.mute,
+                                "audio-volume-muted-symbolic",
+                                "audio-speakers-symbolic"
+                            ) as <string>;
                         }
                     }
 
@@ -66,7 +74,11 @@ template $AudioButton: Adw.Bin {
                         ]
 
                         Image {
-                            icon-name: bind $get_button_icon(template.microphone as <AstalWp.Endpoint>.mute, "microphone-sensitivity-muted-symbolic", "audio-input-microphone-symbolic") as <string>;
+                            icon-name: bind $get_button_icon(
+                                template.microphone as <AstalWp.Endpoint>.mute,
+                                "microphone-sensitivity-muted-symbolic",
+                                "audio-input-microphone-symbolic"
+                            ) as <string>;
                         }
                     }
 
