@@ -78,10 +78,33 @@ internal void literalize_top_of_stack(Gee.ArrayList<FormattingNode> stack) {
     popped.children.resize(0);
 }
 
+private string strip_outer_html(string raw_markup) {
+    // KDE applications wrap their markup bodies in <html>...</html>.
+    // Remove those tags if they wrap the entire body.
+    if (raw_markup.length < 6 || raw_markup[0 : 5].ascii_down() != "<html") {
+        return raw_markup;
+    }
+
+    int tag_end = 0;
+    while (tag_end < raw_markup.length && raw_markup[tag_end] != '>') {
+        tag_end++;
+    }
+    if (tag_end >= raw_markup.length) {
+        return raw_markup;
+    }
+
+    var inner = raw_markup[tag_end + 1 : raw_markup.length];
+    if (inner.length < 7 || inner[inner.length - 7 : inner.length].ascii_down() != "</html>") {
+        return raw_markup;
+    }
+
+    return inner[0 : inner.length - 7];
+}
+
 FormattedText parse_standard(string raw_markup) {
     // trim whitespace and replace \n's with unicode line separators
     // (pango treats \n as a paragraph break)
-    var markup = raw_markup.strip().replace("\n", "\u2028");
+    var markup = strip_outer_html(raw_markup.strip()).replace("\n", "\u2028");
 
     var tokens = new Gee.ArrayList<Token>();
     int i = 0;
