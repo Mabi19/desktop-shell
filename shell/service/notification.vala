@@ -410,9 +410,11 @@ class NotificationService : Object {
     /** Dismiss all stored notifications. */
     public void clear_stored() {
         var to_dismiss = stored_notifs.values.to_array();
+        freeze_notify();
         foreach (var notification in to_dismiss) {
             daemon.dismiss(notification.id);
         }
+        thaw_notify();
     }
 
     /**

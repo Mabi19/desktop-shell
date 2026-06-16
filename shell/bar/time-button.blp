@@ -16,16 +16,16 @@ template $TimeButton: Gtk.Button {
 
         Box {
             Image {
-                icon-name: bind $get_bell_icon(template.notifications as <$NotificationService>.dont-disturb) as <string>;
+                icon-name: bind $get_bell_icon(
+                    template.notifications as <$NotificationService>.dont-disturb
+                    ) as <string>;
             }
 
-            Revealer {
-                reveal-child: bind template.notifications as <$NotificationService>.stored_count as <uint>;
+            Revealer count_revealer {
                 transition-type: swing_right;
 
-                Label {
+                Label count_label {
                     margin-start: 4;
-                    label: bind template.notifications as <$NotificationService>.stored_count as <uint>;
                 }
             }
         }
