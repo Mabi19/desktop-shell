@@ -390,6 +390,7 @@ class NetworkService : Object {
             update_devices();
             _client.notify["devices"].connect(update_devices);
             _client.notify["primary-connection"].connect(update_devices);
+            _client.notify["active-connections"].connect(update_devices);
             _client.notify["connections"].connect(on_connections_changed);
             _client.notify["wireless-enabled"].connect(() => {
                 notify_property("wireless-enabled");
