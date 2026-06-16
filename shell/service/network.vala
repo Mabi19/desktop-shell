@@ -315,23 +315,12 @@ class NetworkService : Object {
 
     private void on_connections_changed() {
         foreach (var entry in ssid_map) {
-            entry.value.connection = find_connection_for_network(entry.value);
-        }
-        sort_wifi_networks();
-    }
-
-    private NM.RemoteConnection? find_connection_for_network(WifiNetwork network) {
-        if (client == null || network.best_ap == null) {
-            return null;
-        }
-        var connections = client.get_connections();
-        for (uint i = 0; i < connections.length; i++) {
-            var conn = connections.get(i);
-            if (network.best_ap.connection_valid(conn)) {
-                return conn;
+            var best_ap = entry.value.best_ap;
+            if (best_ap != null) {
+                entry.value.connection = find_connection_for_ap(entry.value.best_ap);
             }
         }
-        return null;
+        sort_wifi_networks();
     }
 
     private NM.RemoteConnection? find_connection_for_ap(NM.AccessPoint ap) {
