@@ -57,54 +57,115 @@ class NetworkService : Object {
         is_available = (client != null && (ethernet != null || wifi != null));
     }
 
+    private bool device_has_primary_connection(NM.Device device) {
+        if (client == null || client.primary_connection == null) {
+            return false;
+        }
+
+        foreach (var primary_device in client.primary_connection.devices) {
+            if (device == primary_device) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void update_primary() {
-        if (client == null || client.primary_connection == null || wifi == null) {
+        if (client == null || client.primary_connection == null || (wifi == null && ethernet == null)) {
             wifi_is_primary = false;
-            update_primary_interface();
+            primary_interface = null;
             return;
         }
 
+        bool wifi_in_primary = false;
+        bool ethernet_in_primary = false;
         foreach (var device in client.primary_connection.devices) {
             if (device == wifi) {
-                wifi_is_primary = true;
-                update_primary_interface();
-                return;
+                wifi_in_primary = true;
+            }
+            if (device == ethernet) {
+                ethernet_in_primary = true;
             }
         }
-        wifi_is_primary = false;
-        update_primary_interface();
-    }
 
-    private void update_primary_interface() {
-        if (wifi_is_primary && wifi != null) {
+        if (ethernet_in_primary) {
+            wifi_is_primary = false;
+            primary_interface = ethernet.interface;
+        } else if (wifi_in_primary) {
+            wifi_is_primary = true;
             primary_interface = wifi.interface;
         } else {
-            primary_interface = ethernet?.interface;
+            wifi_is_primary = false;
+            primary_interface = null;
         }
+    }
+
+    private int device_priority(NM.Device device) {
+        switch (device.state) {
+        case NM.DeviceState.ACTIVATED:
+            if (device.ip4_connectivity == FULL || device.ip6_connectivity == FULL) {
+                return 900;
+            }
+            return 800;
+        case NM.DeviceState.DISCONNECTED:
+            return 700;
+        case NM.DeviceState.UNAVAILABLE:
+            return 600;
+            default:
+            return 0;
+        }
+    }
+
+    private bool should_replace_device(NM.Device current, int current_priority, NM.Device candidate, int candidate_priority) {
+        if (candidate_priority > current_priority) {
+            return true;
+        }
+        if (candidate_priority < current_priority) {
+            return false;
+        }
+        return candidate.interface.collate(current.interface) < 0;
     }
 
     private void update_devices() {
-        // TODO: Consider handling having multiple devices of each type?
-
         NM.DeviceEthernet? new_ethernet = null;
         NM.DeviceWifi? new_wifi = null;
+        int ethernet_priority = -1;
+        int wifi_priority = -1;
+
         foreach (var device in client.devices) {
+            int priority = device_priority(device);
+            if (device_has_primary_connection(device)) {
+                priority += 1000;
+            }
+
             switch (device.device_type) {
             case NM.DeviceType.ETHERNET:
-                new_ethernet = (NM.DeviceEthernet)device;
+                if (new_ethernet == null || should_replace_device(new_ethernet, ethernet_priority, device, priority)) {
+                    new_ethernet = (NM.DeviceEthernet)device;
+                    ethernet_priority = priority;
+                }
                 break;
             case NM.DeviceType.WIFI:
-                new_wifi = (NM.DeviceWifi)device;
+                if (new_wifi == null || should_replace_device(new_wifi, wifi_priority, device, priority)) {
+                    new_wifi = (NM.DeviceWifi)device;
+                    wifi_priority = priority;
+                }
                 break;
-                default:
+            default:
                 break;
             }
         }
 
         if (ethernet != new_ethernet) {
+            if (new_ethernet != null) {
+                debug("Selected ethernet device: %s (priority %d)", new_ethernet.interface, ethernet_priority);
+            }
             ethernet = new_ethernet;
         }
         if (wifi != new_wifi) {
+            if (new_wifi != null) {
+                debug("Selected Wi-Fi device: %s (priority %d)", new_wifi.interface, wifi_priority);
+            }
             wifi = new_wifi;
             is_scanning = false;
 
@@ -339,7 +400,7 @@ class NetworkService : Object {
             _client = yield new NM.Client.async(null);
             update_devices();
             _client.notify["devices"].connect(update_devices);
-            _client.notify["primary-connection"].connect(update_primary);
+            _client.notify["primary-connection"].connect(update_devices);
             _client.notify["connections"].connect(on_connections_changed);
             _client.notify["wireless-enabled"].connect(() => {
                 notify_property("wireless-enabled");
