@@ -86,7 +86,7 @@ class ConnectivityIndicator : LevelBin {
         name = "connectivity";
 
         service = NetworkService.get_default();
-        service.bind_property("is_available", this, "visible", BindingFlags.SYNC_CREATE);
+        service.bind_property("is-available", this, "visible", BindingFlags.SYNC_CREATE);
 
         menubutton = new Gtk.MenuButton();
         menubutton.add_css_class("menubutton-usage-badge");
