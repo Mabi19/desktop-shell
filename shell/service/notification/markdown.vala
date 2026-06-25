@@ -140,11 +140,22 @@ void flatten_cmark(CMark.Node node, StringBuilder sb, Pango.AttrList attrs) {
     case LINK:
         append_sanitized_literal(sb, node.get_literal());
         break;
-    case BLOCK_QUOTE:
+    case BLOCK_QUOTE: {
         terminate_line(node, sb);
-        sb.append("> ");
+        // Preserve the original spacing after '>'. A bare ">:" (as in the
+        // ">:(" emoticon) is parsed as a blockquote by CommonMark; cmark
+        // drops the marker but, with SOURCEPOS, the first child's start
+        // column tells us whether a space/tab followed '>' in the source.
+        // If the first child starts immediately after '>', emit no space.
+        unowned CMark.Node? first = node.first_child();
+        if (first != null && first.get_start_column() == node.get_start_column() + 1) {
+            sb.append(">");
+        } else {
+            sb.append("> ");
+        }
         flatten_cmark_children(node, sb, attrs);
         break;
+    }
     case HTML_BLOCK:
     case HTML_INLINE:
         append_sanitized_literal(sb, node.get_literal());
@@ -158,7 +169,7 @@ void flatten_cmark(CMark.Node node, StringBuilder sb, Pango.AttrList attrs) {
 
 FormattedText parse_markdown(string raw_markdown) {
     var markdown = raw_markdown.strip();
-    var root = CMark.parse_document(markdown, markdown.length, CMark.Option.DEFAULT);
+    var root = CMark.parse_document(markdown, markdown.length, CMark.Option.DEFAULT | CMark.Option.SOURCEPOS);
     var sb = new StringBuilder();
     var attrs = new Pango.AttrList();
 
