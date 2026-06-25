@@ -46,7 +46,12 @@ compiled_ui = custom_target(
 resource = gnome.compile_resources(
     'shell-data',
     files('mabi-shell.gresource.xml'),
-    dependencies: [compiled_styles, compiled_ui],
+    # We include the NMA VAPI as a dependency here.
+    # Including it in the executable or declared dependency means that it'll be put into the source list,
+    # which makes valac emit a warning.
+    # Depending on it here still makes the dependency work,
+    # but the vapi file does not do anything for resource generation.
+    dependencies: [compiled_styles, compiled_ui, libnma_gtk4_vapi],
     source_dir: meson.current_build_dir(),
 )
 

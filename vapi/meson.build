@@ -3,7 +3,7 @@ g_ir_dep = dependency('gobject-introspection-1.0')
 gir_dir = g_ir_dep.get_variable('girdir')
 
 # A fake target to build a custom libnma-gtk4 VAPI, because the packaged one is wrong.
-custom_target(
+libnma_gtk4_vapi = custom_target(
     'libnma-gtk4-vapi',
     command: [
         vapigen,
