@@ -10,6 +10,7 @@ class BluetoothButtonItem : Gtk.Box {
     public BluetoothButtonItem(AstalBluetooth.Device device) {
         this.device = device;
         spacing = 4;
+        margin_start = 6;
 
         icon = new Gtk.Image();
         device.bind_property("icon", icon, "icon-name", BindingFlags.SYNC_CREATE);

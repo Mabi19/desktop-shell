@@ -17,14 +17,14 @@ class BluetoothIndicator : LevelBin {
         menubutton = new Gtk.MenuButton();
         menubutton.add_css_class("menubutton-usage-badge");
 
-        outer_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 6);
+        outer_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
         menubutton.set_child(outer_box);
 
         icon = new Gtk.Image();
         service.bind_property("is-powered", icon, "icon-name", BindingFlags.SYNC_CREATE, get_bluetooth_icon, null);
         outer_box.append(icon);
 
-        items = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 4);
+        items = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
         items_binding = new ModelBoxBinding<AstalBluetooth.Device>(items, service.connected_devices, BluetoothButtonItem.create);
         outer_box.append(items);
 
