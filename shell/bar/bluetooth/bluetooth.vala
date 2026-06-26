@@ -13,6 +13,7 @@ class BluetoothIndicator : LevelBin {
 
         service = BluetoothService.get_default();
         service.bind_property("is-available", this, "visible", BindingFlags.SYNC_CREATE);
+        service.bind_property("min-battery", this, "level", BindingFlags.SYNC_CREATE);
 
         menubutton = new Gtk.MenuButton();
         menubutton.add_css_class("menubutton-usage-badge");

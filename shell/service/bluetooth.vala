@@ -26,6 +26,7 @@ class BluetoothService : Object {
         }
     }
     public ListStore connected_devices { get; private set; }
+    public double min_battery { get; private set; }
 
     public BluetoothService() {
         assert_null(instance);
@@ -91,14 +92,31 @@ class BluetoothService : Object {
         }
     }
 
+    private void update_min_battery() {
+        var new_min_battery = 9999.0;
+        foreach (var device in bluetooth.devices) {
+            if (device.battery_percentage != -1) {
+                new_min_battery = double.min(new_min_battery, device.battery_percentage);
+            }
+        }
+        if (new_min_battery == 9999.0) {
+            new_min_battery = 0;
+        }
+        min_battery = new_min_battery;
+    }
+
     private void handle_device_add(AstalBluetooth.Device device) {
         device.notify["connected"].connect(handle_device_connected);
+        device.notify["battery-percentage"].connect(update_min_battery);
         if (device.connected) {
             add_device_to_set(connected_devices, device);
         }
+        update_min_battery();
     }
 
     private void handle_device_remove(AstalBluetooth.Device device) {
         device.notify["connected"].disconnect(handle_device_connected);
+        device.notify["battery-percentage"].disconnect(update_min_battery);
+        update_min_battery();
     }
 }
