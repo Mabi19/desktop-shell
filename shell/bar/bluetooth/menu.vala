@@ -1,0 +1,104 @@
+class BluetoothDeviceEntry : Gtk.Box {
+    private Gtk.Image icon;
+    private Gtk.Label label;
+    private Adw.Spinner spinner;
+
+    private AstalBluetooth.Device _device;
+    public AstalBluetooth.Device device {
+        get {
+            return _device;
+        }
+        construct {
+            _device = value;
+        }
+    }
+
+    static construct {
+        set_css_name("bt-entry");
+    }
+
+    construct {
+        spacing = 8;
+
+        icon = new Gtk.Image.from_icon_name(_device.icon);
+        _device.bind_property("icon", icon, "icon-name", BindingFlags.DEFAULT);
+        append(icon);
+        label = new Gtk.Label(_device.alias);
+        _device.bind_property("alias", label, "label", BindingFlags.DEFAULT);
+        label.hexpand = true;
+        label.halign = START;
+        append(label);
+        spinner = new Adw.Spinner();
+        _device.bind_property("connecting", spinner, "visible", BindingFlags.SYNC_CREATE);
+        append(spinner);
+    }
+
+    public BluetoothDeviceEntry(AstalBluetooth.Device device) {
+        Object(device: device);
+    }
+}
+
+[GtkTemplate(ui = "/land/mabi/shell/ui/bar/bluetooth/menu.ui")]
+class BluetoothMenu : Gtk.Popover {
+    internal BluetoothService service { get; private set; }
+
+    [GtkChild]
+    private unowned Gtk.ListBox connected_devices;
+    [GtkChild]
+    private unowned Gtk.ListBox paired_devices;
+    [GtkChild]
+    private unowned Gtk.Switch powered_switch;
+
+    private Gtk.Widget create_device_widget(Object device_obj) {
+        var device = (AstalBluetooth.Device)device_obj;
+        var entry = new BluetoothDeviceEntry(device);
+        return entry;
+    }
+
+
+    [GtkCallback]
+    void handle_connected_row_activated(Gtk.ListBoxRow row) {
+        var entry = (BluetoothDeviceEntry)row.get_child();
+        entry.device.disconnect_device.begin();
+    }
+
+    private async void connect_to_device(AstalBluetooth.Device device) {
+        if (!device.connecting) {
+            try {
+                yield device.connect_device();
+            } catch (Error e) {
+                warning("Couldn't connect to Bluetooth device: %s", e.message);
+            }
+        }
+    }
+
+    [GtkCallback]
+    void handle_paired_row_activated(Gtk.ListBoxRow row) {
+        var entry = (BluetoothDeviceEntry)row.get_child();
+        connect_to_device.begin(entry.device);
+    }
+
+    [GtkCallback]
+    void open_device_manager() {
+        try {
+            Process.spawn_command_line_async("overskride");
+            popdown();
+        } catch (SpawnError e) {
+            warning("Couldn't spawn device manager process: %s\n", e.message);
+        }
+    }
+
+    construct {
+        service = BluetoothService.get_default();
+        connected_devices.bind_model(service.connected_devices, create_device_widget);
+
+        service.bind_property("is-powered", powered_switch, "active",
+                              BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
+
+    }
+
+    public override void dispose() {
+        dispose_template(typeof(ConnectivityMenu));
+        base.dispose();
+    }
+}

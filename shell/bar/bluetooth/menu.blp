@@ -1,0 +1,79 @@
+using Gtk 4.0;
+using Adw 1;
+using AstalBluetooth 0.1;
+
+template $BluetoothMenu: Gtk.Popover {
+    Box {
+        orientation: vertical;
+        spacing: 8;
+
+        Box {
+            orientation: horizontal;
+            spacing: 8;
+
+            Label {
+                label: "Bluetooth";
+                halign: start;
+
+                styles [
+                    "heading",
+                ]
+            }
+
+            Switch powered_switch {
+                halign: end;
+                hexpand: true;
+            }
+        }
+
+        Box {
+            orientation: vertical;
+            spacing: 4;
+
+            ListBox connected_devices {
+                selection-mode: none;
+                activate-on-single-click: true;
+                overflow: hidden;
+                row-activated => $handle_connected_row_activated();
+
+                styles [
+                    "bt-device-list",
+                ]
+            }
+
+            Adw.Bin {
+                height-request: 16;
+
+                Separator {
+                    orientation: vertical;
+                    hexpand: true;
+                    valign: center;
+                }
+            }
+
+            ScrolledWindow {
+                hexpand: true;
+                propagate-natural-width: true;
+                propagate-natural-height: true;
+                max-content-height: 300;
+                vscrollbar-policy: external;
+
+                ListBox paired_devices {
+                    selection-mode: none;
+                    activate-on-single-click: true;
+                    overflow: hidden;
+                    row-activated => $handle_paired_row_activated();
+
+                    styles [
+                        "bt-device-list",
+                    ]
+                }
+            }
+        }
+
+        Button {
+            label: "Manage Devices...";
+            clicked => $open_device_manager();
+        }
+    }
+}

@@ -17,6 +17,7 @@ class BluetoothIndicator : LevelBin {
 
         menubutton = new Gtk.MenuButton();
         menubutton.add_css_class("menubutton-usage-badge");
+        menubutton.popover = new BluetoothMenu();
 
         outer_box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
         menubutton.set_child(outer_box);
