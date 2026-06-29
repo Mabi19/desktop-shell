@@ -90,6 +90,7 @@ class BluetoothService : Object {
         } else {
             remove_device_from_set(connected_devices, device);
         }
+        update_min_battery();
     }
 
     private void update_min_battery() {
@@ -107,11 +108,13 @@ class BluetoothService : Object {
 
     private void handle_device_add(AstalBluetooth.Device device) {
         device.notify["connected"].connect(handle_device_connected);
+        // Tracking it in here is easier, and this doesn't run often enough to make a difference
+        // I don't think unpaired devices even have this anyway
         device.notify["battery-percentage"].connect(update_min_battery);
         if (device.connected) {
             add_device_to_set(connected_devices, device);
+            update_min_battery();
         }
-        update_min_battery();
     }
 
     private void handle_device_remove(AstalBluetooth.Device device) {
