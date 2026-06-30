@@ -1,6 +1,5 @@
 using Gtk 4.0;
 using Adw 1;
-using AstalBluetooth 0.1;
 
 template $BluetoothMenu: Gtk.Popover {
     Box {
@@ -74,6 +73,7 @@ template $BluetoothMenu: Gtk.Popover {
         Button {
             label: "Manage Devices...";
             clicked => $open_device_manager();
+            visible: bind template.has-bluetooth-manager;
         }
     }
 }

@@ -10,6 +10,7 @@ workspace widget scrolling, and workspace drag'n'drop (to move them between moni
 Required things:
 - libastal (+ some of its extra libraries)
 - libgee
+- libnma-gtk4
 - glycin & glycin-gtk4
 - json-glib
 - gsound
@@ -17,6 +18,7 @@ Required things:
 - Hyprland (0.53+)
 - GNOME System Monitor
 - pavucontrol
+- nm-connection-editor
 
 ## Installation
 Included is a `meson.build` file allowing this project to be built and installed with Meson.
@@ -53,6 +55,8 @@ The "color" type accepts #rrggbb\[aa\], rgb\[a\](), hsl\[a\](), and named colors
     "notification_debug_menu": false, // boolean
     /** The command to execute when the "Open Audio Mixer" button is clicked. */
     "audio_mixer_command": "pavucontrol", // string
+    /** The command to execute when the "Manage Devices" button is clicked. This needs to be set for the button to appear. */
+    "bluetooth_manager_command": null, // string | null
     /** Notification rules (see below) */
     "notification_rules": [
         {
