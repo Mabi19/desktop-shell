@@ -7,6 +7,7 @@ class Bar : Astal.Window {
         typeof(CpuIndicator).ensure();
         typeof(MemoryIndicator).ensure();
         typeof(ConnectivityIndicator).ensure();
+        typeof(BluetoothIndicator).ensure();
         typeof(IdleInhibitIndicator).ensure();
         typeof(WorkspaceBox).ensure();
         typeof(PowerButton).ensure();

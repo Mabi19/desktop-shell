@@ -206,7 +206,7 @@ class ConnectivityMenu : Gtk.Popover {
     [GtkCallback]
     void open_connection_manager() {
         try {
-            Process.spawn_command_line_async(MabiShell.config.connection_manager_command);
+            Process.spawn_command_line_async("nm-connection-editor");
             popdown();
         } catch (SpawnError e) {
             warning("Couldn't spawn connection manager process: %s\n", e.message);
