@@ -105,6 +105,7 @@ class BluetoothMenu : Gtk.Popover {
     construct {
         service = BluetoothService.get_default();
         connected_devices.bind_model(service.connected_devices, create_device_widget);
+        paired_devices.bind_model(service.paired_devices, create_device_widget);
 
         service.bind_property("is-powered", powered_switch, "active",
                               BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);

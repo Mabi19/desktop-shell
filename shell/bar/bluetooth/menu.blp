@@ -28,6 +28,7 @@ template $BluetoothMenu: Gtk.Popover {
         Box {
             orientation: vertical;
             spacing: 4;
+            visible: bind template.service as <$BluetoothService>.is-powered;
 
             ListBox connected_devices {
                 selection-mode: none;
