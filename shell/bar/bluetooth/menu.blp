@@ -71,10 +71,9 @@ template $BluetoothMenu: Gtk.Popover {
             }
         }
 
-        Button {
+        Button open_manager_button {
             label: "Manage Devices...";
             clicked => $open_device_manager();
-            visible: bind template.has-bluetooth-manager;
         }
     }
 }

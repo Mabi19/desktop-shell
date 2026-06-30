@@ -41,11 +41,6 @@ class BluetoothDeviceEntry : Gtk.Box {
 [GtkTemplate(ui = "/land/mabi/shell/ui/bar/bluetooth/menu.ui")]
 class BluetoothMenu : Gtk.Popover {
     internal BluetoothService service { get; private set; }
-    internal bool has_bluetooth_manager {
-        get {
-            return MabiShell.config.bluetooth_manager_command != null;
-        }
-    }
 
     [GtkChild]
     private unowned Gtk.ListBox connected_devices;
@@ -53,6 +48,8 @@ class BluetoothMenu : Gtk.Popover {
     private unowned Gtk.ListBox paired_devices;
     [GtkChild]
     private unowned Gtk.Switch powered_switch;
+    [GtkChild]
+    private unowned Gtk.Button open_manager_button;
 
     private Gtk.Widget create_device_widget(Object device_obj) {
         var device = (AstalBluetooth.Device)device_obj;
@@ -99,7 +96,13 @@ class BluetoothMenu : Gtk.Popover {
     }
 
     private void handle_bt_manager_change() {
-        notify_property("has-bluetooth-manager");
+        if (MabiShell.config.bluetooth_manager_command != null) {
+            open_manager_button.sensitive = true;
+            open_manager_button.tooltip_text = null;
+        } else {
+            open_manager_button.sensitive = false;
+            open_manager_button.tooltip_text = "This requires bluetooth_manager_command to be set in the config";
+        }
     }
 
     construct {
@@ -111,6 +114,7 @@ class BluetoothMenu : Gtk.Popover {
                               BindingFlags.BIDIRECTIONAL | BindingFlags.SYNC_CREATE);
 
         MabiShell.config.notify["bluetooth-manager-command"].connect(handle_bt_manager_change);
+        handle_bt_manager_change();
     }
 
     public override void dispose() {
