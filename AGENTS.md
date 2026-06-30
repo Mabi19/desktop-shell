@@ -45,21 +45,6 @@ uncrustify -c uncrustify.cfg --no-backup --replace shell/**/*.vala
 public Gdk.Monitor? primary_monitor { get; private set; }
 ```
 
-### Error Handling
-```vala
-// Use errordomain for custom errors
-errordomain ConfigError {
-    INVALID_STRUCTURE,
-}
-
-// Throw errors with descriptive messages
-throw new ConfigError.INVALID_STRUCTURE("Root must be object");
-
-// Use warning() for recoverable issues, error() for fatal issues
-warning("Config: key '%s' has wrong type (should be string)", key);
-error("Couldn't get GDK display");  // This terminates the program
-```
-
 ### Object Construction
 ```vala
 // Widget subclasses must use GObject-style construction
@@ -92,10 +77,6 @@ class Bar : Astal.Window {
 - Use 4-space indentation
 - Use `bind` for reactive properties
 - Signal handlers use `=>` syntax: `clicked => $open_audio_mixer();`
-
-### SCSS/Styling
-- Organize styles by category (mostly top-level widgets) in `style/` directory
-- Main stylesheet: `style.scss` imports all others
 
 ## Common Patterns
 
@@ -144,3 +125,6 @@ dnd_button.toggled.connect(() => {
     svc.dont_disturb = dnd_button.active;
 });
 ```
+
+### Connecting to signals
+Avoid connecting to signals with lambda (`() => {}`) functions. These take hard references on their captures and it's easy to make reference cycles with them. Connecting using a GObject method as the handler instead uses the g_signal_connect_object function, which does not take a reference and the signal handler is automatically cleaned up when either of the objects are destroyed.
