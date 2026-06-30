@@ -114,7 +114,7 @@ class BluetoothMenu : Gtk.Popover {
     }
 
     public override void dispose() {
-        dispose_template(typeof(ConnectivityMenu));
+        dispose_template(typeof(BluetoothMenu));
         base.dispose();
     }
 }
