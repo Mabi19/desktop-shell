@@ -12,6 +12,10 @@ class TimeButton : Gtk.Button {
         typeof(TimeService).ensure();
     }
 
+    public TimeButton(Gdk.Monitor monitor) {
+        Object(gdkmonitor: monitor);
+    }
+
     construct {
         service = TimeService.get_default();
         notifications = NotificationService.get_default();
