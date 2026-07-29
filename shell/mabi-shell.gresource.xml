@@ -12,7 +12,6 @@
     </gresource>
     <gresource prefix="/land/mabi/shell/ui">
         <file>bar/audio-button.ui</file>
-        <file>bar/bar.ui</file>
         <file>bar/battery.ui</file>
         <file>bar/bluetooth/menu.ui</file>
         <file>bar/connectivity/menu.ui</file>

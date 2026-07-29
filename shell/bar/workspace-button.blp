@@ -1,16 +1,14 @@
 using Gtk 4.0;
 using Adw 1;
-using AstalHyprland 0.1;
+using AstalWorkspace 0.1;
 
 template $WorkspaceButton: Adw.Bin {
     styles [
         "workspace",
     ]
 
-    visible: bind template.is-on-this-monitor;
-
     Label {
-        label: bind $format_workspace_id(template.workspace as <AstalHyprland.Workspace>.id) as <string>;
+        label: bind template.workspace as <AstalWorkspace.Workspace>.name;
     }
 
     GestureClick {

@@ -18,7 +18,6 @@ compiled_styles = custom_target(
 
 blueprint_src = files(
     'bar/audio-button.blp',
-    'bar/bar.blp',
     'bar/battery.blp',
     'bar/bluetooth/menu.blp',
     'bar/cpu-indicator.blp',
@@ -88,7 +87,6 @@ shell_src = files(
     'service/system-usage.vala',
     'service/time.vala',
     'service/wifi-network.vala',
-    'service/workspace.vala',
     'side-panel/notification-list.vala',
     'side-panel/notification-widget.vala',
     'side-panel/precise-clock.vala',
@@ -114,8 +112,11 @@ executable(
         astal_bluetooth_dep,
         astal_cava_dep,
         astal_battery_dep,
-        astal_hyprland_dep,
         astal_tray_dep,
+        astal_wl_dep, # Not needed once the deps files come in I think.
+        wl_dep, # Same as above.
+        gtk_wl_dep, # For debugging.
+        astal_workspace_dep,
         astal_wp_dep,
         adw_dep,
         gee_dep,
