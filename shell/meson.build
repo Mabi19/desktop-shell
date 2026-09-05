@@ -114,6 +114,7 @@ executable(
         astal_battery_dep,
         astal_tray_dep,
         astal_wl_dep, # Not needed once the deps files come in I think.
+        astal_wl4_dep,
         wl_dep, # Same as above.
         gtk_wl_dep, # For debugging.
         astal_workspace_dep,
