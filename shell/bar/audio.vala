@@ -48,7 +48,9 @@ class AudioButton : Adw.Bin {
     public AstalWp.Endpoint speaker { get; construct; }
     public AstalWp.Endpoint microphone { get; construct; }
     private AstalCava.Cava cava;
+    private static bool has_init_cava = false;
     private const int BAR_COUNT = 16;
+    private bool has_warned_on_bad_value = false;
 
     [GtkChild]
     unowned Gtk.Popover popover;
@@ -62,7 +64,10 @@ class AudioButton : Adw.Bin {
         speaker = service.get_default_speaker();
         microphone = service.get_default_microphone();
         cava = AstalCava.get_default();
-        cava.bars = BAR_COUNT;
+        if (!has_init_cava) {
+            cava.bars = BAR_COUNT;
+            has_init_cava = true;
+        }
         cava.notify["values"].connect(this.queue_draw);
         MabiShell.config.notify["theme-inactive"].connect(this.queue_draw);
         MabiShell.config.notify["theme-active"].connect(this.queue_draw);
@@ -104,7 +109,18 @@ class AudioButton : Adw.Bin {
         float values[BAR_COUNT];
         // adjust values to make a nicer graph
         for (int i = 0; i < BAR_COUNT; i++) {
-            values[i] = (float)Math.pow(raw_values.index(i).clamp(0.0, 1.0), 0.6);
+            var val = raw_values.index(i);
+            if (!has_warned_on_bad_value) {
+                if (val.is_nan()) {
+                    warning("Cava value %d has value NaN\n", i);
+                    has_warned_on_bad_value = true;
+                } else if (!val.is_finite()) {
+                    warning("Cava value %d has non-finite value\n", i);
+                    has_warned_on_bad_value = true;
+                }
+            }
+
+            values[i] = (float)Math.pow(val.clamp(0.0, 1.0), 0.6);
         }
         uint bars = values.length;
         float bar_width = width / (bars - 1.0f);
