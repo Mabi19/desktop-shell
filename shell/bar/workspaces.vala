@@ -115,15 +115,15 @@ class WorkspaceBox : Gtk.Box {
 
         var workspace = (Workspace)sorted_ws.get_item(adjusted_index);
         print("found scrolled workspace with name %s\n", workspace.name);
-        // This makes some scroll events wait until something else happens for some reason??
-        workspace.activate();
 
-        // Manually calling hyprctl like this makes it work properly.
-        //  try {
-        //      Process.spawn_command_line_sync(@"hyprctl dispatch workspace $(workspace.name)", null, null, null);
-        //  } catch (SpawnError e) {
-        //      critical("SpawnError: %s", e.message);
-        //  }
+        //! WORKAROUND: Due to GTK bug #8331, scrolling is delayed when switching like this.
+        // workspace.activate();
+        // Instead, Manually calling hyprctl like this makes it work properly.
+        try {
+            Process.spawn_command_line_sync(@"hyprctl dispatch workspace $(workspace.name)", null, null, null);
+        } catch (SpawnError e) {
+            critical("SpawnError: %s", e.message);
+        }
 
         return true;
 
