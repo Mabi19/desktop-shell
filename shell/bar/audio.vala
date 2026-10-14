@@ -66,7 +66,19 @@ class AudioButton : Adw.Bin {
         cava = AstalCava.get_default();
         if (!has_init_cava) {
             cava.bars = BAR_COUNT;
+            cava.input = PULSE;
             has_init_cava = true;
+
+            //  Timeout.add_once(500, () => {
+            //      int i = 0;
+            //      Timeout.add(20, () => {
+            //          print("cava check %d\n", i);
+            //          i++;
+            //          cava.bars = BAR_COUNT;
+            //          return i < 100 ? GLib.Source.CONTINUE : GLib.Source.REMOVE;
+            //      });
+            //  });
+
         }
         cava.notify["values"].connect(this.queue_draw);
         MabiShell.config.notify["theme-inactive"].connect(this.queue_draw);
