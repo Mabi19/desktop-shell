@@ -79,11 +79,11 @@ class WorkspaceBox : Gtk.Box {
         add_controller(drop_target);
 
         manager = AstalWorkspace.get_default();
-        AstalWl4.get_wl_output.begin(gdkmonitor, bind_workspaces_finish);
+        AstalWl4.find_output_by_gdk_monitor.begin(gdkmonitor, bind_workspaces_finish);
     }
 
     private void bind_workspaces_finish(Object? o, AsyncResult? res) {
-        workspaces = manager.for_output(AstalWl4.get_wl_output.end(res));
+        workspaces = manager.for_output(AstalWl4.find_output_by_gdk_monitor.end(res));
 
         var sorter = new Gtk.StringSorter(new Gtk.PropertyExpression(typeof(Workspace), null, "name"));
         sorter.collation = NONE;
