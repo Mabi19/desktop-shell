@@ -14,9 +14,9 @@
         <file>bar/audio-button.ui</file>
         <file>bar/battery.ui</file>
         <file>bar/bluetooth/menu.ui</file>
-        <file>bar/connectivity/menu.ui</file>
         <file>bar/cpu-indicator.ui</file>
         <file>bar/memory-indicator.ui</file>
+        <file>bar/network/menu.ui</file>
         <file>bar/power-button.ui</file>
         <file>bar/time-button.ui</file>
         <file>bar/tray-item.ui</file>

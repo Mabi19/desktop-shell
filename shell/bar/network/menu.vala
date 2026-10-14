@@ -76,7 +76,7 @@ class AccessPointEntry : Gtk.Box {
     }
 }
 
-[GtkTemplate(ui = "/land/mabi/shell/ui/bar/connectivity/menu.ui")]
+[GtkTemplate(ui = "/land/mabi/shell/ui/bar/network/menu.ui")]
 class ConnectivityMenu : Gtk.Popover {
     internal NetworkService service { get; private set; }
 
